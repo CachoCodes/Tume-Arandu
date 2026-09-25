@@ -1,0 +1,657 @@
+{
+  "schemaVersion": 1,
+  "id": "trigonometry-guarani",
+  "locale": "es",
+  "title": "Matemáticas: trigonometría",
+  "lessons": [
+    {
+      "id": "angles",
+      "title": "Medida de los ángulos",
+      "objective": "Aprende cómo se miden los ángulos y qué es un ángulo recto.",
+      "xpReward": 100,
+      "theory": [
+        {
+          "type": "text",
+          "body": "Un ángulo se forma con dos semirrectas que parten de un mismo punto, llamado vértice."
+        },
+        {
+          "type": "formula",
+          "body": "90° = ángulo recto · 180° = ángulo llano"
+        }
+      ],
+      "exercises": [
+        {
+          "id": "angles-choice",
+          "type": "multiple_choice",
+          "prompt": "¿Cuántos grados tiene un ángulo recto?",
+          "hint": "Fíjate en la fórmula.",
+          "solutionSteps": [
+            "Un ángulo recto equivale a un cuarto de vuelta.",
+            "Una vuelta tiene 360°, así que 360° ÷ 4 = 90°."
+          ],
+          "options": [
+            {
+              "id": "45",
+              "text": "45°"
+            },
+            {
+              "id": "90",
+              "text": "90°"
+            },
+            {
+              "id": "180",
+              "text": "180°"
+            }
+          ],
+          "correctOptionId": "90"
+        },
+        {
+          "id": "angles-input",
+          "type": "input",
+          "prompt": "Escribe el número: ¿cuántos grados tiene un ángulo llano?",
+          "hint": "Equivale a media vuelta.",
+          "solutionSteps": [
+            "Una vuelta tiene 360°.",
+            "Media vuelta es 360° ÷ 2 = 180°."
+          ],
+          "acceptedAnswers": [
+            "180",
+            "180°"
+          ]
+        },
+        {
+          "id": "angles-match",
+          "type": "matching",
+          "prompt": "Toca una medida y el dibujo del ángulo que le corresponde.",
+          "hint": "Si mide menos de 90°, es agudo.",
+          "solutionSteps": [
+            "45° < 90°, así que es agudo.",
+            "90° es recto; 180° es llano."
+          ],
+          "leftItems": [
+            {
+              "id": "forty-five",
+              "text": "45°"
+            },
+            {
+              "id": "ninety",
+              "text": "90°"
+            },
+            {
+              "id": "one-eighty",
+              "text": "180°"
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "acute",
+              "text": "Agudo"
+            },
+            {
+              "id": "right",
+              "text": "Recto"
+            },
+            {
+              "id": "straight",
+              "text": "Llano"
+            }
+          ],
+          "pairs": [
+            {
+              "leftId": "forty-five",
+              "rightId": "acute"
+            },
+            {
+              "leftId": "ninety",
+              "rightId": "right"
+            },
+            {
+              "leftId": "one-eighty",
+              "rightId": "straight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ratios",
+      "title": "Seno, coseno y tangente",
+      "objective": "Usa las relaciones entre los lados para calcular seno, coseno y tangente.",
+      "xpReward": 100,
+      "theory": [
+        {
+          "type": "text",
+          "body": "Para un ángulo agudo, el seno relaciona el lado opuesto con la hipotenusa. El coseno relaciona el adyacente con la hipotenusa. La tangente relaciona los lados opuesto y adyacente."
+        },
+        {
+          "type": "formula",
+          "body": "sen θ = opuesto / hipotenusa · cos θ = adyacente / hipotenusa · tan θ = opuesto / adyacente"
+        }
+      ],
+      "exercises": [
+        {
+          "id": "ratios-sine",
+          "type": "input",
+          "prompt": "El lado opuesto mide 3 y la hipotenusa 5. ¿Cuál es el seno? Escribe la fracción.",
+          "hint": "Seno = lado opuesto / hipotenusa.",
+          "solutionSteps": [
+            "Usa sen θ = lado opuesto / hipotenusa.",
+            "Sen θ = 3/5."
+          ],
+          "acceptedAnswers": [
+            "3/5"
+          ]
+        },
+        {
+          "id": "ratios-cosine",
+          "type": "multiple_choice",
+          "prompt": "El lado adyacente mide 4 y la hipotenusa 5. ¿Cuál es el coseno?",
+          "hint": "Coseno = lado adyacente / hipotenusa.",
+          "solutionSteps": [
+            "Coseno = lado adyacente / hipotenusa.",
+            "Cos θ = 4/5."
+          ],
+          "options": [
+            {
+              "id": "a",
+              "text": "3/4"
+            },
+            {
+              "id": "b",
+              "text": "4/5"
+            },
+            {
+              "id": "c",
+              "text": "5/4"
+            }
+          ],
+          "correctOptionId": "b"
+        },
+        {
+          "id": "ratios-match",
+          "type": "matching",
+          "prompt": "Relaciona cada razón con los lados que utiliza.",
+          "hint": "Recuerda: el seno empieza con el lado opuesto.",
+          "solutionSteps": [
+            "sen = opuesto / hipotenusa.",
+            "cos = adyacente / hipotenusa; tan = opuesto / adyacente."
+          ],
+          "leftItems": [
+            {
+              "id": "sin",
+              "text": "Seno"
+            },
+            {
+              "id": "cos",
+              "text": "Coseno"
+            },
+            {
+              "id": "tan",
+              "text": "Tangente"
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "o-h",
+              "text": "Opuesto / hipotenusa"
+            },
+            {
+              "id": "a-h",
+              "text": "Adyacente / hipotenusa"
+            },
+            {
+              "id": "o-a",
+              "text": "Opuesto / adyacente"
+            }
+          ],
+          "pairs": [
+            {
+              "leftId": "sin",
+              "rightId": "o-h"
+            },
+            {
+              "leftId": "cos",
+              "rightId": "a-h"
+            },
+            {
+              "leftId": "tan",
+              "rightId": "o-a"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "notable-angles",
+      "title": "Ángulos notables",
+      "objective": "Recuerda las razones trigonométricas de 30°, 45° y 60°.",
+      "xpReward": 100,
+      "theory": [
+        {
+          "type": "text",
+          "body": "Algunos ángulos tienen valores conocidos de seno y coseno que ayudan a resolver problemas."
+        },
+        {
+          "type": "formula",
+          "body": "sen 30° = 1/2 · cos 60° = 1/2 · sen 45° = √2/2"
+        }
+      ],
+      "exercises": [
+        {
+          "id": "notable-30",
+          "type": "multiple_choice",
+          "prompt": "¿Cuánto vale sen 30°?",
+          "hint": "Uno de los valores de la teoría.",
+          "solutionSteps": [
+            "El valor conocido de sen 30° es 1/2.",
+            "Por eso, sen 30° = 1/2 = 0.5."
+          ],
+          "options": [
+            {
+              "id": "half",
+              "text": "1/2"
+            },
+            {
+              "id": "one",
+              "text": "1"
+            },
+            {
+              "id": "root-two",
+              "text": "√2/2"
+            }
+          ],
+          "correctOptionId": "half"
+        },
+        {
+          "id": "notable-60",
+          "type": "input",
+          "prompt": "¿Cuánto vale cos 60°? Escribe la fracción.",
+          "hint": "Cos 60° y sen 30° tienen el mismo valor.",
+          "solutionSteps": [
+            "Cos 60° = sen 30°.",
+            "Sen 30° = 1/2, así que cos 60° = 1/2."
+          ],
+          "acceptedAnswers": [
+            "1/2",
+            "0.5"
+          ]
+        },
+        {
+          "id": "notable-rationalization",
+          "type": "step_by_step",
+          "prompt": "Escribe sen 45° = 1/√2 con denominador racional.",
+          "hint": "Multiplica el numerador y el denominador por √2.",
+          "solutionSteps": [
+            "1/√2 × √2/√2 = √2/2."
+          ],
+          "steps": [
+            {
+              "prompt": "Racionaliza 1/√2.",
+              "acceptedAnswers": [
+                "√2/2",
+                "sqrt(2)/2"
+              ],
+              "explanation": "1/√2 × √2/√2 = √2/2."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ratio-relations",
+      "title": "Relación entre seno y coseno",
+      "objective": "Usa sen² θ + cos² θ = 1 y calcula la tangente.",
+      "xpReward": 100,
+      "theory": [
+        {
+          "type": "text",
+          "body": "El seno y el coseno de un ángulo agudo cumplen una relación útil. También podemos hallar la tangente si conocemos ambas razones."
+        },
+        {
+          "type": "formula",
+          "body": "sen² θ + cos² θ = 1  ·  tan θ = sen θ / cos θ"
+        }
+      ],
+      "exercises": [
+        {
+          "id": "identity-choice",
+          "type": "multiple_choice",
+          "prompt": "¿Qué identidad es válida para cualquier ángulo θ?",
+          "hint": "La suma de los cuadrados del seno y el coseno es uno.",
+          "solutionSteps": [
+            "La identidad trigonométrica fundamental es sen² θ + cos² θ = 1."
+          ],
+          "options": [
+            {
+              "id": "right",
+              "text": "sen² θ + cos² θ = 1"
+            },
+            {
+              "id": "wrong",
+              "text": "sen θ + cos θ = 1"
+            },
+            {
+              "id": "other",
+              "text": "sen² θ − cos² θ = 1"
+            }
+          ],
+          "correctOptionId": "right"
+        },
+        {
+          "id": "identity-input",
+          "type": "input",
+          "prompt": "Sen θ = 3/5 y cos θ = 4/5. ¿Cuánto vale tan θ?",
+          "hint": "Tangente = seno / coseno.",
+          "solutionSteps": [
+            "tan θ = sen θ / cos θ.",
+            "(3/5) ÷ (4/5) = (3/5) × (5/4) = 3/4."
+          ],
+          "acceptedAnswers": [
+            "3/4"
+          ]
+        },
+        {
+          "id": "identity-match",
+          "type": "matching",
+          "prompt": "Relaciona cada fórmula con su función.",
+          "hint": "La suma de los cuadrados del seno y el coseno es la identidad fundamental.",
+          "solutionSteps": [
+            "sen² + cos² = 1 es la identidad fundamental.",
+            "tan θ = sen θ / cos θ."
+          ],
+          "leftItems": [
+            {
+              "id": "identity",
+              "text": "sen² θ + cos² θ = 1"
+            },
+            {
+              "id": "tangent",
+              "text": "tan θ"
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "fundamental",
+              "text": "Identidad fundamental"
+            },
+            {
+              "id": "quotient",
+              "text": "sen θ / cos θ"
+            }
+          ],
+          "pairs": [
+            {
+              "leftId": "identity",
+              "rightId": "fundamental"
+            },
+            {
+              "leftId": "tangent",
+              "rightId": "quotient"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "unknown-side",
+      "title": "Calcula un lado",
+      "objective": "Usa seno o coseno para calcular un lado desconocido.",
+      "xpReward": 100,
+      "theory": [
+        {
+          "type": "text",
+          "body": "Si conocemos un ángulo y un lado, podemos usar razones trigonométricas para hallar otro lado. Elige la razón adecuada según los lados que conoces."
+        },
+        {
+          "type": "formula",
+          "body": "sen θ = opuesto / hipotenusa · cos θ = adyacente / hipotenusa"
+        }
+      ],
+      "exercises": [
+        {
+          "id": "side-choice",
+          "type": "multiple_choice",
+          "prompt": "En un triángulo, sen 30° = 1/2 y la hipotenusa mide 10. ¿Cuánto mide el lado opuesto?",
+          "hint": "sen 30° = lado opuesto / hipotenusa.",
+          "solutionSteps": [
+            "1/2 = lado opuesto / 10.",
+            "Lado opuesto = 10 × 1/2 = 5."
+          ],
+          "options": [
+            {
+              "id": "5",
+              "text": "5"
+            },
+            {
+              "id": "10",
+              "text": "10"
+            },
+            {
+              "id": "20",
+              "text": "20"
+            }
+          ],
+          "correctOptionId": "5"
+        },
+        {
+          "id": "side-input",
+          "type": "input",
+          "prompt": "cos 60° = 1/2 y la hipotenusa mide 8. ¿Cuánto mide el lado adyacente?",
+          "hint": "Coseno = lado adyacente / hipotenusa.",
+          "solutionSteps": [
+            "1/2 = lado adyacente / 8.",
+            "Lado adyacente = 8 × 1/2 = 4."
+          ],
+          "acceptedAnswers": [
+            "4"
+          ]
+        },
+        {
+          "id": "side-steps",
+          "type": "step_by_step",
+          "prompt": "En un ángulo de 30°, el lado opuesto mide 6. Calcula la hipotenusa. (sen 30° = 1/2)",
+          "hint": "Despeja: hipotenusa = lado opuesto / seno.",
+          "solutionSteps": [
+            "sen 30° = lado opuesto / hipotenusa.",
+            "1/2 = 6 / h, así que h = 6 ÷ (1/2) = 12."
+          ],
+          "steps": [
+            {
+              "prompt": "¿Cuánto es 6 ÷ (1/2)?",
+              "acceptedAnswers": [
+                "12"
+              ],
+              "explanation": "Para dividir entre una fracción, multiplicamos por su inversa: 6 × 2 = 12."
+            },
+            {
+              "prompt": "¿Cuánto mide la hipotenusa?",
+              "acceptedAnswers": [
+                "12"
+              ],
+              "explanation": "La hipotenusa mide 12."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "applications",
+      "title": "Aplicaciones en la vida diaria",
+      "objective": "Usa la tangente y el seno en problemas cotidianos.",
+      "xpReward": 100,
+      "theory": [
+        {
+          "type": "text",
+          "body": "Las razones trigonométricas ayudan a calcular alturas o distancias si conocemos un ángulo y uno de los lados."
+        },
+        {
+          "type": "example",
+          "body": "Con un ángulo de 45°, tan 45° = 1. Si la distancia en el suelo es 12 m, la altura también es 12 m."
+        }
+      ],
+      "exercises": [
+        {
+          "id": "app-trig-choice",
+          "type": "multiple_choice",
+          "prompt": "Una escalera de 8 m forma un ángulo de 60° con el suelo. Si cos 60° = 1/2, ¿a qué distancia queda su base de la pared?",
+          "hint": "cos 60° = distancia de la base / longitud de la escalera.",
+          "solutionSteps": [
+            "cos 60° = distancia / 8.",
+            "distancia = 8 × 1/2 = 4 m."
+          ],
+          "options": [
+            {
+              "id": "4",
+              "text": "4 m"
+            },
+            {
+              "id": "8",
+              "text": "8 m"
+            },
+            {
+              "id": "16",
+              "text": "16 m"
+            }
+          ],
+          "correctOptionId": "4"
+        },
+        {
+          "id": "app-input",
+          "type": "input",
+          "prompt": "Un poste proyecta una sombra de 6 m y el ángulo del sol con el suelo es 45°. Si tan 45° = 1, ¿cuánto mide el poste?",
+          "hint": "tan 45° = altura / sombra.",
+          "solutionSteps": [
+            "1 = altura / 6.",
+            "La altura es 6 m."
+          ],
+          "acceptedAnswers": [
+            "6",
+            "6 m"
+          ]
+        },
+        {
+          "id": "app-match",
+          "type": "matching",
+          "prompt": "Relaciona cada conjunto de datos con una razón que puedas usar.",
+          "hint": "El seno usa el lado opuesto y la hipotenusa; la tangente, los lados opuesto y adyacente.",
+          "solutionSteps": [
+            "Altura e hipotenusa: seno.",
+            "Altura y distancia en el suelo: tangente."
+          ],
+          "leftItems": [
+            {
+              "id": "height-hyp",
+              "text": "Altura e hipotenusa"
+            },
+            {
+              "id": "height-ground",
+              "text": "Altura y distancia en el suelo"
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "sin",
+              "text": "Seno"
+            },
+            {
+              "id": "tan",
+              "text": "Tangente"
+            }
+          ],
+          "pairs": [
+            {
+              "leftId": "height-hyp",
+              "rightId": "sin"
+            },
+            {
+              "leftId": "height-ground",
+              "rightId": "tan"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "title": "Repaso y desafío",
+      "objective": "Aplica lo que aprendiste en un desafío.",
+      "xpReward": 100,
+      "theory": [
+        {
+          "type": "text",
+          "body": "En este repaso, usa las razones trigonométricas para relacionar el ángulo con los lados conocidos."
+        },
+        {
+          "type": "formula",
+          "body": "sen = opuesto / hipotenusa · cos = adyacente / hipotenusa · tan = opuesto / adyacente"
+        }
+      ],
+      "exercises": [
+        {
+          "id": "review-trig-choice",
+          "type": "multiple_choice",
+          "prompt": "Si tan 45° = 1 y el lado opuesto mide 7, ¿cuánto mide el lado adyacente?",
+          "hint": "tan 45° = opuesto / adyacente.",
+          "solutionSteps": [
+            "1 = 7 / adyacente.",
+            "El lado adyacente mide 7."
+          ],
+          "options": [
+            {
+              "id": "7",
+              "text": "7"
+            },
+            {
+              "id": "1",
+              "text": "1"
+            },
+            {
+              "id": "49",
+              "text": "49"
+            }
+          ],
+          "correctOptionId": "7"
+        },
+        {
+          "id": "review-input",
+          "type": "input",
+          "prompt": "El lado opuesto mide 5 y la hipotenusa 13. ¿Cuál es el seno? Escribe la fracción.",
+          "hint": "Seno = lado opuesto / hipotenusa.",
+          "solutionSteps": [
+            "Seno = lado opuesto / hipotenusa.",
+            "Sen θ = 5/13."
+          ],
+          "acceptedAnswers": [
+            "5/13"
+          ]
+        },
+        {
+          "id": "review-steps",
+          "type": "step_by_step",
+          "prompt": "Un ángulo mide 30° y la hipotenusa mide 14. Calcula el lado opuesto.",
+          "hint": "sen 30° = 1/2 y seno = lado opuesto / hipotenusa.",
+          "solutionSteps": [
+            "1/2 = lado opuesto / 14.",
+            "Lado opuesto = 14 × 1/2 = 7."
+          ],
+          "steps": [
+            {
+              "prompt": "¿Cuánto es 14 × 1/2?",
+              "acceptedAnswers": [
+                "7"
+              ],
+              "explanation": "La mitad de 14 es 7."
+            },
+            {
+              "prompt": "¿Cuánto mide el lado opuesto?",
+              "acceptedAnswers": [
+                "7"
+              ],
+              "explanation": "El lado opuesto mide 7."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

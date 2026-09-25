@@ -1,0 +1,657 @@
+{
+  "schemaVersion": 1,
+  "id": "trigonometry-guarani",
+  "locale": "gn-PY",
+  "title": "Papapykuaa ángulo rehegua",
+  "lessons": [
+    {
+      "id": "angles",
+      "title": "Ángulo ha medida",
+      "objective": "Eikuaa mba'éichapa oñemedi ángulo ha mba'épa he'ise ángulo recto.",
+      "xpReward": 100,
+      "theory": [
+        {
+          "type": "text",
+          "body": "Ángulo oñeforma mokõi rayo oñepyrũva peteĩ punto-pe. Upe punto héra vértice."
+        },
+        {
+          "type": "formula",
+          "body": "90° = ángulo recto · 180° = ángulo llano"
+        }
+      ],
+      "exercises": [
+        {
+          "id": "angles-choice",
+          "type": "multiple_choice",
+          "prompt": "Mboy grado oguereko peteĩ ángulo recto?",
+          "hint": "Ejesareko pe fórmula rehegua-pe.",
+          "solutionSteps": [
+            "Ángulo recto ha'e peteĩ cuarto de vuelta.",
+            "Peteĩ vuelta oguereko 360°, upévare 360° ÷ 4 = 90°."
+          ],
+          "options": [
+            {
+              "id": "45",
+              "text": "45°"
+            },
+            {
+              "id": "90",
+              "text": "90°"
+            },
+            {
+              "id": "180",
+              "text": "180°"
+            }
+          ],
+          "correctOptionId": "90"
+        },
+        {
+          "id": "angles-input",
+          "type": "input",
+          "prompt": "Emoĩ número-pe: mboy grado oguereko peteĩ ángulo llano?",
+          "hint": "Ha'e peteĩ media vuelta.",
+          "solutionSteps": [
+            "Peteĩ vuelta oguereko 360°.",
+            "Media vuelta ha'e 360° ÷ 2 = 180°."
+          ],
+          "acceptedAnswers": [
+            "180",
+            "180°"
+          ]
+        },
+        {
+          "id": "angles-match",
+          "type": "matching",
+          "prompt": "Eipoko peteĩ medida ha ta'anga de ángulo ojoajúva hendive.",
+          "hint": "Emañamína umi medida: michĩve 90°-gui ha'éta agudo.",
+          "solutionSteps": [
+            "45° < 90°, upévare ha'e agudo.",
+            "90° ha'e recto; 180° ha'e llano."
+          ],
+          "leftItems": [
+            {
+              "id": "forty-five",
+              "text": "45°"
+            },
+            {
+              "id": "ninety",
+              "text": "90°"
+            },
+            {
+              "id": "one-eighty",
+              "text": "180°"
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "acute",
+              "text": "Agudo"
+            },
+            {
+              "id": "right",
+              "text": "Recto"
+            },
+            {
+              "id": "straight",
+              "text": "Llano"
+            }
+          ],
+          "pairs": [
+            {
+              "leftId": "forty-five",
+              "rightId": "acute"
+            },
+            {
+              "leftId": "ninety",
+              "rightId": "right"
+            },
+            {
+              "leftId": "one-eighty",
+              "rightId": "straight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ratios",
+      "title": "Seno, coseno ha tangente",
+      "objective": "Eipuru lado-kuéra rehegua jeporupy ha ehai seno, coseno ha tangente.",
+      "xpReward": 100,
+      "theory": [
+        {
+          "type": "text",
+          "body": "Jahechávo peteĩ ángulo agudo, seno ombojoja pe lado opuesto ha hipotenusa. Coseno ombojoja pe lado adyacente ha hipotenusa. Tangente ombojoja opuesto ha adyacente."
+        },
+        {
+          "type": "formula",
+          "body": "sen θ = opuesto / hipotenusa · cos θ = adyacente / hipotenusa · tan θ = opuesto / adyacente"
+        }
+      ],
+      "exercises": [
+        {
+          "id": "ratios-sine",
+          "type": "input",
+          "prompt": "Pe lado opuesto ha'e 3 ha hipotenusa 5. Mba'épa seno? Ehai fracción ramo.",
+          "hint": "Seno = opuesto / hipotenusa.",
+          "solutionSteps": [
+            "Eipuru sen θ = opuesto / hipotenusa.",
+            "Sen θ = 3/5."
+          ],
+          "acceptedAnswers": [
+            "3/5"
+          ]
+        },
+        {
+          "id": "ratios-cosine",
+          "type": "multiple_choice",
+          "prompt": "Pe adyacente ha'e 4, hipotenusa 5. Mba'épa coseno?",
+          "hint": "Coseno ombojoja adyacente ha hipotenusa.",
+          "solutionSteps": [
+            "Coseno = adyacente / hipotenusa.",
+            "Cos θ = 4/5."
+          ],
+          "options": [
+            {
+              "id": "a",
+              "text": "3/4"
+            },
+            {
+              "id": "b",
+              "text": "4/5"
+            },
+            {
+              "id": "c",
+              "text": "5/4"
+            }
+          ],
+          "correctOptionId": "b"
+        },
+        {
+          "id": "ratios-match",
+          "type": "matching",
+          "prompt": "Embojoaju pe razón ha umi lado ojepurúva.",
+          "hint": "Mandu'a: sen oñepyrũ opuesto reheve.",
+          "solutionSteps": [
+            "sen = opuesto / hipotenusa.",
+            "cos = adyacente / hipotenusa; tan = opuesto / adyacente."
+          ],
+          "leftItems": [
+            {
+              "id": "sin",
+              "text": "Seno"
+            },
+            {
+              "id": "cos",
+              "text": "Coseno"
+            },
+            {
+              "id": "tan",
+              "text": "Tangente"
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "o-h",
+              "text": "Opuesto / hipotenusa"
+            },
+            {
+              "id": "a-h",
+              "text": "Adyacente / hipotenusa"
+            },
+            {
+              "id": "o-a",
+              "text": "Opuesto / adyacente"
+            }
+          ],
+          "pairs": [
+            {
+              "leftId": "sin",
+              "rightId": "o-h"
+            },
+            {
+              "leftId": "cos",
+              "rightId": "a-h"
+            },
+            {
+              "leftId": "tan",
+              "rightId": "o-a"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "notable-angles",
+      "title": "Ángulo ojekuaavéva",
+      "objective": "Emomandu'a umi razón trigonométrica 30°, 45° ha 60° rehegua.",
+      "xpReward": 100,
+      "theory": [
+        {
+          "type": "text",
+          "body": "Oĩ ángulo jepivegua oguerekóva seno ha coseno jaikuaámava. Ko'ã valor oipytyvõ japilla hag̃ua ambue problema."
+        },
+        {
+          "type": "formula",
+          "body": "sen 30° = 1/2 · cos 60° = 1/2 · sen 45° = √2/2"
+        }
+      ],
+      "exercises": [
+        {
+          "id": "notable-30",
+          "type": "multiple_choice",
+          "prompt": "Mba'épa sen 30°?",
+          "hint": "Peteĩva umi valor oĩva teoría-pe.",
+          "solutionSteps": [
+            "Ángulo 30° rehegua valor jaikuaáva ha'e 1/2.",
+            "Upévare sen 30° = 1/2 = 0.5."
+          ],
+          "options": [
+            {
+              "id": "half",
+              "text": "1/2"
+            },
+            {
+              "id": "one",
+              "text": "1"
+            },
+            {
+              "id": "root-two",
+              "text": "√2/2"
+            }
+          ],
+          "correctOptionId": "half"
+        },
+        {
+          "id": "notable-60",
+          "type": "input",
+          "prompt": "Mba'épa cos 60°? Ehai fracción ramo.",
+          "hint": "Cos 60° ha sen 30° oguereko peteĩchagua valor.",
+          "solutionSteps": [
+            "Cos 60° = sen 30°.",
+            "Sen 30° = 1/2, upévare cos 60° = 1/2."
+          ],
+          "acceptedAnswers": [
+            "1/2",
+            "0.5"
+          ]
+        },
+        {
+          "id": "notable-rationalization",
+          "type": "step_by_step",
+          "prompt": "Emohai sen 45° = 1/√2 denominador racional reheve.",
+          "hint": "Emboheta pe numerador ha denominador rehe √2.",
+          "solutionSteps": [
+            "1/√2 × √2/√2 = √2/2."
+          ],
+          "steps": [
+            {
+              "prompt": "Emoracionalisa 1/√2.",
+              "acceptedAnswers": [
+                "√2/2",
+                "sqrt(2)/2"
+              ],
+              "explanation": "1/√2 × √2/√2 = √2/2."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ratio-relations",
+      "title": "Joaju seno ha coseno rehegua",
+      "objective": "Eipuru joaju sen² θ + cos² θ = 1 ha eheka tangente.",
+      "xpReward": 100,
+      "theory": [
+        {
+          "type": "text",
+          "body": "Peteĩ ángulo agudo rehegua seno ha coseno oñondive oĩ peteĩ joaju iporãvape. Ikatu avei jajuhu tangente jaikuaáma ramo mokõive razón."
+        },
+        {
+          "type": "formula",
+          "body": "sen² θ + cos² θ = 1  ·  tan θ = sen θ / cos θ"
+        }
+      ],
+      "exercises": [
+        {
+          "id": "identity-choice",
+          "type": "multiple_choice",
+          "prompt": "Máva joaju piko oĩ porã opa ángulo θ-pe?",
+          "hint": "Seno ha coseno cuadrado-kuéra suma ha'e peteĩ.",
+          "solutionSteps": [
+            "Joaju fundamental trigonometría rehegua ha'e sen² θ + cos² θ = 1."
+          ],
+          "options": [
+            {
+              "id": "right",
+              "text": "sen² θ + cos² θ = 1"
+            },
+            {
+              "id": "wrong",
+              "text": "sen θ + cos θ = 1"
+            },
+            {
+              "id": "other",
+              "text": "sen² θ − cos² θ = 1"
+            }
+          ],
+          "correctOptionId": "right"
+        },
+        {
+          "id": "identity-input",
+          "type": "input",
+          "prompt": "Sen θ = 3/5 ha cos θ = 4/5. Mba'épa tan θ?",
+          "hint": "Tangente = seno / coseno.",
+          "solutionSteps": [
+            "tan θ = sen θ / cos θ.",
+            "(3/5) ÷ (4/5) = (3/5) × (5/4) = 3/4."
+          ],
+          "acceptedAnswers": [
+            "3/4"
+          ]
+        },
+        {
+          "id": "identity-match",
+          "type": "matching",
+          "prompt": "Embojoaju fórmula ha hembiapo.",
+          "hint": "Seno cuadrado ha coseno cuadrado joaju fundamental.",
+          "solutionSteps": [
+            "sen² + cos² = 1 ha'e joaju fundamental.",
+            "tan θ = sen θ / cos θ."
+          ],
+          "leftItems": [
+            {
+              "id": "identity",
+              "text": "sen² θ + cos² θ = 1"
+            },
+            {
+              "id": "tangent",
+              "text": "tan θ"
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "fundamental",
+              "text": "Joaju fundamental"
+            },
+            {
+              "id": "quotient",
+              "text": "sen θ / cos θ"
+            }
+          ],
+          "pairs": [
+            {
+              "leftId": "identity",
+              "rightId": "fundamental"
+            },
+            {
+              "leftId": "tangent",
+              "rightId": "quotient"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "unknown-side",
+      "title": "Eheka peteĩ lado",
+      "objective": "Eipuru seno térã coseno eheka hag̃ua peteĩ lado ojeikuaa'ỹva.",
+      "xpReward": 100,
+      "theory": [
+        {
+          "type": "text",
+          "body": "Jaikuaáramo peteĩ ángulo ha peteĩ lado, ikatu jaipuru umi razón trigonométrica jajuhu hag̃ua ambue lado. Eiporavo razón oĩ porãva umi lado reikuaáva rehe."
+        },
+        {
+          "type": "formula",
+          "body": "sen θ = opuesto / hipotenusa · cos θ = adyacente / hipotenusa"
+        }
+      ],
+      "exercises": [
+        {
+          "id": "side-choice",
+          "type": "multiple_choice",
+          "prompt": "Peteĩ triángulo-pe sen 30° = 1/2 ha hipotenusa = 10. Mboypa pe lado opuesto?",
+          "hint": "sen 30° = opuesto / hipotenusa.",
+          "solutionSteps": [
+            "1/2 = opuesto / 10.",
+            "Opuesto = 10 × 1/2 = 5."
+          ],
+          "options": [
+            {
+              "id": "5",
+              "text": "5"
+            },
+            {
+              "id": "10",
+              "text": "10"
+            },
+            {
+              "id": "20",
+              "text": "20"
+            }
+          ],
+          "correctOptionId": "5"
+        },
+        {
+          "id": "side-input",
+          "type": "input",
+          "prompt": "cos 60° = 1/2 ha hipotenusa = 8. Mboypa pe lado adyacente?",
+          "hint": "Coseno = adyacente / hipotenusa.",
+          "solutionSteps": [
+            "1/2 = adyacente / 8.",
+            "Adyacente = 8 × 1/2 = 4."
+          ],
+          "acceptedAnswers": [
+            "4"
+          ]
+        },
+        {
+          "id": "side-steps",
+          "type": "step_by_step",
+          "prompt": "Ángulo 30°-pe, lado opuesto 6. Eipapa hipotenusa. (sen 30° = 1/2)",
+          "hint": "Emoambue lugar pe hipotenusa-pe: hipotenusa = opuesto / seno.",
+          "solutionSteps": [
+            "sen 30° = opuesto / hipotenusa.",
+            "1/2 = 6 / h, upévare h = 6 ÷ (1/2) = 12."
+          ],
+          "steps": [
+            {
+              "prompt": "Mba'épa 6 ÷ (1/2)?",
+              "acceptedAnswers": [
+                "12"
+              ],
+              "explanation": "Jaipapa hag̃ua fracción rehe, ñamboheta inverso rehe: 6 × 2 = 12."
+            },
+            {
+              "prompt": "Mba'épa hipotenusa?",
+              "acceptedAnswers": [
+                "12"
+              ],
+              "explanation": "Hipotenusa ha'e 12."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "applications",
+      "title": "Aplicación tekovépe",
+      "objective": "Eipuru tangente ha seno umi problema ko’ẽreípe g̃uarã.",
+      "xpReward": 100,
+      "theory": [
+        {
+          "type": "text",
+          "body": "Umi razón trigonométrica ikatu oipytyvõ ñapilla hag̃ua yvatekue térã mombyry, jaikuaáramo ángulo ha peteĩ lado."
+        },
+        {
+          "type": "example",
+          "body": "Ángulo 45°-pe tan 45° = 1. Yvýre 12 m ha yvate 12 m."
+        }
+      ],
+      "exercises": [
+        {
+          "id": "app-trig-choice",
+          "type": "multiple_choice",
+          "prompt": "Peteĩ escalera 8 m ojapo 60° yvýre. Cos 60° = 1/2 ramo, mboypa mombyry murálla-gui oĩ ijyvateha?",
+          "hint": "Cos 60° = escalera guýpe mombyry / escalera pukukue.",
+          "solutionSteps": [
+            "cos 60° = mombyry / 8.",
+            "Mombyry = 8 × 1/2 = 4 m."
+          ],
+          "options": [
+            {
+              "id": "4",
+              "text": "4 m"
+            },
+            {
+              "id": "8",
+              "text": "8 m"
+            },
+            {
+              "id": "16",
+              "text": "16 m"
+            }
+          ],
+          "correctOptionId": "4"
+        },
+        {
+          "id": "app-input",
+          "type": "input",
+          "prompt": "Peteĩ poste sombra 6 m ipukúva oguereko, ha kuarahy ángulo yvýre 45°. tan 45° = 1 ramo, mboypa poste yvate?",
+          "hint": "tan 45° = altura / sombra.",
+          "solutionSteps": [
+            "1 = altura / 6.",
+            "Altura = 6 m."
+          ],
+          "acceptedAnswers": [
+            "6",
+            "6 m"
+          ]
+        },
+        {
+          "id": "app-match",
+          "type": "matching",
+          "prompt": "Embojoaju peteĩ dato ha razón ikatúva ojepuru.",
+          "hint": "Seno oipuru opuesto ha hipotenusa; tangente oipuru opuesto ha adyacente.",
+          "solutionSteps": [
+            "Yvate ha hipotenusa: seno.",
+            "Yvate ha distancia yvýre: tangente."
+          ],
+          "leftItems": [
+            {
+              "id": "height-hyp",
+              "text": "Yvate ha hipotenusa"
+            },
+            {
+              "id": "height-ground",
+              "text": "Yvate ha distancia yvýre"
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "sin",
+              "text": "Seno"
+            },
+            {
+              "id": "tan",
+              "text": "Tangente"
+            }
+          ],
+          "pairs": [
+            {
+              "leftId": "height-hyp",
+              "rightId": "sin"
+            },
+            {
+              "leftId": "height-ground",
+              "rightId": "tan"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "title": "Jehechajey ha desafío",
+      "objective": "Eipuru umi mba'e reikuaámava peteĩ desafío-pe.",
+      "xpReward": 100,
+      "theory": [
+        {
+          "type": "text",
+          "body": "Ko jehechajey-pe, eipuru umi razón trigonométrica rembojoaju hag̃ua ángulo ha umi lado reikuaáva."
+        },
+        {
+          "type": "formula",
+          "body": "sen = opuesto / hipotenusa · cos = adyacente / hipotenusa · tan = opuesto / adyacente"
+        }
+      ],
+      "exercises": [
+        {
+          "id": "review-trig-choice",
+          "type": "multiple_choice",
+          "prompt": "Tan 45° = 1 ha lado opuesto = 7 ramo, mboypa ipukukue lado adyacente?",
+          "hint": "Tan 45° = opuesto / adyacente.",
+          "solutionSteps": [
+            "1 = 7 / adyacente.",
+            "Pe lado adyacente ipukukue 7."
+          ],
+          "options": [
+            {
+              "id": "7",
+              "text": "7"
+            },
+            {
+              "id": "1",
+              "text": "1"
+            },
+            {
+              "id": "49",
+              "text": "49"
+            }
+          ],
+          "correctOptionId": "7"
+        },
+        {
+          "id": "review-input",
+          "type": "input",
+          "prompt": "Pe opuesto ha'e 5, hipotenusa 13. Mba'épa seno? Ehai fracción ramo.",
+          "hint": "Seno = opuesto / hipotenusa.",
+          "solutionSteps": [
+            "Seno = opuesto / hipotenusa.",
+            "Sen θ = 5/13."
+          ],
+          "acceptedAnswers": [
+            "5/13"
+          ]
+        },
+        {
+          "id": "review-steps",
+          "type": "step_by_step",
+          "prompt": "Peteĩ ángulo 30° ha hipotenusa 14. Eheka pe lado opuesto.",
+          "hint": "sen 30° = 1/2 ha seno = opuesto / hipotenusa.",
+          "solutionSteps": [
+            "1/2 = opuesto / 14.",
+            "Opuesto = 14 × 1/2 = 7."
+          ],
+          "steps": [
+            {
+              "prompt": "Mba'épa 14 × 1/2?",
+              "acceptedAnswers": [
+                "7"
+              ],
+              "explanation": "Mitã 14 ha'e 7."
+            },
+            {
+              "prompt": "Mba'épa pe lado opuesto?",
+              "acceptedAnswers": [
+                "7"
+              ],
+              "explanation": "Pe lado opuesto ha'e 7."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

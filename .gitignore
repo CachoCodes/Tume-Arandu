@@ -1,0 +1,12 @@
+/.spec-drive/
+/specs/.me
+/.gradle/
+/.kotlin/
+/local.properties
+/.idea/
+**/build/
+**/node_modules/
+**/reference-renders/
+*.blend1
+*.iml
+.DS_Store

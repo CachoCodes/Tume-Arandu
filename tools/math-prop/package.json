@@ -1,0 +1,12 @@
+{
+  "name": "guarani-math-prop",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "node render.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "1.63.0",
+    "three": "0.186.0"
+  }
+}
