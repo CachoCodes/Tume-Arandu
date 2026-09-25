@@ -11,7 +11,6 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
-| [WI-029 Полный и копируемый репозиторий Tume-Arandu](work/WI-029-complete-copyable-repository.md) | @maks | P0 | — |
 | [WI-030 Убрать вводящую в заблуждение схему из заданий](work/WI-030-contextual-exercise-diagrams.md) | @maks | P1 | — |
 
 ## Blocked
@@ -23,6 +22,7 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
+| [WI-029 Полный и копируемый репозиторий Tume-Arandu](work/archive/2026/WI-029-complete-copyable-repository.md) | @maks | P0 | — |
 | [WI-028 Треугольник и игровая подача упражнений](work/archive/2026/WI-028-exercise-triangle-and-gameful-controls.md) | @maks | P1 | — |
 | [WI-027 Убрать Пифагора из курса и поправить ввод](work/archive/2026/WI-027-remove-pythagoras-and-fix-answer-tools.md) | @maks | P1 | — |
 | [WI-026 Нижняя зона ответа и наглядный контекст треугольника](work/archive/2026/WI-026-thumb-zone-and-triangle-context.md) | @maks | P1 | — |
