@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GuaraniMath · макет карты</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101820;color:#c7d5df;font:14px system-ui,sans-serif;height:100dvh;display:grid;grid-template-rows:48px 1fr 36px;overflow:hidden}header,footer{background:#18242e;display:flex;align-items:center;justify-content:space-between;padding:0 16px;gap:12px}header a{color:#c7d5df;font-size:12px}main{display:grid;place-items:center;min-height:0;padding:8px}.phone{position:relative;height:min(calc(100dvh - 100px),calc(96vw * 864 / 390));aspect-ratio:390/864;border-radius:8px;overflow:hidden;box-shadow:0 8px 40px #0008;background:#fff;color:#245271;container-type:inline-size}svg.scene{position:absolute;inset:0;width:100%;height:100%;display:block}.scroller{position:absolute;inset:0;overflow-y:auto;scroll-snap-type:y mandatory;overscroll-behavior:contain;scrollbar-width:none;z-index:1}.scroller::-webkit-scrollbar{display:none}.spacer{width:1px}.stage-snap{scroll-snap-align:start;scroll-snap-stop:always}.status,.streak,.dock,.home{z-index:2}.status{position:absolute;top:2%;left:7%;right:7%;display:flex;justify-content:space-between;color:#a9bbc8;font-size:3cqw}.streak{position:absolute;top:6.7%;left:4%;right:4%;height:7.2%;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;padding:0 4cqw;border-radius:5cqw;background:#fff;border:1px solid #fff;box-shadow:0 2px 9px #315c7d16}.topic{width:10cqw;height:10cqw;color:#2775bf}.xp{text-align:center;font-size:5cqw;font-weight:700;color:#244b68;white-space:nowrap}.xp small{font-size:3cqw;color:#61798a;font-weight:600}.series{justify-self:end;display:flex;flex-direction:row;align-items:center;gap:1.4cqw;line-height:1}.series strong{font-size:4.5cqw;color:#244b68;text-align:right;font-variant-numeric:tabular-nums}.series .flame{flex:none}.flame{color:#f7a143;width:5cqw;height:6.2cqw}.series.inactive .flame{color:#9aaab6}.series.inactive .flame .core{fill:#cbd5dd}.series:not(.inactive) .flame{filter:drop-shadow(0 0 3px #ffb55140)}.dock{position:absolute;bottom:3.4%;left:4%;right:4%;height:7.8%;display:flex;align-items:center;border-radius:6cqw;background:#fff;border:1px solid #fff;box-shadow:0 8px 18px #315c7d16,inset 0 1px 0 #fff8}.dock button{border:0;background:none;flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1cqw;color:#9bb2d0;font:2.6cqw system-ui;cursor:pointer}.icon{width:10cqw;height:10cqw;border-radius:50%;display:grid;place-items:center;background:transparent;color:#69a4ed;font-size:5cqw;font-weight:700}.dock button:first-child{color:#69a4ed;font-weight:700}.dock button:first-child .icon{background:transparent}.dock button:focus-visible{outline:2px solid #1763d5;border-radius:5cqw}.home{position:absolute;bottom:1%;left:35%;right:35%;height:.45%;border-radius:10px;background:#59656b}.grass .status{color:#ffffffd9;text-shadow:0 1px 2px #2d5a1a55}
+.streak{height:11.2%!important;grid-template-rows:1fr auto;row-gap:.6cqw;padding:2.2cqw 4cqw 2.6cqw!important}
+.stagebar{grid-column:1/-1;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:2.4cqw;font-size:3.1cqw;font-weight:700;color:#4b6b82}
+.stagebar .bar{height:1.8cqw;border-radius:1cqw;background:#e6eef4;overflow:hidden}.stagebar .bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#ffc83d,#ffd84d);transition:width .4s ease}
+.stage-count{font-variant-numeric:tabular-nums;color:#7890a2}
+.clouds,.fx{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.clouds i{position:absolute;top:0;left:0;width:90%;height:26%;border-radius:50%;background:radial-gradient(closest-side,rgba(24,62,18,.13),rgba(24,62,18,0));animation:drift 90s linear infinite;will-change:transform}
+.clouds i:nth-child(1){top:12%;animation-delay:-10s}.clouds i:nth-child(2){top:48%;width:120%;height:30%;animation-duration:120s;animation-delay:-70s}.clouds i:nth-child(3){top:76%;width:70%;animation-duration:100s;animation-delay:-40s}
+@keyframes drift{from{transform:translateX(-110%)}to{transform:translateX(130%)}}
+.fx .kite{position:absolute;inset:0;width:100%;height:100%;animation:sway 3.6s ease-in-out infinite alternate;will-change:transform}
+@keyframes sway{from{rotate:-3.5deg}to{rotate:3deg}}
+.fx .glow{position:absolute;left:0;top:0;width:9cqw;height:9cqw;margin:-4.5cqw 0 0 -4.5cqw;border-radius:50%;background:radial-gradient(closest-side,rgba(255,236,150,.95),rgba(255,220,110,.35) 55%,rgba(255,220,110,0));opacity:0}
+.fx .glow::after{content:"";position:absolute;inset:0;border-radius:50%;background:inherit;animation:blink 2.8s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:.15}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.clouds i,.fx .kite,.fx .glow::after{animation:none}}
+canvas.lawn{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}footer{font-size:12px}footer span:last-child{color:#a9bbc8}text{font-family:system-ui,sans-serif;fill:#245271} @media(max-width:600px){header{font-size:11px}header a{font-size:10px}footer{font-size:10px}}
+</style>
+<header><strong>GuaraniMath · визуальный макет</strong><a href="http://127.0.0.1:8765/">Android ↗</a><span>Итерация 27 · 3D</span></header>
+<main><div class="phone" aria-label="Визуальный макет карты семи уровней">
+<svg class="scene" viewBox="0 0 390 864" role="img" aria-label="Карта из 21 урока в трёх разделах: круглые платформы на земле, три раздела-змейки, у каждого начало и финиш, по бокам цветные 3D-объекты по тригонометрии"><defs><filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.8"/></filter><filter id="contact" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="1.2"/></filter></defs><defs id="dyn"></defs><g id="ground"></g><g id="objects"></g></svg>
+<div class="clouds" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="fx" aria-hidden="true"><svg class="kite" viewBox="0 0 390 864"><g></g></svg><div class="glow"></div></div>
+<div class="scroller"><div class="spacer"></div></div>
+<div class="status"><span>11:06 ◷</span><span>◢ ▰ ▮</span></div>
+<div class="streak"><svg class="topic" viewBox="0 0 32 32" role="img" aria-label="Trigonometría" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 25H27V7Z"/><path d="M22 25v-5h5" stroke-width="1.5"/></svg><div class="xp">240 <small>XP</small></div><div class="series" aria-label="Serie de 3 días; experiencia ganada hoy"><strong>3</strong><svg class="flame" viewBox="0 0 32 40" aria-hidden="true"><path fill="currentColor" d="M18 1c3 10-6 12-3 20 4-1 6-5 6-9 9 9 11 15 8 21-5 10-21 9-25-1-4-10 2-15 6-20-1 7 1 9 3 10C10 12 19 10 18 1Z"/><path class="core" fill="#ffe9b4" d="M17 22c1 5-4 7-3 11 1 4 7 3 8 0 1-4-2-7-5-11Z"/></svg></div><div class="stagebar"><span class="stage-name">Etapa 1</span><span class="bar"><i></i></span><span class="stage-count">2/9</span></div></div>
+<nav class="dock" aria-label="Vista de navegación"><button type="button" aria-label="Tape"><span class="icon"><svg width="68%" height="68%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6C9 4 6 4 3 5v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1v14"/><path d="M6 8c1-.2 2 0 3 .5m-3 3c1-.2 2 0 3 .5m6-3.5c1-.5 2-.7 3-.5m-3 4c1-.5 2-.7 3-.5" stroke-width="1.3"/></svg></span>Tape</button><button type="button" aria-label="Tutor"><span class="icon"><svg width="65%" height="65%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="7" width="16" height="13" rx="4"/><path d="M12 7V3m-3 13h6"/><circle cx="12" cy="3" r="1"/><circle cx="8.5" cy="12" r="1"/><circle cx="15.5" cy="12" r="1"/></svg></span>Tutor</button><button type="button" aria-label="Perfil"><span class="icon"><svg width="72%" height="72%" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3 24.6 7.2 14 11.4 3.4 7.2Z"/><path d="M8.6 9.4v2.9q5.4 1.8 10.8 0V9.4"/><path d="M24.6 7.2v4.6"/><path d="M8.8 12.8a5.2 5.2 0 0 0 10.4 0"/><path d="M5.4 25.4c.8-3.6 4.2-5.6 8.6-5.6s7.8 2 8.6 5.6"/></svg></span>Perfil</button></nav><div class="home"></div>
+</div></main><footer><span>Локальный визуальный макет · серия дней: демонстрационные данные</span><span id="note">Android не изменён</span></footer>
+<script>
+// One world, one camera. Every scene point is world (x,y,z); UI chrome alone is screen space.
+// ?camera=ortho gives the old parallel projection, default is a mild perspective camera.
+const radians=degrees=>degrees*Math.PI/180;
+const params=new URLSearchParams(location.search);
+const PERSPECTIVE=params.get('camera')!=='ortho';
+const GRASS=params.get('ground')!=='plain';
+document.body.classList.toggle('grass',GRASS);
+const SHADOW=GRASS?'#1a4210':'#23465e';
+let SHADOW_PLANE=0; // receiving plane for cast shadows (raised while drawing an object on its plinth)
+const CAMERA={azimuth:radians(45),elevation:radians(40),scale:Math.sqrt(1.5),origin:[195,429],distance:+params.get('distance')||2400};
+const ca=Math.cos(CAMERA.azimuth),sa=Math.sin(CAMERA.azimuth),ce=Math.cos(CAMERA.elevation),se=Math.sin(CAMERA.elevation);
+const f=n=>+n.toFixed(2);
+const add=(a,b)=>a.map((v,i)=>v+(b[i]||0));
+const sub=(a,b)=>a.map((v,i)=>v-(b[i]||0));
+const scaleV=(a,k)=>a.map(v=>v*k);
+const dot=(a,b)=>a.reduce((sum,v,i)=>sum+v*b[i],0);
+const norm=a=>scaleV(a,1/Math.hypot(...a));
+const rotateZ=([x,y,z=0],angle)=>[x*Math.cos(angle)-y*Math.sin(angle),x*Math.sin(angle)+y*Math.cos(angle),z];
+// Camera basis: right on screen, camera up, towards the camera.
+const RIGHT=[ca,-sa,0],UP=[-sa*se,-ca*se,ce],VIEW=[sa*ce,ca*ce,se],TOWARD_VIEWER=[sa,ca,0];
+// Layout is authored in "map pixels" (x across, y down the scrolling map) and dropped onto the ground once.
+const mapToWorld=([px,py])=>{const x=(px-CAMERA.origin[0])/CAMERA.scale,y=(py-CAMERA.origin[1])/(CAMERA.scale*se);return[ca*x+sa*y,-sa*x+ca*y,0]};
+let TARGET=mapToWorld(CAMERA.origin),EYE=add(TARGET,scaleV(VIEW,CAMERA.distance));
+let CURRENT_SCROLL=0;const TARGET_MAP_Y=()=>CAMERA.origin[1]+CURRENT_SCROLL;
+const setScroll=y=>{CURRENT_SCROLL=y;TARGET=mapToWorld([CAMERA.origin[0],CAMERA.origin[1]+y]);EYE=add(TARGET,scaleV(VIEW,CAMERA.distance))};
+const toCamera=p=>{const r=sub(p,TARGET);return[dot(r,RIGHT),dot(r,UP),dot(r,VIEW)]};
+const project=p=>{const [x,y,z]=toCamera(p),k=PERSPECTIVE?CAMERA.distance/(CAMERA.distance-z):1;return[CAMERA.origin[0]+CAMERA.scale*k*x,CAMERA.origin[1]-CAMERA.scale*k*y]};
+const depthOf=p=>toCamera(p)[2];
+// A face is visible when it turns towards the eye (perspective) or the view direction (ortho).
+const facesCamera=(normal,at)=>dot(normal,PERSPECTIVE?sub(EYE,at):VIEW)>1e-9;
+// Local affine frame of a world plane at point p: text/decal units map to world axes a and b.
+const frameAt=(p,a,b)=>{const o=project(p),u=sub(project(add(p,a)),o),v=sub(project(add(p,b)),o);return `matrix(${[...u,...v,...o].map(f).join(' ')})`};
+const pts=ps=>ps.map(p=>p.map(f).join(',')).join(' ');
+const poly2=(ps,fill,extra='')=>`<polygon points="${pts(ps)}" fill="${fill}" ${extra}/>`;
+const poly=(ps,fill,extra='')=>poly2(ps.map(project),fill,extra);
+const label=(x,y,s,size=11,extra='')=>`<text x="${f(x)}" y="${f(y)}" text-anchor="middle" font-size="${size}" font-weight="650" ${extra}>${s}</text>`;
+
+// Key light upper-left, a little in front of the scene: left faces lit, shadows fall back-right.
+const lightElevation=radians(55);
+const LIGHT=norm(add(scaleV(norm(add(scaleV(RIGHT,-.62),scaleV(TOWARD_VIEWER,.45))),Math.cos(lightElevation)),[0,0,Math.sin(lightElevation)]));
+const AMBIENT=.7,DIFFUSE=.3,TOP_LIGHT=AMBIENT+DIFFUSE*LIGHT[2];
+const intensity=n=>(AMBIENT+DIFFUSE*Math.max(0,dot(n,LIGHT)))/TOP_LIGHT;
+const tint=(hex,k)=>'#'+hex.slice(1).match(/../g).map(c=>Math.min(255,Math.round(parseInt(c,16)*k)).toString(16).padStart(2,'0')).join('');
+const castShadow=([x,y,z=0],planeZ=0)=>[x-(z-planeZ)*LIGHT[0]/LIGHT[2],y-(z-planeZ)*LIGHT[1]/LIGHT[2],planeZ];
+const hull=input=>{const s=[...input].sort((a,b)=>a[0]-b[0]||a[1]-b[1]),cross=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]),lo=[],up=[];
+ for(const p of s){while(lo.length>1&&cross(lo[lo.length-2],lo[lo.length-1],p)<=0)lo.pop();lo.push(p)}
+ for(const p of s.reverse()){while(up.length>1&&cross(up[up.length-2],up[up.length-1],p)<=0)up.pop();up.push(p)}
+ return lo.slice(0,-1).concat(up.slice(0,-1))};
+
+let defs='',uid=0;
+// Shadow = hull of the solid dropped along the light, fading from the contact (dark, sharp) to the tip (light).
+function shadowShape(vertices,from,to,planeZ=SHADOW_PLANE,extra=''){
+ const id='sh'+(uid++),a=project(castShadow(from,planeZ)),b=project(castShadow(to,planeZ));
+ defs+=`<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${f(a[0])}" y1="${f(a[1])}" x2="${f(b[0])}" y2="${f(b[1])}"><stop offset="0" stop-color="${SHADOW}" stop-opacity="${GRASS?.36:.2}"/><stop offset="1" stop-color="${SHADOW}" stop-opacity="${GRASS?.12:.05}"/></linearGradient>`;
+ return poly2(hull(vertices.map(v=>project(castShadow(v,planeZ)))),`url(#${id})`,`filter="url(#soft)" ${extra}`);
+}
+const SEGMENTS=56;
+const ring=(c,r,z)=>Array.from({length:SEGMENTS},(_,i)=>add(c,[r*Math.cos(i*2*Math.PI/SEGMENTS),r*Math.sin(i*2*Math.PI/SEGMENTS),z]));
+// Ambient occlusion right where a solid touches the ground.
+const contact=(c,r)=>poly(ring(c,r+1,0),SHADOW,`fill-opacity="${GRASS?.32:.2}"`+' filter="url(#contact)"');
+// Cylinder: silhouette = hull of both rims, side shaded by the real normal across the visible arc.
+function cylinder(c,r,h,material){
+ const top=ring(c,r,h),bottom=ring(c,r,0),side=hull([...top,...bottom].map(project)),xs=side.map(p=>p[0]),id='cy'+(uid++);
+ const stops=Array.from({length:9},(_,i)=>{const phi=Math.PI*(1-i/8),n=add(scaleV(RIGHT,Math.cos(phi)),scaleV(TOWARD_VIEWER,Math.sin(phi)));return `<stop offset="${f((1+Math.cos(phi))/2)}" stop-color="${tint(material,intensity(n)*.93)}"/>`}).join('');
+ defs+=`<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${f(Math.min(...xs))}" x2="${f(Math.max(...xs))}" y1="0" y2="0">${stops}</linearGradient>`;
+ // Near rim highlight: the top-edge points whose side normal turns to the camera, in ring order.
+ const seen=top.map((p,i)=>facesCamera([Math.cos(i*2*Math.PI/SEGMENTS),Math.sin(i*2*Math.PI/SEGMENTS),0],p));
+ const start=seen.findIndex((v,i)=>v&&!seen[(i+SEGMENTS-1)%SEGMENTS]),arc=[];
+ for(let k=0;k<SEGMENTS&&start>=0;k++){const i=(start+k)%SEGMENTS;if(!seen[i])break;arc.push(project(top[i]))}
+ return poly2(side,`url(#${id})`)+poly(top,material)+`<polyline points="${pts(arc)}" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width=".8" stroke-linecap="round"/>`;
+}
+
+// ---------- Layout: stages. One stage = one screen: 3 lessons (new knowledge), each followed by 2–3 reviews ----------
+const SCREEN=864,STAGE_TOP=226,STAGE_BOTTOM=600,TROPHY_Y=688;
+// L = lesson, R = review. Each stage bends its own way.
+const STAGES=[{dir:1,amp:92,types:'LRRLRRLRR'},{dir:-1,amp:88,types:'LRRRLRRLR'},{dir:1,amp:96,types:'LRRLRRRLR'}];
+const NODES=STAGES.flatMap((S,s)=>[...S.types].map((t,k)=>({stage:s,k,lesson:t==='L',n:S.types.length})));
+const LESSONS=NODES.length,DONE=Math.min(NODES.length,+params.get('progress')||2),CURRENT=DONE; // stage 1: lesson 1 and a review done, the next review is current
+const RADIUS=30,REVIEW_RADIUS=21,TILE_HEIGHT=8;
+const SNAKE={center:195};
+const mapX=i=>{const N=NODES[i],S=STAGES[N.stage];return SNAKE.center+S.dir*S.amp*Math.sin(N.k*2*Math.PI/(N.n-1))};
+const mapY=i=>{const N=NODES[i];return N.stage*SCREEN+STAGE_TOP+N.k*(STAGE_BOTTOM-STAGE_TOP)/(N.n-1)};
+const lessons=NODES.map((_,i)=>mapToWorld([mapX(i),mapY(i)]));
+const radiusOf=i=>NODES[i].lesson?RADIUS:REVIEW_RADIUS;
+const isFinal=()=>false;
+const MAP_HEIGHT=STAGES.length*SCREEN;
+const material=i=>i<DONE?(GRASS?'#ffd84d':'#bde797'):i===CURRENT?(GRASS?'#8fd8ff':'#d7f2ff'):(GRASS?'#f2f5f7':'#edf4f8');
+// Bays: the free side next to each hump of the snake (upper hump ≈ node 2, lower hump ≈ node 6).
+const bay=(s,which)=>{const S=STAGES[s],base=NODES.findIndex(N=>N.stage===s),k=which==='upper'?2:6,side=which==='upper'?-S.dir:S.dir;return[SNAKE.center+side*S.amp,mapY(base+k)]};
+const lessonNumber=i=>NODES.slice(0,i+1).filter(N=>N.stage===NODES[i].stage&&N.lesson).length;
+
+// ---------- Solids ----------
+const centroid=ps=>scaleV(ps.reduce((a,b)=>add(a,b)),1/ps.length);
+const EDGE='stroke-linejoin="round"';
+// Convex polyhedron: draw exactly the faces that turn towards the camera, Lambert-shaded.
+function solid(faces,matl,stroke){
+ const mid=centroid(faces.flatMap(face=>face.ps));
+ return faces.map(face=>{let n=face.n||norm(cross(sub(face.ps[1],face.ps[0]),sub(face.ps[2],face.ps[0])));
+  if(dot(n,sub(centroid(face.ps),mid))<0)n=scaleV(n,-1); // always outward
+  return facesCamera(n,centroid(face.ps))?poly(face.ps,tint(face.matl||matl,intensity(n)),`stroke="${stroke}" stroke-width=".7" ${EDGE}`):''}).join('');
+}
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+
+// Extruded vertical sculpture (letters, ring, wave): the same 2D drawing stacked from back to front.
+// 2D units: x along the plane, y down (0 = foot of the piece). "currentColor" gets the layer colour.
+function extruded(E){
+ const ex=rotateZ(RIGHT,E.yaw),ez=[0,0,-1],back=rotateZ(scaleV(TOWARD_VIEWER,-1),E.yaw),at=k=>add(E.origin,scaleV(back,E.depth*k));
+ const sideTone=E.side||tint(E.color,.7);
+ let s='';const n=E.layers||12;
+ for(let k=n;k>=1;k--)s+=`<g transform="${frameAt(at(k/n),ex,ez)}" color="${k===1?tint(E.color,.82):sideTone}">${E.draw}</g>`;
+ s+=`<g transform="${frameAt(at(0),ex,ez)}" color="${E.color}"${E.edge?` stroke="${E.edge}" stroke-width=".45" paint-order="stroke"`:''}>${E.draw}${E.front||''}</g>`;
+ return s;
+}
+// Its shadow: the drawing sheared onto the ground along the light (text y = −height).
+function extrudedShadow(E){
+ const ex=rotateZ(RIGHT,E.yaw),down=[LIGHT[0]/LIGHT[2],LIGHT[1]/LIGHT[2],0],back=rotateZ(scaleV(TOWARD_VIEWER,-1),E.yaw);
+ const o=k=>castShadow(add(E.origin,scaleV(back,E.depth*k)),SHADOW_PLANE);
+ const cast=[0,.5,1].map(k=>`<g transform="${frameAt(o(k),ex,down)}" color="${SHADOW}" opacity="${GRASS?.16:.12}" filter="url(#soft)">${E.draw}</g>`).join('');
+ // Contact: the drawing flattened onto the ground right at its foot (every glyph touches down).
+ const foot=`<g transform="${frameAt(o(.5),ex,scaleV(back,.2))}" color="${SHADOW}" opacity=".28" filter="url(#soft)">${E.draw}</g>`;
+ return cast+foot;
+}
+
+// Every sculpture is trigonometry, and each has its own colour.
+const line3=(ps,stroke,width,extra='')=>`<polyline points="${pts(ps.map(project))}" fill="none" stroke="${stroke}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round" ${extra}/>`;
+const lineShadow=(ps,width)=>line3(ps.map(p=>castShadow(p,SHADOW_PLANE)),SHADOW,width,'stroke-opacity=".13" filter="url(#soft)"');
+// Screen-facing label pinned to a world point (for letters like h, θ that name parts of a figure).
+const tag=(p,t,size,color,dx=0,dy=0)=>{const q=project(p);return `<text x="${f(q[0]+dx)}" y="${f(q[1]+dy+size*.35)}" text-anchor="middle" font-size="${size}" font-weight="700" font-style="italic" style="fill:${color}">${t}</text>`};
+
+// 1. Unit 1, left bay — the 30-60-90 prism (pastel mint), mirrored: right angle on the left, the 30° tip points right.
+function prismProp(P){
+ const M=P.mirror?-1:1;
+ const world=([x,y,z])=>add(P.center,rotateZ([M*(x-P.w/2-2)*P.scale,y,z*P.scale+P.plinth],P.yaw));
+ const tri=y=>[[0,y,0],[P.w,y,0],[P.w,y,P.h]].map(world),F=tri(P.thickness/2),B=tri(-P.thickness/2);
+ const rot=n=>rotateZ(n,P.yaw);
+ const clip='pc'+(uid++);defs+=`<clipPath id="${clip}">${poly(ring(P.center,P.radius,P.plinth),'#000')}</clipPath>`;
+ let s=cylinder(P.center,P.radius,P.plinth,PLINTH);
+ s+=shadowShape([...F,...B],world([P.w,0,0]),world([P.w,0,P.h]),P.plinth,`clip-path="url(#${clip})"`);
+ s+=solid([{n:rot([0,1,0]),ps:F},{n:rot([0,-1,0]),ps:B},{n:rot([M,0,0]),ps:[F[1],B[1],B[2],F[2]]},{n:rot(norm([-M*P.h,0,P.w])),ps:[F[0],F[2],B[2],B[0]]}],P.color,P.stroke);
+ s+=`<polyline points="${pts([F[0],F[1]].map(project))}" fill="none" stroke="#3f6f8f" stroke-opacity=".5" stroke-width=".9"/>`;
+ const fy=P.thickness/2;
+ if(facesCamera(rot([0,1,0]),F[0])){
+  // Lettering on the front plane; text always runs left→right even when the solid is mirrored.
+  const on=(x,z)=>world([x,fy,z]),ex=scaleV(sub(world([1,fy,0]),world([0,fy,0])),M),ez=sub(world([0,fy,-1]),world([0,fy,0]));
+  const txt=(x,z,t,size,r=0)=>`<g transform="${frameAt(on(x,z),ex,ez)} rotate(${f(r)})">${label(0,size*.35,t,size,`style="fill:${P.ink}"`)}</g>`;
+  const ln=ps=>`<polyline points="${pts(ps.map(([x,z])=>project(on(x,z))))}" fill="none" stroke="${P.ink}" stroke-width="1" stroke-linejoin="round"/>`;
+  const W=P.w,H=P.h,a0=Math.atan2(H,W),m=7;
+  s+=ln([[W-m,0],[W-m,m],[W,m]])+ln(Array.from({length:9},(_,i)=>{const t=a0*i/8;return[12*Math.cos(t),12*Math.sin(t)]}));
+  s+=txt(19,3.2,'30°',6.5)+txt(W*.6,3.6,'√3',7)+txt(W-4.8,H*.45,'1',7)+txt(W/2+5.5*Math.sin(a0),H/2-5.5*Math.cos(a0),'2',7,-M*a0*180/Math.PI)+txt(W-5.5,H-(6.5*H/W+7),'60°',5.5);
+ }
+ const g=shadowShape([...ring(P.center,P.radius,0),...ring(P.center,P.radius,P.plinth)],P.center,add(P.center,[0,0,P.plinth]))+contact(P.center,P.radius)+shadowShape([...F,...B],world([P.w,0,0]),world([P.w,0,P.h]),0);
+ return{ground:g,svg:s};
+}
+
+// Solid 3D lettering (extruded); fill must be inline because the page styles text{fill}.
+const word=(x,y,size,body,anchor='middle')=>`<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" font-weight="800" font-family="system-ui,sans-serif" style="fill:currentColor">${body}</text>`;
+function lettersProp(P){
+ const E={origin:P.center,yaw:P.yaw,depth:5,layers:10,color:P.color,side:P.side,edge:P.edge,draw:P.draw};
+ return{ground:extrudedShadow(E),svg:extruded(E)};
+}
+// 2. Unit 1, right bay — "sen 30° = ½" in pastel sky blue, enlarged, turned to face left (towards the path).
+const SEN30=`<g transform="scale(1.22) translate(30 0)">${word(14,-2,20,'sen 30° =','end')}${word(29,-17.5,13,'1')}<rect x="21.5" y="-15.4" width="15" height="2.2" rx="1.1" fill="currentColor"/>${word(29,-1,13,'2')}</g>`;
+// 6. Unit 3, right bay — "tg 45° = 1" in pastel pink.
+const TAN45=`<g transform="scale(1.22)">${word(0,-2,20,'tg 45° = 1')}</g>`;
+
+// Frustum (tapered drum) standing at c (c may be lifted): bottom radius rb, top radius rt, height h.
+function frustum(c,rb,rt,h,material,rim=true){
+ const top=ring(c,Math.max(rt,.001),h),bottom=ring(c,rb,0),side=hull([...top,...bottom].map(project)),xs=side.map(p=>p[0]),id='fr'+(uid++);
+ const stops=Array.from({length:9},(_,i)=>{const phi=Math.PI*(1-i/8),n=add(scaleV(RIGHT,Math.cos(phi)),scaleV(TOWARD_VIEWER,Math.sin(phi)));return `<stop offset="${f((1+Math.cos(phi))/2)}" stop-color="${tint(material,intensity(norm(add(n,[0,0,(rb-rt)/h])))*.93)}"/>`}).join('');
+ defs+=`<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${f(Math.min(...xs))}" x2="${f(Math.max(...xs))}" y1="0" y2="0">${stops}</linearGradient>`;
+ return poly2(side,`url(#${id})`)+(rt>0?poly(top,material,rim?'stroke="#fff" stroke-opacity=".5" stroke-width=".5"':''):'');
+}
+// Contact occlusion under any footprint polygon (walls, boxes).
+const contactPoly=ps=>poly(ps,SHADOW,`fill-opacity="${GRASS?.3:.2}"`+' filter="url(#contact)"');
+
+// 3. Unit 2, left bay — angle of elevation: a lighthouse of height h seen from a point on the ground at angle θ.
+function lighthouseProp(P){
+ const c=P.center,u=norm(rotateZ(RIGHT,P.yaw)),g0=add(c,scaleV(u,P.distance)),toward=scaleV(u,-1);
+ const bands=5,bandH=10,rb=12,rt=8.5,r=z=>rb+(rt-rb)*z/(bands*bandH);
+ let s=frustum(c,15,13.5,4,'#e6edf2');
+ for(let k=0;k<bands;k++)s+=frustum(add(c,[0,0,4+k*bandH]),r(k*bandH),r((k+1)*bandH),bandH,k%2?'#fbf7f2':'#ff7d6e');
+ const z1=4+bands*bandH;
+ s+=frustum(add(c,[0,0,z1]),12,12,2.4,'#56748a');
+ s+=frustum(add(c,[0,0,z1+2.4]),6.2,6.2,8,'#ffe7a0')+frustum(add(c,[0,0,z1+10.4]),8.8,0,8,'#ff7d6e',false);
+ const H=z1+18.4,top=add(c,[0,0,H]),theta=Math.atan2(H,P.distance);
+ const arc=Array.from({length:10},(_,i)=>{const t=theta*i/9;return add(g0,add(scaleV(toward,16*Math.cos(t)),[0,0,16*Math.sin(t)]))});
+ let front=line3([g0,c],'#b3473b',1.1,'stroke-dasharray="3 3"')+line3([g0,top],'#b3473b',1.5,'stroke-dasharray="4 3"')+line3(arc,'#b3473b',1.3);
+ const m=project(g0);front+=`<ellipse cx="${f(m[0])}" cy="${f(m[1])}" rx="${f(CAMERA.scale*3)}" ry="${f(CAMERA.scale*3*se)}" fill="#b3473b"/>`;
+ front+=tag(add(g0,add(scaleV(toward,24*Math.cos(theta/2)),[0,0,24*Math.sin(theta/2)])),'θ',10,'#b3473b',4,0)+tag(add(c,[0,0,H/2]),'h',11,'#b3473b',-(rb*CAMERA.scale+9),0)+tag(add(g0,scaleV(toward,P.distance/2)),'d',10,'#b3473b',0,8);
+ // The sight line passes in front of the tower (the observer stands nearer the camera side).
+ const gr=shadowShape([...ring(c,15,0),...ring(c,rb,4),...ring(c,rt,z1),...ring(c,.5,H)],c,top)+contact(c,15);
+ return{ground:gr,svg:s+front,lamp:project(add(c,[0,0,z1+6.4]))};
+}
+
+// 4. Unit 2, right bay — a kite on a taut string: string length, angle θ with the ground, height h.
+function kiteProp(P){
+ const u=norm(rotateZ(RIGHT,P.yaw)),n=norm(rotateZ(TOWARD_VIEWER,P.yaw)),g0=P.center,theta=Math.atan2(P.height,P.run);
+ const K=add(g0,add(scaleV(u,P.run),[0,0,P.height]));
+ // The kite leans back 25° into the wind and its two halves fold slightly along the spine.
+ const lean=radians(25),v=add([0,0,Math.cos(lean)],scaleV(n,-Math.sin(lean)));
+ const at=(x,y,back=0)=>add(K,add(add(scaleV(u,x),scaleV(v,y)),scaleV(n,-back)));
+ const top=at(0,20),bottom=at(0,-22),left=at(-15,3,4),right=at(15,3,4),mid=at(0,3);
+ const panel=(ps,col)=>{let N=norm(cross(sub(ps[1],ps[0]),sub(ps[2],ps[0])));if(dot(N,VIEW)<0)N=scaleV(N,-1);return poly(ps,tint(col,Math.min(1.08,intensity(N)*1.08)),'stroke="#fff" stroke-width=".5" stroke-opacity=".7" stroke-linejoin="round"')};
+ let air=panel([top,left,mid],'#ffd23f')+panel([left,bottom,mid],'#a96bff')+panel([top,right,mid],'#a96bff')+panel([right,bottom,mid],'#ffd23f');
+ air+=line3([top,bottom],'#6a3fc0',.9)+line3([left,mid,right],'#6a3fc0',.9);
+ // Soft ribbon tail with three bows.
+ const tail=Array.from({length:14},(_,i)=>add(at(3.2*Math.sin(i*.75),-22-i*2.3),scaleV(n,-i*.2)));
+ air+=line3(tail,'#6a3fc0',.8)+[4,8,12].map((i,k)=>{const p=tail[i],c=k%2?'#2fd3c0':'#ff4f9a';return poly([add(p,add(scaleV(u,-4),[0,0,1.8])),p,add(p,add(scaleV(u,-4),[0,0,-1.8]))],c)+poly([add(p,add(scaleV(u,4),[0,0,1.8])),p,add(p,add(scaleV(u,4),[0,0,-1.8]))],c)}).join('');
+ // String with a slight sag from the spool to the bridle.
+ const string=Array.from({length:16},(_,i)=>{const t=i/15;return add(add(scaleV(g0,1-t),scaleV(mid,t)),[0,0,-5*4*t*(1-t)])});
+ let s=line3(string,'#3d4a56',.9);
+ // The problem: θ at the hand, height h straight down to the ground.
+ const foot=add(g0,scaleV(u,P.run));
+ s+=line3([mid,foot],'#4b3b9a',1,'stroke-dasharray="3 3"')+line3([g0,foot],'#4b3b9a',1,'stroke-dasharray="3 3"');
+ const arc=Array.from({length:10},(_,i)=>{const t=theta*i/9;return add(g0,add(scaleV(u,15*Math.cos(t)),[0,0,15*Math.sin(t)]))});
+ s+=line3(arc,'#4b3b9a',1.3)+tag(add(g0,add(scaleV(u,23*Math.cos(theta/2)),[0,0,23*Math.sin(theta/2)])),'θ',10,'#4b3b9a',2,0)+tag(add(foot,[0,0,P.height*.4]),'h',11,'#4b3b9a',-8,0);
+ s+=frustum(g0,3.4,3.4,3.4,'#4fa8ff')+frustum(add(g0,[0,0,3.4]),1.7,1.7,2,'#2f6fd0',false);
+ const kiteShadow=poly([top,right,bottom,left].map(p=>castShadow(p,SHADOW_PLANE)),SHADOW,'fill-opacity=".18" filter="url(#soft)"');
+ return{ground:kiteShadow+lineShadow(string,1)+lineShadow(tail,.8)+contact(g0,3.5),svg:s,air:{svg:air,pivot:project(mid)}};
+}
+
+// 5. Unit 3, left bay — a ladder leaning on a wall at 60°: the classic sen/cos word problem.
+function ladderProp(P){
+ const c=P.center,n=rotateZ(RIGHT,P.yaw),a=rotateZ(TOWARD_VIEWER,P.yaw),T=13,Lw=50,H=52;
+ const box=[-1,1].flatMap(sx=>[-1,1].map(sy=>add(c,add(scaleV(a,sx*Lw/2),scaleV(n,sy*T/2)))));
+ const [p00,p01,p10,p11]=box,up=p=>add(p,[0,0,H]);
+ // Brick wall: every visible side gets staggered courses of bricks over mortar; a concrete cap on top.
+ const BRICKS=['#c65a45','#b84f3c','#d0664f','#bf5641','#c95e48'];let s='',seed=3;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+ // Each side: start corner, run direction, length and its true outward normal (box corners p[sx][sy]: sx along a, sy along n).
+ const sides=[{q0:p01,dir:a,len:Lw,nrm:n},{q0:p10,dir:n,len:T,nrm:a},{q0:p00,dir:a,len:Lw,nrm:scaleV(n,-1)},{q0:p00,dir:n,len:T,nrm:scaleV(a,-1)}];
+ sides.forEach(F=>{
+  const q0=F.q0,q1=add(q0,scaleV(F.dir,F.len)),mid=add(scaleV(add(q0,q1),.5),[0,0,H/2]);
+  if(!facesCamera(F.nrm,mid))return;
+  const k=intensity(F.nrm);s+=poly([q0,q1,up(q1),up(q0)],tint('#e6dccd',k));
+  const rows=10,rh=H/rows,bl=10.5,g=.55,around=F.len===T?(F.nrm===a?Lw:0):0;
+  for(let r=0;r<rows;r++){const off=((r%2)*bl/2+around)%bl;for(let u=-off;u<F.len;u+=bl){const u0=Math.max(0,u)+g,u1=Math.min(F.len,u+bl)-g;if(u1-u0<1)continue;
+   const z0=r*rh+g,z1=(r+1)*rh-g,at=(uu,zz)=>add(add(q0,scaleV(F.dir,uu)),[0,0,zz]);
+   s+=poly([at(u0,z0),at(u1,z0),at(u1,z1),at(u0,z1)],tint(BRICKS[Math.floor(rnd()*BRICKS.length)],k))}}
+ });
+ s+=poly([up(p00),up(p10),up(p11),up(p01)],'#d9d3c8','stroke="#c4bdb0" stroke-width=".6"');
+ // Ladder: two square rails and round-ish rungs, solid 3D beams, drawn far → near.
+ const run=H/Math.tan(radians(60)),wallFace=add(c,scaleV(n,T/2)),foot=add(wallFace,scaleV(n,run));
+ const beam=(p0,p1,w,col)=>{const d=norm(sub(p1,p0)),sd=norm(a[0]*d[0]+a[1]*d[1]>.9?n:a),ot=norm(cross(d,sd)),corner=(p,i,j)=>add(p,add(scaleV(sd,i*w/2),scaleV(ot,j*w/2)));
+  const ring4=[[-1,-1],[1,-1],[1,1],[-1,1]];return{depth:depthOf(scaleV(add(p0,p1),.5)),svg:solid(ring4.map((q,i)=>{const r=ring4[(i+1)%4];return{ps:[corner(p0,...q),corner(p0,...r),corner(p1,...r),corner(p1,...q)]}}),col,tint(col,.75))}};
+ const rail=k=>[add(foot,scaleV(a,k)),add(add(wallFace,[0,0,H-3]),scaleV(a,k))];
+ const rails=[rail(-6.5),rail(6.5)],parts=rails.map(r=>beam(r[0],r[1],2.4,'#ffd23f'));
+ for(let i=1;i<=6;i++){const t=i/7,p0=add(rails[0][0],scaleV(sub(rails[0][1],rails[0][0]),t)),p1=add(rails[1][0],scaleV(sub(rails[1][1],rails[1][0]),t));parts.push(beam(p0,p1,1.6,'#f0bf1a'))}
+ parts.sort((x,y)=>x.depth-y.depth);s+=parts.map(p=>p.svg).join('');
+ const arc=Array.from({length:10},(_,i)=>{const t=radians(60)*i/9;return add(foot,add(scaleV(n,-12*Math.cos(t)),[0,0,12*Math.sin(t)]))});
+ s+=line3(arc,'#7a2f22',1.3)+tag(add(foot,scaleV(n,-7)),'60°',8,'#7a2f22',2,11);
+ const gr=shadowShape([...box,...box.map(up)],c,up(c))+contactPoly([p00,p01,p11,p10])+rails.map(r=>lineShadow(r,2.6)).join('');
+ return{ground:gr,svg:s};
+}
+
+
+// Stage finish: a trophy on a small plinth, gold once every node of the stage is done.
+function trophyProp(P){
+ const c=P.center,done=P.done,gold=done?'#ffc83d':'#d3dbe2',deep=done?'#d99a00':'#aab6c0',base=done?'#3f5a78':'#8b9aa8',S=1.4;
+ let s=frustum(c,9*S,8*S,4*S,base)+frustum(add(c,[0,0,4*S]),6.5*S,6*S,2*S,base)+frustum(add(c,[0,0,6*S]),2.4*S,2*S,7*S,gold)+frustum(add(c,[0,0,13*S]),4*S,4*S,2*S,deep);
+ const cup=add(c,[0,0,15*S]),handle=side=>Array.from({length:9},(_,i)=>{const t=i/8;return add(cup,add(scaleV(RIGHT,side*(8+5.5*Math.sin(Math.PI*t))*S),[0,0,(12-8*t)*S]))});
+ s+=line3(handle(-1),deep,2.4*S)+line3(handle(1),deep,2.4*S);
+ s+=frustum(cup,5*S,11*S,14*S,gold,false)+poly(ring(cup,11*S,14*S),tint(gold,1.05))+poly(ring(cup,9.4*S,14*S),deep);
+ const face=add(cup,add(scaleV(TOWARD_VIEWER,9.8*S),[0,0,9.5*S]));
+ s+=`<g transform="${frameAt(face,scaleV(RIGHT,.28*S),[0,0,-.28*S])}"><path d="${STAR}" fill="${done?'#fff6c8':'#eef2f5'}"/></g>`;
+ const gr=shadowShape([...ring(c,9*S,0),...ring(cup,11*S,14*S)],c,add(cup,[0,0,14*S]))+contact(c,9*S);
+ return{ground:gr,svg:s};
+}
+const PROPS=[
+ {kind:prismProp,at:[bay(0,'upper')[0]-12,bay(0,'upper')[1]+4],mirror:true,yaw:radians(-65),w:70,h:70/Math.sqrt(3),scale:1.55,radius:58,tall:62,plinth:8,thickness:15,color:'#5b8cff',stroke:'#3f6fd9',ink:'#ffffff'},
+ {kind:lettersProp,at:[bay(0,'lower')[0]-30,bay(0,'lower')[1]+10],yaw:radians(12),color:'#3ec6ff',side:'#1f93cc',edge:'#1a84b8',draw:SEN30,tall:32,plinth:{shape:'slab',L:0,D:14,h:5,back:2.5}},
+ {kind:lighthouseProp,at:[bay(1,'lower')[0]-30,bay(1,'lower')[1]-8],yaw:radians(18),distance:48,tall:76,plinth:{shape:'round',r:42,h:6,shift:24}},
+ {kind:kiteProp,at:[bay(1,'upper')[0]-52,bay(1,'upper')[1]+30],yaw:radians(12),run:62,height:58,tall:90,plinth:{shape:'slab',alongRun:true,L:78,D:14,h:5}},
+ {kind:ladderProp,at:[bay(2,'upper')[0]-20,bay(2,'upper')[1]-4],yaw:radians(38),color:'#c65a45',tall:56,plinth:{shape:'slab',wall:true,h:5}},
+ {kind:lettersProp,at:[bay(2,'lower')[0]-22,bay(2,'lower')[1]+10],yaw:radians(10),color:'#ff4f9a',side:'#cf2f74',edge:'#bd2a6a',draw:TAN45,tall:32,plinth:{shape:'slab',L:0,D:14,h:5,back:2.5}},
+].concat(STAGES.map((S,s)=>({kind:trophyProp,at:[SNAKE.center,s*SCREEN+TROPHY_Y],yaw:0,tall:55,trophy:true,
+   done:NODES.every((N,i)=>N.stage!==s||i<DONE),plinth:{shape:'round',r:22,h:5}}))).map(p=>{
+  const stage=Math.floor(p.at[1]/SCREEN),k=p.trophy?9:(p.at[1]-stage*SCREEN-STAGE_TOP)/((STAGE_BOTTOM-STAGE_TOP)/8);
+  return {...p,center:mapToWorld(p.at),stage,k};
+});
+
+
+// ---------- Plinths: every sculpture stands on one; its shadows then fall on the plinth top ----------
+const PLINTH=GRASS?'#f4f1ea':'#e8f3fa';
+function slabGeometry(c,axisL,axisD,L,D,h){
+ const q=(sl,sd,z)=>add(c,add(add(scaleV(axisL,sl*L/2),scaleV(axisD,sd*D/2)),[0,0,z]));
+ const bottom=[q(-1,-1,0),q(1,-1,0),q(1,1,0),q(-1,1,0)],top=bottom.map(p=>add(p,[0,0,h]));
+ const faces=[{ps:top},...[0,1,2,3].map(i=>({ps:[bottom[i],bottom[(i+1)%4],top[(i+1)%4],top[i]]}))];
+ return{bottom,top,faces};
+}
+function plinthFor(P){
+ const pl=P.plinth,h=pl.h;
+ if(pl.shape==='round'){
+  const u=norm(rotateZ(RIGHT,P.yaw)),c=add(P.center,scaleV(u,pl.shift||0));
+  return{h,svg:cylinder(c,pl.r,h,PLINTH),top:ring(c,pl.r,h),bottom:ring(c,pl.r,0),ground:shadowShape([...ring(c,pl.r,0),...ring(c,pl.r,h)],c,add(c,[0,0,h]),0)+contact(c,pl.r)};
+ }
+ let c=P.center,axisL=rotateZ(RIGHT,P.yaw),axisD=rotateZ(TOWARD_VIEWER,P.yaw),L=pl.L,D=pl.D;
+ if(pl.back)c=add(c,scaleV(axisD,-pl.back));
+ if(pl.alongRun)c=add(c,scaleV(axisL,P.run/2));
+ if(pl.offset)c=add(c,scaleV(axisL,pl.offset));
+ if(pl.wall){const run=52/Math.tan(radians(60)),T=13;L=T+run+12;D=58;c=add(c,scaleV(axisL,(run+T/2)/2+1))}
+ const g=slabGeometry(c,axisL,axisD,L,D,h);
+ return{h,svg:solid(g.faces,PLINTH,'#dcd6c9'),top:g.top,bottom:g.bottom,ground:shadowShape([...g.bottom,...g.top],c,add(c,[0,0,h]),0)+contactPoly(g.bottom)};
+}
+// Draw a prop on its plinth: shadows cast onto the plinth top (clipped to it), overshoot onto the ground.
+function drawProp(P){
+ if(!P.plinth)return P.kind(P);
+ const base=plinthFor(P),lifted={...P,center:add(P.center,[0,0,base.h])};
+ SHADOW_PLANE=0;const onGround=P.kind(lifted);
+ SHADOW_PLANE=base.h;const onTop=P.kind(lifted);SHADOW_PLANE=0;
+ const clip='pl'+(uid++);defs+=`<clipPath id="${clip}">${poly(base.top,'#000')}</clipPath>`;
+ return{ground:base.ground+onGround.ground,svg:base.svg+`<g clip-path="url(#${clip})">${onTop.ground}</g>`+onTop.svg,air:onTop.air,lamp:onTop.lamp};
+}
+
+
+function measureDraw(draw){const g=document.createElementNS('http://www.w3.org/2000/svg','g');g.innerHTML=draw;document.querySelector('svg.scene').appendChild(g);const b=g.getBBox();g.remove();return b}
+// Letter plinths fit the real width of the lettering (+6 each side).
+PROPS.filter(P=>P.kind===lettersProp).forEach(P=>{const b=measureDraw(P.draw);P.plinth.L=b.width+12;P.plinth.offset=b.x+b.width/2});
+// ---------- Lawn: painted once into a canvas in map coordinates, laid on the ground plane with an exact
+// perspective homography (CSS matrix3d). Scrolling only changes that matrix, so dense grass costs nothing per frame.
+function solveHomography(src,dst){ // 4 point pairs → [a,b,c,d,e,f,g,h] with x'=(au+bv+c)/(gu+hv+1)
+ const A=[],B=[];
+ src.forEach(([u,v],i)=>{const [x,y]=dst[i];A.push([u,v,1,0,0,0,-u*x,-v*x]);B.push(x);A.push([0,0,0,u,v,1,-u*y,-v*y]);B.push(y)});
+ for(let c=0;c<8;c++){let p=c;for(let r=c+1;r<8;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;[A[c],A[p]]=[A[p],A[c]];[B[c],B[p]]=[B[p],B[c]];
+  for(let r=0;r<8;r++){if(r===c)continue;const k=A[r][c]/A[c][c];for(let j=c;j<8;j++)A[r][j]-=k*A[c][j];B[r]-=k*B[c]}}
+ return B.map((b,i)=>b/A[i][i]);
+}
+const applyH=(H,[u,v])=>{const w=H[6]*u+H[7]*v+1;return[(H[0]*u+H[1]*v+H[2])/w,(H[3]*u+H[4]*v+H[5])/w]};
+const invertH=H=>{const [a,b,c,d,e,f,g,h]=H,m=[[a,b,c],[d,e,f],[g,h,1]],det=a*(e-f*h)-b*(d-f*g)+c*(d*h-e*g);
+ const inv=[[e-f*h,c*h-b,b*f-c*e],[f*g-d,a-c*g,c*d-a*f],[d*h-e*g,b*g-a*h,a*e-b*d]].map(r=>r.map(x=>x/det));const s=inv[2][2];
+ return[inv[0][0]/s,inv[0][1]/s,inv[0][2]/s,inv[1][0]/s,inv[1][1]/s,inv[1][2]/s,inv[2][0]/s,inv[2][1]/s]};
+// Homography map-units → screen-units for the current camera.
+const groundH=()=>{const sq=[[0,0],[400,0],[400,400],[0,400]];return solveHomography(sq,sq.map(p=>project(mapToWorld(p))))};
+
+// Area the ground must cover: every screen corner, at the first and last scroll position.
+const LAWN=(()=>{if(!GRASS)return null;
+ const maxScroll=MAP_HEIGHT-864,xs=[],ys=[];
+ for(const s of [0,maxScroll/2,maxScroll]){setScroll(s);const Hi=invertH(groundH());for(const c of [[0,0],[390,0],[0,864],[390,864]]){const m=applyH(Hi,c);xs.push(m[0]);ys.push(m[1])}}
+ setScroll(0);
+ const x0=Math.floor(Math.min(...xs))-24,y0=Math.floor(Math.min(...ys))-24,w=Math.ceil(Math.max(...xs))+24-x0,h=Math.ceil(Math.max(...ys))+24-y0;
+ return{x0,y0,w,h,res:Math.min(3.8,Math.sqrt(14e6/(w*h)))};
+})();
+
+// Where flowers must not grow: plinth footprints, a margin, and the ground a tall piece hides behind it.
+const segDist2=(p,a,b)=>{const d=sub(b,a),t=Math.max(0,Math.min(1,dot(sub(p,a),d)/dot(d,d)));return Math.hypot(...sub(p,add(a,scaleV(d,t))).slice(0,2))};
+const inPoly=(p,ps)=>{let s=0;for(let i=0;i<ps.length;i++){const a=ps[i],b=ps[(i+1)%ps.length],c=(b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0]);if(c!==0){if(s===0)s=Math.sign(c);else if(Math.sign(c)!==s)return false}}return true};
+const polyDist=(p,ps)=>inPoly(p,ps)?0:Math.min(...ps.map((a,i)=>segDist2(p,a,ps[(i+1)%ps.length])));
+function paintLawn(){
+ const L=LAWN,cv=document.createElement('canvas');
+ cv.width=Math.round(L.w*L.res);cv.height=Math.round(L.h*L.res);
+ const ctx=cv.getContext('2d');ctx.scale(L.res,L.res);ctx.translate(-L.x0,-L.y0);
+ let seed=5;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+ const lessonsMap=lessons.map((c,i)=>({p:mapToScreen0(c),r:radiusOf(i)*CAMERA.scale}));
+ // Stylised lawn to match the flat-shaded sculptures: one clean green, a few soft patches, sparse simple tufts.
+ ctx.fillStyle='#7cc957';ctx.fillRect(L.x0,L.y0,L.w,L.h);
+ const patch=(x,y,r,c)=>{const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,c);g.addColorStop(.72,c);g.addColorStop(1,c.slice(0,7)+'00');ctx.save();ctx.translate(x,y);ctx.scale(1,se);ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,r,0,7);ctx.fill();ctx.restore()};
+ for(let i=0;i<L.w*L.h/5200;i++){const x=L.x0+rnd()*L.w,y=L.y0+rnd()*L.h,c=rnd()<.5?'#86d261':'#72bf4f';for(let k=0;k<3;k++)patch(x+(rnd()-.5)*40,y+(rnd()-.5)*22,16+rnd()*26,c)}
+ const vert=CAMERA.scale*ce,pathPts=lessons.map(mapToScreen0);
+ const nearPath=(x,y,m)=>pathPts.slice(1).some((b,i)=>{if(NODES[i].stage!==NODES[i+1].stage)return false;const a=pathPts[i],d=[b[0]-a[0],b[1]-a[1]],t=Math.max(0,Math.min(1,((x-a[0])*d[0]+(y-a[1])*d[1])/(d[0]*d[0]+d[1]*d[1])));return Math.hypot(x-a[0]-d[0]*t,y-a[1]-d[1]*t)<m});
+ const hidden=(x,y)=>lessonsMap.some(l=>Math.hypot((x-l.p[0])/l.r,(y-l.p[1])/(l.r*se))<1.1)||nearPath(x,y,10);
+ // Tufts vary: 1–6 blades, own fan angle, height, width and a shade picked per tuft; some grow in small groups.
+ const SHADES=[['#4a9a31','#5fb142','#98dc72'],['#529f36','#6bbb4a','#a8e582'],['#43912c','#58a93c','#8ed468'],['#5aa83c','#74c353','#b3ea8c']];
+ const tufts=[];
+ const addTuft=(x,y,scale)=>{if(hidden(x,y))return;const n=1+Math.floor(rnd()*rnd()*6)+ (rnd()<.5?1:0),spread=.5+rnd()*1.1,bl=[];
+  for(let k=0;k<n;k++){const u=n===1?0:k/(n-1)-.5;bl.push({off:u*(1.6+n*.5)+(rnd()-.5)*.8,dx:u*spread*5+(rnd()-.5)*1.8,h:(3.2+rnd()*3.2)*(1-.3*Math.abs(u)),w:1.15+rnd()*.75,front:rnd()<.45})}
+  tufts.push({x,y,s:scale*vert,flip:rnd()<.5?-1:1,shade:SHADES[Math.floor(rnd()*SHADES.length)],bl})};
+ for(let i=0,N=Math.round(L.w*L.h/340);i<N;i++){const x=L.x0+rnd()*L.w,y=L.y0+rnd()*L.h,sc=.95+rnd()*.85;
+  addTuft(x,y,sc);if(rnd()<.4)for(let k=1+Math.floor(rnd()*3);k>0;k--)addTuft(x+(rnd()-.5)*14,y+(rnd()-.5)*6,sc*(.6+rnd()*.5))}
+ tufts.sort((a,b)=>a.y-b.y);
+ const blade=(x,y,dx,h,w)=>{ctx.beginPath();ctx.moveTo(x-w,y);ctx.quadraticCurveTo(x-w*.2+dx*.2,y-h*.6,x+dx,y-h);ctx.quadraticCurveTo(x+w*.6+dx*.3,y-h*.5,x+w,y);ctx.closePath();ctx.fill()};
+ for(const t of tufts){const s=t.s,f=t.flip,[dark,mid,light]=t.shade;
+  ctx.fillStyle='rgba(40,90,20,.16)';ctx.beginPath();ctx.ellipse(t.x+1,t.y+.4,(2+t.bl.length*1.2)*s,1.4*s,0,0,7);ctx.fill();
+  for(const b of t.bl.filter(b=>!b.front)){ctx.fillStyle=dark;blade(t.x+b.off*s*f,t.y,b.dx*s*f,b.h*s,b.w*s*.85)}
+  for(const b of t.bl.filter(b=>b.front)){ctx.fillStyle=mid;blade(t.x+b.off*s*f,t.y,b.dx*s*f,b.h*s,b.w*s);ctx.fillStyle=light;blade(t.x+b.off*s*f+.2*s,t.y-b.h*s*.3,b.dx*s*f*.8,b.h*s*.7,b.w*s*.3)}
+  if(!t.bl.some(b=>b.front)){const b=t.bl[0];ctx.fillStyle=light;blade(t.x+b.off*s*f,t.y-b.h*s*.35,b.dx*s*f*.7,b.h*s*.6,b.w*s*.25)}
+ }
+ // Flowers in small clusters, kept away from the path and from every sculpture (and the ground it hides).
+ const KINDS=[{petal:'#ffffff',core:'#ffd23f',n:6,r:2},{petal:'#ffd84d',core:'#ffffff',n:5,r:1.9},{petal:'#ff8cc0',core:'#fff2a8',n:5,r:1.9},{petal:'#a98bff',core:'#fff2a8',n:5,r:1.9}];
+ const blocked=(x,y)=>{if(nearPath(x,y,20))return true;if(lessonsMap.some(l=>Math.hypot((x-l.p[0])/l.r,(y-l.p[1])/(l.r*se))<1.25))return true;
+  return FOOTPRINTS.some(F=>{for(let t=0;t<=F.tall;t+=8){const q=[x,y+t];if(polyDist(q,F.ps)<14)return true}return false})};
+ const fl=[];
+ for(let k=0;k<L.w*L.h/14000;k++){const cx=L.x0+rnd()*L.w,cy=L.y0+rnd()*L.h,K=KINDS[Math.floor(rnd()*KINDS.length)],n=3+Math.floor(rnd()*6);
+  for(let j=0;j<n;j++){const x=cx+(rnd()*2-1)*16,y=cy+(rnd()*2-1)*11;if(!blocked(x,y))fl.push({x,y,K,h:(5+rnd()*4)*vert,s:.85+rnd()*.4})}}
+ fl.sort((a,b)=>a.y-b.y);
+ for(const f of fl){const tx=f.x,ty=f.y-f.h,r=f.K.r*f.s;
+  ctx.strokeStyle='#4f9f35';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(f.x,f.y);ctx.quadraticCurveTo(f.x+.8,f.y-f.h*.5,tx,ty);ctx.stroke();
+  ctx.fillStyle='rgba(40,90,20,.18)';ctx.beginPath();ctx.ellipse(f.x+1,f.y+.3,2.2,.8,0,0,7);ctx.fill();
+  ctx.fillStyle=f.K.petal;for(let i=0;i<f.K.n;i++){const a=i*2*Math.PI/f.K.n;ctx.beginPath();ctx.arc(tx+Math.cos(a)*r*.9,ty+Math.sin(a)*r*.7,r*.62,0,7);ctx.fill()}
+  ctx.fillStyle=f.K.core;ctx.beginPath();ctx.arc(tx,ty,r*.62,0,7);ctx.fill()}
+ return cv;
+}
+// Map units at scroll 0 (the canvas is painted in these coordinates).
+function mapToScreen0(p){const x=dot(p,[ca,-sa,0])*CAMERA.scale+CAMERA.origin[0],y=dot(p,[sa,ca,0])*CAMERA.scale*se+CAMERA.origin[1];return[x,y]}
+let lawnSrc=null,lawnView=null;
+// Every screen row is one line of constant depth on the ground, and along it the map→screen mapping is linear.
+// So the lawn is drawn as thin horizontal strips with plain 2D drawImage: exact perspective, no 3D layers, cheap per frame.
+function placeLawn(){
+ if(!lawnSrc)return;
+ const cw=lawnView.clientWidth,chh=lawnView.clientHeight,dpr=Math.min(3,devicePixelRatio||1),k=cw/390;
+ if(lawnView.width!==Math.round(cw*dpr)||lawnView.height!==Math.round(chh*dpr)){lawnView.width=Math.round(cw*dpr);lawnView.height=Math.round(chh*dpr)}
+ const ctx=lawnView.getContext('2d'),Hi=invertH(groundH()),L=LAWN,r=L.res,dy=2.5;
+ ctx.setTransform(dpr*k,0,0,dpr*k,0,0);ctx.imageSmoothingQuality='high';
+ for(let ys=0;ys<864;ys+=dy){
+  const a=applyH(Hi,[0,ys]),b=applyH(Hi,[390,ys]),c=applyH(Hi,[0,ys+dy]);
+  const sx=(a[0]-L.x0)*r,sw=(b[0]-a[0])*r,sy=(a[1]-L.y0)*r,sh=Math.max(.5,(c[1]-a[1])*r);
+  if(sy<0||sy+sh>lawnSrc.height||sx<0||sx+sw>lawnSrc.width)continue;
+  ctx.drawImage(lawnSrc,sx,sy,sw,sh,0,ys,390,dy+.6);
+ }
+}
+
+const FOOTPRINTS=PROPS.map(P=>({ps:(typeof P.plinth==='object'?plinthFor(P).bottom:ring(P.center,P.radius,0)).map(mapToScreen0),tall:P.tall||40}));
+
+// ---------- Render for the current camera position ----------
+const REPEAT='<path d="M-7 -1.5A7.2 7.2 0 0 1 5.6 -4.6"/><path d="M6.4 -9.2 5.9 -4.2 1.2 -5.6"/><path d="M7 1.5A7.2 7.2 0 0 1 -5.6 4.6"/><path d="M-6.4 9.2 -5.9 4.2 -1.2 5.6"/>';
+const STAR=Array.from({length:10},(_,k)=>{const r=k%2?7.5:17,t=-Math.PI/2+k*Math.PI/5;return `${k?'L':'M'}${f(r*Math.cos(t))} ${f(r*Math.sin(t))}`}).join('')+'Z';
+const onScreen=p=>{if(PERSPECTIVE&&toCamera(p)[2]>CAMERA.distance*.7)return false;const q=project(p);return q[1]>-160&&q[1]<1020};
+// Stage transition: nodes and sculptures of a stage pop up from their base as it scrolls in (staggered along the path).
+const CALM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const stageVis=s=>1-Math.min(1,Math.abs(CURRENT_SCROLL-s*SCREEN)/SCREEN);
+const easeOutBack=t=>{const c1=1.25,c3=c1+1;return 1+c3*(t-1)**3+c1*(t-1)**2};
+function popOf(stage,k){if(CALM)return{s:1,o:1};const t=Math.max(0,Math.min(1,(stageVis(stage)-.3-k*.025)/.45));return{s:t>=1?1:easeOutBack(t),o:Math.min(1,t*1.8)}}
+const popWrap=(svg,base,p)=>p.s>=1&&p.o>=1?svg:(p.o<=.01?'':`<g transform="translate(${f(base[0])} ${f(base[1])}) scale(${f(Math.max(.001,p.s))}) translate(${f(-base[0])} ${f(-base[1])})" opacity="${f(p.o)}">${svg}</g>`);
+const fx={kite:document.querySelector('.fx .kite'),kiteG:document.querySelector('.fx .kite g'),glow:document.querySelector('.fx .glow')};
+function render(){
+ defs='';uid=0;
+ let ground='';const objects=[];let air=null,lamp=null,here=null;
+ const trophyOf=s=>PROPS.find(P=>P.trophy&&P.stage===s);
+ // Path dots on the ground: light up to the current node; each stage's path ends at its trophy.
+ const segs=lessons.slice(1).map((c,i)=>[i,i+1]).filter(([a,b])=>NODES[a].stage===NODES[b].stage).map(([a,b])=>({a:lessons[a],b:lessons[b],ra:radiusOf(a),rb:radiusOf(b),lit:a<CURRENT,stage:NODES[a].stage,k:a}));
+ STAGES.forEach((S,s)=>{const last=NODES.map((N,i)=>i).filter(i=>NODES[i].stage===s).pop(),T=trophyOf(s);segs.push({a:lessons[last],b:T.center,ra:radiusOf(last),rb:T.plinth.r,lit:last<CURRENT,stage:s,k:8})});
+ segs.forEach(g=>{
+  if(!onScreen(g.a)&&!onScreen(g.b))return;
+  const p=popOf(g.stage,g.k);if(p.o<.5)return;
+  const d=sub(g.b,g.a),len=Math.hypot(d[0],d[1]),u=scaleV(d,1/len),from=g.ra+7,to=len-g.rb-10,n=Math.max(1,Math.round((to-from)/9));
+  const fill=GRASS?(g.lit?'#fff1a8':'#f7fbf2'):(g.lit?'#9fcf78':'#c7d8e3');
+  for(let k=0;k<=n;k++){const q=add(g.a,scaleV(u,from+(to-from)*k/n));ground+=poly(ring(q,2.1,0).filter((_,j)=>j%7===0),fill)}
+ });
+ lessons.forEach((c,i)=>{
+  if(!onScreen(c))return;
+  const r=radiusOf(i),th=NODES[i].lesson?TILE_HEIGHT:6,top=add(c,[0,0,th]),p=popOf(NODES[i].stage,NODES[i].k),base=project(c);
+  ground+=popWrap(shadowShape([...ring(c,r,0),...ring(c,r,th)],c,top)+contact(c,r),base,p);
+  // Lessons carry their number within the stage; reviews are smaller and carry a repeat icon.
+  const mark=NODES[i].lesson?label(0,8,lessonNumber(i),24,i>CURRENT?'fill-opacity=".72"':''):`<g fill="none" stroke="${i>CURRENT?'#8aa3b5':'#245271'}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${REPEAT}</g>`;
+  objects.push({depth:depthOf(c),svg:popWrap(cylinder(c,r,th,material(i))+`<g transform="${frameAt(top,scaleV(RIGHT,1/CAMERA.scale),scaleV(TOWARD_VIEWER,1/CAMERA.scale))}">${mark}</g>`,base,p)});
+ });
+ PROPS.forEach(P=>{
+  if(!onScreen(P.center))return;
+  const r=drawProp(P),p=popOf(P.stage,P.k),base=project(P.center);
+  ground+=popWrap(r.ground,base,p);objects.push({depth:depthOf(P.center),svg:popWrap(r.svg,base,p)});
+  if(r.air)air={svg:popWrap(r.air.svg,base,p),pivot:r.air.pivot};
+  if(r.lamp)lamp={at:r.lamp,o:p.o*(p.s>.95?1:0)};
+ });
+ objects.sort((a,b)=>a.depth-b.depth);
+ document.querySelector('#ground').innerHTML=ground;
+ document.querySelector('#objects').innerHTML=objects.map(o=>o.svg).join('');
+ document.querySelector('#dyn').innerHTML=defs;
+ placeLawn();placeFx(air,lamp,here);updateStageBar();
+}
+// Overlays live outside the big SVG, so their gentle animations are composited and never repaint the scene.
+function placeFx(air,lamp,here){
+ const k=document.querySelector('svg.scene').clientWidth/390;
+ fx.kiteG.innerHTML=air?air.svg:'';
+ if(air)fx.kite.style.transformOrigin=`${f(air.pivot[0]*k)}px ${f(air.pivot[1]*k)}px`;
+ fx.glow.style.opacity=lamp?lamp.o:0;
+ if(lamp)fx.glow.style.transform=`translate(${f(lamp.at[0]*k)}px,${f(lamp.at[1]*k)}px)`;
+}
+// Stage header inside the top card: which stage is on screen and how far along it is.
+function updateStageBar(){
+ const s=Math.max(0,Math.min(STAGES.length-1,Math.round(CURRENT_SCROLL/SCREEN))),ids=NODES.map((N,i)=>i).filter(i=>NODES[i].stage===s),done=ids.filter(i=>i<DONE).length;
+ document.querySelector('.stage-name').textContent=`Etapa ${s+1}`;
+ document.querySelector('.stage-count').textContent=`${done}/${ids.length}`;
+ document.querySelector('.stagebar .bar i').style.width=`${100*done/ids.length}%`;
+}
+
+// ---------- Scrolling: the svg is the camera viewport, the scroller only supplies the offset ----------
+const scroller=document.querySelector('.scroller'),spacer=document.querySelector('.spacer');
+const unitsPerPx=()=>390/scroller.clientWidth;
+spacer.innerHTML=STAGES.map(()=>'<div class="stage-snap"></div>').join('');
+const fit=()=>{spacer.style.height='auto';spacer.querySelectorAll('.stage-snap').forEach(d=>d.style.height=(SCREEN/unitsPerPx())+'px')};
+let queued=false;
+scroller.addEventListener('scroll',()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;setScroll(scroller.scrollTop*unitsPerPx());render()})},{passive:true});
+addEventListener('resize',()=>{fit();setScroll(scroller.scrollTop*unitsPerPx());render()});
+if(GRASS){lawnSrc=paintLawn();lawnView=document.createElement('canvas');lawnView.className='lawn';document.querySelector('.phone').insertBefore(lawnView,document.querySelector('svg.scene'))}
+fit();
+const startAt=+params.get('scroll')||0;scroller.scrollTop=startAt/unitsPerPx();setScroll(startAt);render();
+document.querySelector('#note').textContent=PERSPECTIVE?'камера: перспектива · ?camera=ortho — параллельная':'камера: параллельная · без параметра — перспектива';
+
+const earnedToday=params.get('today')!=='0';
+const days=/^\d{1,3}$/.test(params.get('days')||'')?params.get('days'):'3';
+const series=document.querySelector('.series');series.querySelector('strong').textContent=days;series.classList.toggle('inactive',!earnedToday);series.setAttribute('aria-label',`Serie de ${days} días; ${earnedToday?'experiencia ganada hoy':'sin experiencia hoy'}`);
+document.querySelectorAll('.dock button').forEach(b=>b.onclick=()=>document.querySelector('#note').textContent=`${b.getAttribute('aria-label')} · только визуальный макет`);
+
+// Runnable geometry checks.
+const near=(a,b,e=1e-8)=>Math.abs(a-b)<e;
+// Check ordering and facing with the camera parked over each object, as the user will see it.
+console.assert(lessons.slice(1).every((c,i)=>{setScroll(mapY(i)-CAMERA.origin[1]+35);return project(c)[1]>project(lessons[i])[1]}),'Lessons descend from top to bottom');
+console.assert(lessons.every(c=>near(c[2],0)),'Every lesson stands on the ground');
+console.assert(PROPS.filter(P=>P.kind===prismProp||P.kind===lettersProp).every(P=>{setScroll(P.at[1]-CAMERA.origin[1]);return facesCamera(rotateZ(P.kind===prismProp?[0,1,0]:TOWARD_VIEWER,P.yaw),P.center)}),'Every sculpture faces the viewer');
+console.assert(NODES.every((N,i)=>mapY(i)>=N.stage*SCREEN+STAGE_TOP-1&&mapY(i)<=N.stage*SCREEN+STAGE_BOTTOM+1),'Every stage fits one screen');
+console.assert(STAGES.every((S,s)=>NODES.filter(N=>N.stage===s&&N.lesson).length===3),'Three lessons per stage');
+// Bays: no sculpture may overlap a lesson platform on the ground.
+console.assert(PROPS.every(P=>lessons.every(c=>Math.hypot(c[0]-P.center[0],c[1]-P.center[1])>RADIUS+(P.kind===prismProp?P.radius:30))),'Sculptures sit in free bays');
+setScroll(0);
+console.assert(near(project(TARGET)[0],CAMERA.origin[0])&&near(project(TARGET)[1],CAMERA.origin[1]),'Camera target sits at the screen origin');
+console.assert(!PERSPECTIVE||project(add(TARGET,[0,0,0]))[1]>project(add(TARGET,scaleV(TOWARD_VIEWER,-200)))[1],'Farther ground is higher on screen');
+console.assert(near(castShadow([25,35,0])[0],25)&&near(castShadow([25,35,0])[1],35),'Shadow touches every ground contact');
+{const d=sub(project(castShadow([0,0,20])),project([0,0,0]));console.assert(d[0]>0&&d[1]<0,'Light from upper-left: shadows fall back and to the right')}
+console.assert(near(intensity([0,0,1]),1),'Top faces keep their material colour');
+setScroll(startAt);
+</script>
+</html>

@@ -23,6 +23,7 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
+| [WI-043 3D-карта этапов в Android](work/archive/2026/WI-043-android-map-3d-stages.md) | @maks | P1 | — |
 | [WI-042 Возврат 3D с круглыми уровнями](work/archive/2026/WI-042-local-map-3d-round-levels.md) | @maks | P1 | — |
 | [WI-041 Плоская карта сверху](work/archive/2026/WI-041-local-map-top-view.md) | @maks | P1 | — |
 | [WI-040 Свет и глубина локальной карты](work/archive/2026/WI-040-local-map-light-depth.md) | @maks | P1 | — |
