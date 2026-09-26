@@ -11,6 +11,9 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
+| [WI-034 Единый JSON уроков и согласованный Android UI заданий](work/WI-034-approved-exercise-ui-json-v2.md) | @maks | P0 | — |
+| [WI-033 Компоновка первого multiple choice по тригонометрическим отношениям](work/WI-033-ratios-cosine-choice-layout.md) | @maks | P1 | — |
+| [WI-031 Сопоставление двумя столбцами карточек](work/WI-031-matching-cards.md) | @maks | P1 | — |
 | [WI-030 Убрать вводящую в заблуждение схему из заданий](work/WI-030-contextual-exercise-diagrams.md) | @maks | P1 | — |
 
 ## Blocked

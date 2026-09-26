@@ -11,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -40,8 +41,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -1009,7 +1008,7 @@ private fun LessonScreen(
 
     LaunchedEffect(lesson.id, exercise.id) { repository.saveCursor(lesson.id, exercise.id) }
 
-    Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
+    Column(Modifier.fillMaxSize().background(Color.White).statusBarsPadding().navigationBarsPadding()) {
         ScreenHeader(
             title = displayedLesson.title,
             spanish = spanish,
@@ -1111,6 +1110,13 @@ private data class LessonCopy(
     val continueAction: String,
     val degreeColumn: String,
     val angleColumn: String,
+    val matchingLeftColumn: String,
+    val matchingRightColumn: String,
+    val matchingInstruction: String,
+    val matchingSelected: String,
+    val matchingPairLabel: String,
+    val matchingSolutionReview: String,
+    val matchingSolutionNotCounted: String,
     val helpTip: String,
     val dismissHelpTip: String,
     val hintPrefix: String,
@@ -1140,23 +1146,30 @@ private data class LessonCopy(
 
 private fun lessonCopy(spanish: Boolean) = if (spanish) LessonCopy(
     choiceCorrect = "¡Muy bien!",
-    choiceIncorrect = "No es correcto. Inténtalo otra vez o revisa la explicación.",
+    choiceIncorrect = "Todavía no es correcto. Puedes ver la explicación.",
     inputCorrect = "¡Muy bien!",
-    inputIncorrect = "Revisa la pista e inténtalo otra vez.",
+    inputIncorrect = "Todavía no es correcto. Puedes ver la explicación.",
     matchingCorrect = "¡Muy bien, todas las parejas coinciden!",
-    matchingIncorrect = "Aún hay parejas que corregir.",
-    wrongAnglePair = "No corresponde. Elige de nuevo.",
+    matchingIncorrect = "Todavía no es correcto. Puedes ver la explicación.",
+    wrongAnglePair = "Esta pareja no corresponde. Puedes ver la explicación.",
     angleBuildCorrect = "¡Muy bien! Formaste un ángulo recto de %1\$d°.",
-    angleBuildIncorrect = "Elegiste %1\$d°. Un ángulo recto mide %2\$d°. Ajusta el brazo e inténtalo otra vez.",
+    angleBuildIncorrect = "Elegiste %1\$d°. Un ángulo recto mide %2\$d°.",
     checkAngle = "Comprobar",
     angleSliderLabel = "Ángulo en grados",
     angleSliderInstruction = "Desliza abajo para girar el segundo rayo y ver cómo cambia el ángulo.",
-    stepIncorrect = "Revisa la explicación e inténtalo otra vez.",
+    stepIncorrect = "Todavía no es correcto. Puedes ver la explicación.",
     stepCorrect = "¡Bien! Ahora sigue con el siguiente paso.",
     showHint = "Ver pista",
     continueAction = "Continuar",
     degreeColumn = "Medida",
     angleColumn = "Dibujo",
+    matchingLeftColumn = "Columna izquierda",
+    matchingRightColumn = "Columna derecha",
+    matchingInstruction = "Elige una tarjeta de cada columna para formar una pareja.",
+    matchingSelected = "Seleccionada",
+    matchingPairLabel = "Pareja %1\$d",
+    matchingSolutionReview = "Solución consultada",
+    matchingSolutionNotCounted = "Estas parejas muestran la explicación y no cuentan como una respuesta correcta.",
     helpTip = "Toca la bombilla para ver la ayuda.",
     dismissHelpTip = "Cerrar sugerencia",
     hintPrefix = "Pista",
@@ -1178,29 +1191,36 @@ private fun lessonCopy(spanish: Boolean) = if (spanish) LessonCopy(
     calculatorError = "Revisa la operación",
     minus = "Signo menos",
     erase = "Borrar el último dígito",
-    fractionNumerator = "Arriba · numerador",
-    fractionDenominator = "Abajo · denominador",
+    fractionNumerator = "Numerador",
+    fractionDenominator = "Denominador",
     triangleReference = "Triángulo de referencia 3–4–5",
     triangleDescription = "Triángulo rectángulo de referencia: cateto opuesto 3, cateto adyacente 4, hipotenusa 5, ángulo alfa y ángulo recto.",
 ) else LessonCopy(
     choiceCorrect = "Iporã, jajapo porã!",
-    choiceIncorrect = "Ndaha'éi upéva. Eñeha'ãjey térã ehecha pe ñemyesakã.",
+    choiceIncorrect = "Ndaha'éi upéva. Ehecha pe ñemyesakã.",
     inputCorrect = "Iporã, jajapo porã!",
-    inputIncorrect = "Ejesareko pe pista rehe ha eñeha'ãjey.",
+    inputIncorrect = "Ndaha'éi upéva. Ehecha pe ñemyesakã.",
     matchingCorrect = "Iporã, embojoaju porã!",
-    matchingIncorrect = "Oĩ gueteri joaju tekotevẽva oñemyatyrõ.",
-    wrongAnglePair = "Ndohéi. Eñeha'ãjey.",
+    matchingIncorrect = "Ndaha'éi upéva. Ehecha pe ñemyesakã.",
+    wrongAnglePair = "Ndohéi. Ehecha pe ñemyesakã.",
     angleBuildCorrect = "Iporã! Ejapo peteĩ ángulo recto %1\$d° reheve.",
-    angleBuildIncorrect = "Eiporavo %1\$d°. Pe ángulo recto oguereko %2\$d°. Emohenda pe brazo ha eñeha'ãjey.",
+    angleBuildIncorrect = "Eiporavo %1\$d°. Pe ángulo recto oguereko %2\$d°. Ehecha pe ñemyesakã.",
     checkAngle = "Ehecha",
     angleSliderLabel = "Ángulo medida",
     angleSliderInstruction = "Emomýi iguýpe pe control embojere hag̃ua pe rayo ha rehecha pe ángulo.",
-    stepIncorrect = "Ejesareko pe ñemyesakã rehe ha eñeha'ãjey.",
+    stepIncorrect = "Ehecha pe ñemyesakã.",
     stepCorrect = "Iporã. Ko'ág̃a jaha pe ambue paso-pe.",
     showHint = "Ahecha pista",
     continueAction = "Eseguí",
     degreeColumn = "Papapy",
     angleColumn = "Ta'anga",
+    matchingLeftColumn = "Asúpe",
+    matchingRightColumn = "Akatúa",
+    matchingInstruction = "Eiporavo peteĩ tarheta peteĩteĩva gotyo embojoaju hag̃ua.",
+    matchingSelected = "Eiporavopyre",
+    matchingPairLabel = "Joaju %1\$d",
+    matchingSolutionReview = "Ñemyesakã ojehechava'ekue",
+    matchingSolutionNotCounted = "Ko'ã joaju ohechauka pe ñemyesakã ha noñecontái mbohovái oiko porãramo.",
     helpTip = "Eikutu pe bombilla: ñemyesakã.",
     dismissHelpTip = "Emboty ko je'e",
     hintPrefix = "Pista",
@@ -1222,8 +1242,8 @@ private fun lessonCopy(spanish: Boolean) = if (spanish) LessonCopy(
     calculatorError = "Ejesareko pe operación rehe",
     minus = "Signo menos",
     erase = "Eipe'a pe papapy paha",
-    fractionNumerator = "Yvate · numerador",
-    fractionDenominator = "Iguýpe · denominador",
+    fractionNumerator = "Numerador",
+    fractionDenominator = "Denominador",
     triangleReference = "Triángulo techaukarã 3–4–5",
     triangleDescription = "Triángulo rectángulo rehegua: cateto opuesto 3, cateto adyacente 4, hipotenusa 5, ángulo alfa ha ángulo recto.",
 )
@@ -1263,7 +1283,6 @@ private fun ScreenHeader(
             Modifier.weight(1f).padding(start = 12.dp),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            maxLines = 1,
         )
         Button(
             onClick = onToggleLanguage,
@@ -1295,6 +1314,7 @@ private fun ExercisePanel(
     val copy = lessonCopy(spanish)
     var feedback by remember(exercise.id) { mutableStateOf<String?>(null) }
     var feedbackIsError by remember(exercise.id) { mutableStateOf(false) }
+    var resultSaving by remember(exercise.id) { mutableStateOf(false) }
     LaunchedEffect(spanish) {
         feedback = null
         feedbackIsError = false
@@ -1304,8 +1324,8 @@ private fun ExercisePanel(
     var helpTipClosed by rememberSaveable { mutableStateOf(false) }
     val helpTipDismissed by repository.helpTipDismissed.collectAsState(initial = true)
     val completed = progress?.isTerminal == true
-    val angleMatching = (exercise as? MatchingExercise)?.id == "angles-match"
-    val angleBuilder = (exercise as? ChoiceExercise)?.id == "angles-choice"
+    val angleBuilder = exercise.visual == "angle_builder"
+    val ratiosCosine = exercise.visual == "triangle_choice"
     val numericExercise = exercise is InputExercise || exercise is StepExercise
     var answer by rememberSaveable(exercise.id, progress?.answer) { mutableStateOf(progress?.answer.orEmpty()) }
     var denominatorSelected by rememberSaveable(exercise.id) { mutableStateOf(false) }
@@ -1321,13 +1341,14 @@ private fun ExercisePanel(
     }
     val matchingSelections = remember(exercise.id, progress?.isTerminal, progress?.correct) {
         mutableStateMapOf<String, String>().apply {
-            if (angleMatching && completed) putAll((exercise as MatchingExercise).pairs)
+            if (exercise is MatchingExercise && progress?.correct == true) putAll(exercise.pairs)
         }
     }
     val stepIndex = (exercise as? StepExercise)?.let {
         (progress?.stepIndex ?: 0).coerceIn(0, it.steps.lastIndex.coerceAtLeast(0))
     } ?: 0
     var stepAnswer by rememberSaveable(exercise.id, stepIndex) { mutableStateOf("") }
+    var stepAdvancePending by remember(exercise.id) { mutableStateOf(false) }
     var stepDenominatorSelected by rememberSaveable(exercise.id, stepIndex) { mutableStateOf(false) }
     val stepShape = (exercise as? StepExercise)?.steps?.getOrNull(stepIndex)?.let { numericAnswerShape(it.acceptedAnswers) }
     val scope = rememberCoroutineScope()
@@ -1338,7 +1359,7 @@ private fun ExercisePanel(
         else null
     val openSolution: () -> Unit = {
         helpOpen = true
-        if (!completed && progress?.solutionViewed != true) scope.launch { repository.showSolution(exercise.id) }
+        if (feedback == null && !completed && progress?.solutionViewed != true) scope.launch { repository.showSolution(exercise.id) }
     }
 
     val submitNumericAnswer: () -> Unit = {
@@ -1347,7 +1368,8 @@ private fun ExercisePanel(
         val correct = validateAnswer(input, value)
         feedback = if (correct) copy.inputCorrect else copy.inputIncorrect
         feedbackIsError = !correct
-        scope.launch { repository.recordAnswer(input.id, value, correct) }
+        resultSaving = true
+        scope.launch { repository.recordAnswer(input.id, value, correct); resultSaving = false }
     }
     val submitChoice: () -> Unit = {
         val selected = choiceSelection
@@ -1355,7 +1377,8 @@ private fun ExercisePanel(
             val correct = validateAnswer(exercise, selected)
             feedback = if (correct) copy.choiceCorrect else copy.choiceIncorrect
             feedbackIsError = !correct
-            scope.launch { repository.recordAnswer(exercise.id, selected, correct) }
+            resultSaving = true
+            scope.launch { repository.recordAnswer(exercise.id, selected, correct); resultSaving = false }
         }
     }
     val submitAngleBuilder: () -> Unit = {
@@ -1366,16 +1389,20 @@ private fun ExercisePanel(
             feedback = if (correct) copy.angleBuildCorrect.format(targetAngle) else copy.angleBuildIncorrect.format(selected, targetAngle)
             feedbackIsError = !correct
             if (correct) angleSolved = true
-            scope.launch { repository.recordAnswer(exercise.id, selected.toString(), correct) }
+            resultSaving = true
+            scope.launch { repository.recordAnswer(exercise.id, selected.toString(), correct); resultSaving = false }
         }
     }
     val submitMatching: () -> Unit = {
-        if (exercise is MatchingExercise && matchingSelections.size == exercise.leftItems.size) {
+        if (exercise is MatchingExercise && matchingSelections.size == exercise.leftItems.size &&
+            matchingSelections.values.toSet().size == matchingSelections.size
+        ) {
             val selected = matchingSelections.toMap()
             val correct = validateMatching(exercise, selected)
             feedback = if (correct) copy.matchingCorrect else copy.matchingIncorrect
             feedbackIsError = !correct
-            scope.launch { repository.recordAnswer(exercise.id, selected.toString(), correct) }
+            resultSaving = true
+            scope.launch { repository.recordAnswer(exercise.id, selected.toString(), correct); resultSaving = false }
         }
     }
     val submitStep: () -> Unit = {
@@ -1390,12 +1417,15 @@ private fun ExercisePanel(
             }
             feedbackIsError = !correct
             if (correct) {
+                stepAdvancePending = nextIndex < exercise.steps.size
                 stepAnswer = ""
                 stepDenominatorSelected = false
             }
+            resultSaving = true
             scope.launch {
                 if (correct && nextIndex < exercise.steps.size) repository.saveStepProgress(exercise.id, value, nextIndex)
                 else repository.recordAnswer(exercise.id, value, correct, completedStepIndex = nextIndex.takeIf { correct })
+                resultSaving = false
             }
         }
     }
@@ -1413,14 +1443,8 @@ private fun ExercisePanel(
                     trackColor = Color(0xFFE2ECF9),
                 )
             }
-            Card(
-                Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 14.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                border = BorderStroke(1.dp, Color(0xFFD4E3F5)),
-            ) {
-                Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
+            Column(Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 14.dp)) {
+                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(13.dp)) {
                     Text(
                         exercise.prompt,
                         style = if (angleBuilder) MaterialTheme.typography.headlineSmall
@@ -1428,7 +1452,10 @@ private fun ExercisePanel(
                         fontWeight = FontWeight.Bold,
                         color = Ink,
                     )
-                    if (lesson.id in ratioReferenceLessonIds) TriangleContextDiagram(copy)
+                    if (exercise.visual in setOf("triangle_choice", "fraction_triangle")) {
+                        TriangleContextDiagram(copy, enlarged = true, tall = ratiosCosine)
+                    }
+                    if (exercise.visual == "straight_angle") StraightAngleDiagram()
                     when (exercise) {
                         is ChoiceExercise -> if (angleBuilder) {
                             AngleBuilderContent(
@@ -1436,25 +1463,33 @@ private fun ExercisePanel(
                                 enabled = progress?.correct != true && !angleSolved,
                                 instruction = copy.angleSliderInstruction,
                             )
-                        } else ChoiceContent(exercise, completed, choiceSelection) { selected ->
+                        } else if (!ratiosCosine) ChoiceContent(exercise, completed || feedback != null, choiceSelection) { selected ->
                             choiceSelection = selected
                             feedback = null
                         }
-                        is InputExercise -> NumericAnswerPad(
-                            answer = answer,
-                            shape = numericAnswerShape(exercise.acceptedAnswers),
-                            denominatorSelected = denominatorSelected,
-                            placeholder = copy.answerPlaceholder,
-                            numeratorLabel = copy.fractionNumerator,
-                            denominatorLabel = copy.fractionDenominator,
-                            enabled = !completed,
-                            onPartSelected = { denominatorSelected = it },
-                        )
+                        is InputExercise -> {
+                            val input: @Composable () -> Unit = {
+                                NumericAnswerPad(
+                                    answer = answer,
+                                    shape = numericAnswerShape(exercise.acceptedAnswers),
+                                    denominatorSelected = denominatorSelected,
+                                    placeholder = copy.answerPlaceholder,
+                                    numeratorLabel = copy.fractionNumerator,
+                                    denominatorLabel = copy.fractionDenominator,
+                                    enabled = !completed && feedback == null,
+                                    onPartSelected = { denominatorSelected = it },
+                                )
+                            }
+                            if (exercise.visual in setOf("standard_number", "standard_fraction")) {
+                                Box(Modifier.fillMaxWidth().height(320.dp), contentAlignment = Alignment.Center) { input() }
+                            } else input()
+                        }
                         is MatchingExercise -> MatchingContent(
                             exercise,
-                            completed,
+                            completed || feedback != null,
                             matchingSelections,
-                            spanish,
+                            progress?.solutionViewed == true,
+                            copy,
                             onSelectionChanged = { feedback = null },
                             onPairChecked = { correct, completePairs ->
                                 feedbackIsError = !correct
@@ -1463,32 +1498,25 @@ private fun ExercisePanel(
                                     completePairs != null -> copy.matchingCorrect
                                     else -> null
                                 }
-                                completePairs?.let { answer -> scope.launch { repository.recordAnswer(exercise.id, answer.toString(), true) } }
+                                completePairs?.let { answer ->
+                                    resultSaving = true
+                                    scope.launch { repository.recordAnswer(exercise.id, answer.toString(), true); resultSaving = false }
+                                }
                             },
                         )
                         is StepExercise -> StepContent(exercise, progress, completed, answer = stepAnswer, denominatorSelected = stepDenominatorSelected,
                             onDenominatorSelected = { stepDenominatorSelected = it },
                             copy = copy)
                     }
-                    val inlineFeedback = feedback?.takeIf { feedbackIsError }
-                        ?: if (completed && progress?.correct != true) copy.completedIncorrect else null
-                    inlineFeedback?.let { message ->
-                        Surface(
-                            color = if (feedbackIsError) Color(0xFFFFF1EA) else Color(0xFFF0F4FA),
-                            shape = RoundedCornerShape(12.dp),
-                        ) {
-                            Text(message, Modifier.fillMaxWidth().padding(12.dp), color = Ink, style = MaterialTheme.typography.bodyMedium)
-                        }
-                    }
                 }
             }
       }
 
         Column(
-            Modifier.fillMaxWidth().background(Color(0xFFEAF3FF)).padding(horizontal = 20.dp, vertical = 8.dp),
+            Modifier.fillMaxWidth().background(Color.White).padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            if (angleBuilder) {
+            if (angleBuilder && feedback == null && !completed) {
                 AngleSliderDock(
                     degrees = angleDegrees,
                     enabled = progress?.correct != true && !angleSolved,
@@ -1501,7 +1529,7 @@ private fun ExercisePanel(
                     },
                 )
             }
-            if (exercise is InputExercise || exercise is StepExercise) {
+            if ((exercise is InputExercise || exercise is StepExercise) && feedback == null && !completed) {
                 NumericKeypad(
                     enabled = !completed,
                     copy = copy,
@@ -1516,48 +1544,54 @@ private fun ExercisePanel(
                     },
                 )
             }
-            dockSuccessMessage?.let { message ->
-                Surface(
-                    Modifier.fillMaxWidth(),
-                    color = Color(0xFFE8F5EC),
-                    shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(1.dp, Color(0xFFB9DEC7)),
+            if (exercise is ChoiceExercise && ratiosCosine && feedback == null && !completed) {
+                ChoiceContent(exercise, completed, choiceSelection, stackedFractions = true) { selected ->
+                    choiceSelection = selected
+                    feedback = null
+                }
+            }
+            val resultMessage = dockSuccessMessage ?: feedback?.takeIf { feedbackIsError }
+            if (resultMessage != null && exercise is ChoiceExercise && ratiosCosine) {
+                val selectedOption = exercise.options.firstOrNull { it.id == choiceSelection }
+                if (selectedOption != null) ResultChoice(selectedOption.text, !feedbackIsError)
+            }
+            if (resultMessage != null) {
+                val correctResult = !feedbackIsError
+                Column(
+                    Modifier.fillMaxWidth().background(if (correctResult) Color(0xFFE9F7EE) else Color(0xFFFFEDE8), RoundedCornerShape(16.dp))
+                        .padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(7.dp),
                 ) {
-                    Row(
-                        Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 11.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        Text("✓", color = Success, fontWeight = FontWeight.ExtraBold, style = MaterialTheme.typography.titleMedium)
-                        Text(message, Modifier.weight(1f), color = Color(0xFF175C39), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
-                    }
+                    Text(if (correctResult) "✓  $resultMessage" else "↻  $resultMessage",
+                        color = if (correctResult) Color(0xFF207548) else Color(0xFFA64C3C),
+                        fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                    Button(
+                        onClick = openSolution,
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        shape = RoundedCornerShape(13.dp),
+                        border = BorderStroke(1.dp, if (correctResult) Color(0xFF67B887) else Color(0xFFD9978B)),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White,
+                            contentColor = if (correctResult) Color(0xFF207548) else Color(0xFFA64C3C)),
+                    ) { Text(copy.solutionTitle, fontWeight = FontWeight.Bold) }
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                HelpActionButton(copy.showHint, onClick = openSolution)
-                if (numericExercise) {
+                if (feedback == null && !completed) HelpActionButton(copy.showHint, onClick = openSolution)
+                if (numericExercise && feedback == null && !completed) {
                     CalculatorActionButton(copy.calculator, onClick = { calculatorOpen = true }, modifier = Modifier.padding(start = 8.dp))
                 }
-                if (angleBuilder) {
+                if (feedback != null || completed) {
+                    PrimaryAction(text = copy.continueAction, onClick = {
+                        feedback = null
+                        if (stepAdvancePending) stepAdvancePending = false else onNext()
+                    }, enabled = !resultSaving, modifier = Modifier.weight(1f))
+                } else if (angleBuilder) {
                     val angleDone = completed || angleSolved
                     PrimaryAction(
                         text = if (angleDone) if (lastExercise) copy.finishLesson else copy.nextExercise else copy.checkAngle,
                         onClick = if (angleDone) {
                             { if (lastExercise) onFinish() else onNext() }
                         } else submitAngleBuilder,
-                        modifier = Modifier.weight(1f).padding(start = if (numericExercise) 8.dp else 12.dp),
-                    )
-                } else if (angleMatching) {
-                    PrimaryAction(
-                        text = copy.continueAction,
-                        onClick = onNext,
-                        enabled = completed && matchingSelections.size == (exercise as MatchingExercise).leftItems.size,
-                        modifier = Modifier.weight(1f).padding(start = if (numericExercise) 8.dp else 12.dp),
-                    )
-                } else if (completed) {
-                    PrimaryAction(
-                        text = if (lastExercise) copy.finishLesson else copy.nextExercise,
-                        onClick = if (lastExercise) onFinish else onNext,
                         modifier = Modifier.weight(1f).padding(start = if (numericExercise) 8.dp else 12.dp),
                     )
                 } else {
@@ -1570,7 +1604,9 @@ private fun ExercisePanel(
                     val ready = when (exercise) {
                         is ChoiceExercise -> choiceSelection != null
                         is InputExercise -> answerIsReady(answer, numericAnswerShape(exercise.acceptedAnswers))
-                        is MatchingExercise -> matchingSelections.size == exercise.leftItems.size && exercise.leftItems.all { it.id in matchingSelections }
+                        is MatchingExercise -> matchingSelections.size == exercise.leftItems.size &&
+                            matchingSelections.values.toSet().size == matchingSelections.size &&
+                            exercise.leftItems.all { it.id in matchingSelections }
                         is StepExercise -> stepShape != null && answerIsReady(stepAnswer, stepShape)
                     }
                     PrimaryAction(
@@ -1619,68 +1655,57 @@ private fun ExercisePanel(
 }
 
 // @spec spec://modules/learning/FEAT-010-learning-demo#exercises
-private val ratioReferenceLessonIds = setOf("ratios", "ratio-relations")
 
 @Composable
-private fun TriangleContextDiagram(copy: LessonCopy) {
-    Surface(
-        Modifier.fillMaxWidth().height(162.dp).semantics { contentDescription = copy.triangleDescription },
-        shape = RoundedCornerShape(20.dp),
-        color = Color(0xFFF1F7FF),
-        border = BorderStroke(1.dp, Color(0xFFD4E3F5)),
+private fun TriangleContextDiagram(copy: LessonCopy, enlarged: Boolean = false, tall: Boolean = false) {
+    Canvas(
+        Modifier.fillMaxWidth().height(if (tall) 420.dp else if (enlarged) 245.dp else 210.dp)
+            .semantics { contentDescription = copy.triangleDescription },
     ) {
-        BoxWithConstraints(Modifier.fillMaxSize().padding(horizontal = 14.dp, vertical = 10.dp)) {
-            val width = maxWidth
-            val height = maxHeight
-            Canvas(Modifier.fillMaxSize()) {
-                val scale = min(size.width * .62f / 4f, size.height * .72f / 3f)
-                val base = scale * 4f
-                val altitude = scale * 3f
-                val left = (size.width - base) / 2f
-                val a = Offset(left, size.height * .86f)
-                val b = Offset(left + base, a.y)
-                val c = Offset(b.x, a.y - altitude)
-                val shape = Path().apply {
-                    moveTo(a.x, a.y)
-                    lineTo(b.x, b.y)
-                    lineTo(c.x, c.y)
-                    close()
-                }
-                drawPath(shape, Color(0xFFDCEEFF))
-                drawLine(Accent, a, b, 4.dp.toPx(), cap = StrokeCap.Round)
-                drawLine(Accent, b, c, 4.dp.toPx(), cap = StrokeCap.Round)
-                drawLine(Accent, c, a, 4.dp.toPx(), cap = StrokeCap.Round)
-
-                val rightMark = scale * .28f
-                val square = Path().apply {
-                    moveTo(b.x - rightMark, b.y)
-                    lineTo(b.x - rightMark, b.y - rightMark)
-                    lineTo(b.x, b.y - rightMark)
-                }
-                drawPath(square, Color(0xFFF0A34A), style = Stroke(2.dp.toPx(), cap = StrokeCap.Round))
-                val arcRadius = scale * .55f
-                drawArc(
-                    color = Color(0xFFF0A34A),
-                    startAngle = 0f,
-                    sweepAngle = -36.87f,
-                    useCenter = false,
-                    topLeft = Offset(a.x - arcRadius, a.y - arcRadius),
-                    size = Size(arcRadius * 2, arcRadius * 2),
-                    style = Stroke(2.dp.toPx(), cap = StrokeCap.Round),
-                )
+        val scale = min(size.width * (if (tall) .86f else .75f) / 4f, size.height * (if (tall) .7f else .84f) / 3f)
+        val base = 4f * scale
+        val altitude = 3f * scale
+        val a = Offset((size.width - base) / 2f, (size.height + altitude) / 2f)
+        val b = Offset(a.x + base, a.y)
+        val c = Offset(b.x, a.y - altitude)
+        val mark = scale * .32f
+        val orange = Color(0xFFF0A34A)
+        drawLine(orange, Offset(b.x - mark, b.y), Offset(b.x - mark, b.y - mark), 2.dp.toPx())
+        drawLine(orange, Offset(b.x - mark, b.y - mark), Offset(b.x, b.y - mark), 2.dp.toPx())
+        drawArc(orange, startAngle = -37f, sweepAngle = 37f, useCenter = false,
+            topLeft = Offset(a.x - scale * .45f, a.y - scale * .45f),
+            size = Size(scale * .9f, scale * .9f), style = Stroke(2.dp.toPx()))
+        val line = 4.dp.toPx()
+        drawLine(Accent, a, b, line, cap = StrokeCap.Round)
+        drawLine(Accent, b, c, line, cap = StrokeCap.Round)
+        drawLine(Accent, c, a, line, cap = StrokeCap.Round)
+        drawIntoCanvas { canvas ->
+            val paint = NativePaint(NativePaint.ANTI_ALIAS_FLAG).apply {
+                color = Ink.toArgb()
+                textSize = 21.sp.toPx()
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                textAlign = NativePaint.Align.CENTER
             }
-            Text(
-                copy.triangleReference,
-                Modifier.align(Alignment.TopStart).background(Color.White.copy(alpha = .92f), RoundedCornerShape(10.dp)).padding(horizontal = 9.dp, vertical = 5.dp),
-                color = Accent,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-            )
-            Text("α", Modifier.offset(x = width * .32f, y = height * .60f), color = Color(0xFFB36A14), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
-            Text("3", Modifier.offset(x = width * .72f, y = height * .37f), color = Ink, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
-            Text("4", Modifier.offset(x = width * .49f, y = height * .78f), color = Ink, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
-            Text("5", Modifier.offset(x = width * .47f, y = height * .35f), color = Ink, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
+            canvas.nativeCanvas.drawText("5", (a.x + c.x) / 2f - 12.dp.toPx(), (a.y + c.y) / 2f - 12.dp.toPx(), paint)
+            canvas.nativeCanvas.drawText("3", b.x + 23.dp.toPx(), (b.y + c.y) / 2f + 6.dp.toPx(), paint)
+            canvas.nativeCanvas.drawText("4", (a.x + b.x) / 2f, a.y + 27.dp.toPx(), paint)
+            paint.color = Color(0xFFB36A14).toArgb()
+            paint.typeface = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
+            canvas.nativeCanvas.drawText("α", a.x + scale * .86f, a.y - scale * .18f, paint)
         }
+    }
+}
+
+@Composable
+private fun StraightAngleDiagram() {
+    Canvas(Modifier.fillMaxWidth().height(250.dp).semantics { contentDescription = "Ángulo llano: dos rayos sobre una línea recta" }) {
+        val vertex = Offset(size.width / 2f, size.height * .58f)
+        val radius = size.width * .28f
+        drawArc(Color(0xFF43B9E8), 180f, 180f, false,
+            Offset(vertex.x - radius, vertex.y - radius), Size(radius * 2, radius * 2),
+            style = Stroke(3.dp.toPx()))
+        drawLine(Accent, Offset(size.width * .1f, vertex.y), Offset(size.width * .9f, vertex.y), 4.dp.toPx(), cap = StrokeCap.Round)
+        drawCircle(Color(0xFFF0A34A), 6.dp.toPx(), vertex)
     }
 }
 
@@ -1724,8 +1749,8 @@ private fun CalculatorActionButton(label: String, onClick: () -> Unit, modifier:
             val sw = 2.dp.toPx()
             drawRoundRect(Accent, topLeft = Offset(size.width * .16f, size.height * .08f), size = Size(size.width * .68f, size.height * .84f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(4.dp.toPx()), style = Stroke(sw))
             drawLine(Accent, Offset(size.width * .29f, size.height * .31f), Offset(size.width * .71f, size.height * .31f), sw, cap = StrokeCap.Round)
-            listOf(.39f to .52f, .62f to .52f, .39f to .72f, .62f to .72f).forEach { (x, y) ->
-                drawCircle(Accent, radius = 1.5.dp.toPx(), center = Offset(size.width * x, size.height * y))
+            listOf(.41f to .52f, .59f to .52f, .41f to .70f, .59f to .70f).forEach { (x, y) ->
+                drawCircle(Accent, radius = 1.2.dp.toPx(), center = Offset(size.width * x, size.height * y))
             }
         }
     }
@@ -1916,14 +1941,14 @@ private fun ExerciseHelpDialog(lesson: Lesson, exercise: Exercise, spanish: Bool
                         Text(if (spanish) "Objetivo" else "Ko mbo'epy", color = Accent, fontWeight = FontWeight.Bold)
                         Text(lesson.objective, color = Ink, style = MaterialTheme.typography.bodyMedium)
                         Text(if (spanish) "Teoría" else "Ñaikuaa", color = Accent, fontWeight = FontWeight.Bold)
-                        if (lesson.id in ratioReferenceLessonIds) TriangleContextDiagram(copy)
+                        if (exercise.visual in setOf("triangle_choice", "fraction_triangle")) TriangleContextDiagram(copy)
                         lesson.theory.forEach { block ->
                             if (block.type == "formula") {
                                 Surface(color = Color(0xFFF0F4FC), shape = RoundedCornerShape(14.dp)) {
                                     Text(block.body, Modifier.fillMaxWidth().padding(12.dp), color = Ink, fontWeight = FontWeight.SemiBold)
                                 }
                             } else Text(block.body, color = Ink, style = MaterialTheme.typography.bodyMedium)
-                            if (lesson.id == "angles" && "90°" in block.body && "180°" in block.body) AngleVisual()
+                            if (exercise.visual in setOf("angle_builder", "straight_angle", "angle_pairs") && "90°" in block.body && "180°" in block.body) AngleVisual()
                         }
                         Surface(color = Color(0xFFEAF3FF), shape = RoundedCornerShape(14.dp)) {
                             Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -1942,39 +1967,99 @@ private fun ExerciseHelpDialog(lesson: Lesson, exercise: Exercise, spanish: Bool
     }
 }
 
+@Composable
+private fun ResultChoice(text: String, correct: Boolean) {
+    Surface(Modifier.fillMaxWidth().height(65.dp), shape = RoundedCornerShape(16.dp),
+        color = if (correct) Color(0xFFE9F7EE) else Color(0xFFFFF3EF),
+        border = BorderStroke(2.dp, if (correct) Color(0xFF67B887) else Color(0xFFD9978B))) {
+        Box(contentAlignment = Alignment.Center) {
+            val fraction = text.split('/', limit = 2)
+            if (fraction.size == 2) Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(fraction[0], color = Ink, fontWeight = FontWeight.Bold)
+                Box(Modifier.width(34.dp).height(2.dp).background(Accent))
+                Text(fraction[1], color = Ink, fontWeight = FontWeight.Bold)
+            } else Text(text, color = Ink, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
 // @spec spec://modules/learning/FEAT-010-learning-demo#exercises
 @Composable
-private fun ChoiceContent(exercise: ChoiceExercise, completed: Boolean, selectedId: String?, onSelect: (String) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        exercise.options.forEach { option ->
-            val selected = option.id == selectedId
-            Button(
-                onClick = { onSelect(option.id) },
-                enabled = !completed,
-                modifier = Modifier.fillMaxWidth().heightIn(min = 58.dp).then(
-                    if (selected) Modifier.border(2.dp, Accent, RoundedCornerShape(18.dp)) else Modifier
-                ).clearAndSetSemantics {
-                    contentDescription = if (selected) "${option.text}, elegido" else option.text
-                    role = Role.RadioButton
-                    if (completed) disabled()
-                    onClick(label = option.text) {
-                        if (!completed) onSelect(option.id)
-                        !completed
-                    }
-                },
-                shape = RoundedCornerShape(18.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp, pressedElevation = 0.dp, disabledElevation = 0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (selected) Color(0xFFE4F3FF) else Color.White,
-                    contentColor = Ink,
-                    disabledContainerColor = Color(0xFFF0F4FA),
-                    disabledContentColor = Muted,
-                ),
-                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 13.dp),
-            ) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text(if (selected) "●" else "○", color = Accent, fontWeight = FontWeight.Bold)
-                    Text(option.text, Modifier.padding(start = 10.dp), color = Ink)
+private fun ChoiceContent(
+    exercise: ChoiceExercise,
+    completed: Boolean,
+    selectedId: String?,
+    stackedFractions: Boolean = false,
+    onSelect: (String) -> Unit,
+) {
+    if (stackedFractions) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            exercise.options.forEach { option ->
+                val selected = option.id == selectedId
+                val fraction = option.text.split('/', limit = 2)
+                Button(
+                    onClick = { onSelect(option.id) },
+                    enabled = !completed,
+                    modifier = Modifier.fillMaxWidth().height(60.dp)
+                        .then(if (selected) Modifier.border(2.dp, Accent, RoundedCornerShape(16.dp)) else Modifier)
+                        .clearAndSetSemantics {
+                            contentDescription = option.text
+                            role = Role.RadioButton
+                            this.selected = selected
+                            if (completed) disabled()
+                            onClick(label = option.text) { if (!completed) onSelect(option.id); !completed }
+                        },
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp, pressedElevation = 0.dp, disabledElevation = 0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (selected) Color(0xFFE4F3FF) else Color.White,
+                        contentColor = Ink,
+                        disabledContainerColor = Color(0xFFF0F4FA),
+                        disabledContentColor = Muted,
+                    ),
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 3.dp),
+                ) {
+                    if (fraction.size == 2) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(0.dp)) {
+                            Text(fraction[0], style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
+                            Box(Modifier.width(34.dp).height(2.dp).background(if (selected) Accent else Color(0xFF7C91A8)))
+                            Text(fraction[1], style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
+                        }
+                    } else Text(option.text, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
+                }
+            }
+        }
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            exercise.options.forEach { option ->
+                val selected = option.id == selectedId
+                Button(
+                    onClick = { onSelect(option.id) },
+                    enabled = !completed,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = if (exercise.options.size <= 3) 110.dp else 82.dp).then(
+                        if (selected) Modifier.border(2.dp, Accent, RoundedCornerShape(18.dp)) else Modifier
+                    ).clearAndSetSemantics {
+                        contentDescription = if (selected) "${option.text}, elegido" else option.text
+                        role = Role.RadioButton
+                        if (completed) disabled()
+                        onClick(label = option.text) {
+                            if (!completed) onSelect(option.id)
+                            !completed
+                        }
+                    },
+                    shape = RoundedCornerShape(18.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp, pressedElevation = 0.dp, disabledElevation = 0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (selected) Color(0xFFE4F3FF) else Color.White,
+                        contentColor = Ink,
+                        disabledContainerColor = Color(0xFFF0F4FA),
+                        disabledContentColor = Muted,
+                    ),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 13.dp),
+                ) {
+                    Text(option.text, Modifier.fillMaxWidth(), color = Ink,
+                        style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 }
             }
         }
@@ -1989,14 +2074,8 @@ private fun AngleBuilderContent(
     instruction: String,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(instruction, Modifier.fillMaxWidth(), color = Muted, style = MaterialTheme.typography.bodyMedium)
-        Surface(
-            Modifier.fillMaxWidth(),
-            color = Color(0xFFF2F7FD),
-            shape = RoundedCornerShape(20.dp),
-        ) {
-            Canvas(Modifier.fillMaxWidth().height(232.dp).padding(horizontal = 8.dp, vertical = 6.dp)) {
-                    val radius = min(size.width * .34f, size.height * .62f)
+        Canvas(Modifier.fillMaxWidth().height(460.dp).padding(horizontal = 8.dp, vertical = 6.dp)) {
+                    val radius = min(size.width * .42f, size.height * .62f)
                     val vertex = Offset(size.width * .5f, size.height * .76f)
                     val baseEnd = Offset(vertex.x + radius, vertex.y)
                     val radians = -degrees * PI / 180.0
@@ -2035,7 +2114,6 @@ private fun AngleBuilderContent(
         }
     }
 }
-}
 
 @Composable
 private fun AngleSliderDock(
@@ -2051,10 +2129,7 @@ private fun AngleSliderDock(
         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD7E6F7)),
     ) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(0.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text(copy.angleSliderLabel, color = Muted, style = MaterialTheme.typography.labelLarge)
-                Text("$degrees°", color = Ink, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
-            }
+            Text("$degrees°", Modifier.fillMaxWidth(), color = Ink, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             Slider(
                 value = degrees.toFloat(),
                 onValueChange = { onDegreesChange(it.roundToInt().coerceIn(0, 180)) },
@@ -2133,19 +2208,18 @@ private fun NumericAnswerPad(
 ) {
     val numerator = answer.substringBefore('/')
     val denominator = answer.substringAfter('/', "")
-    Surface(
-        Modifier.fillMaxWidth().height(if (shape.fraction) 104.dp else 62.dp),
-        shape = RoundedCornerShape(16.dp),
-        color = Color(0xFFF5FAFD),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD9E7F0)),
+    Box(
+        Modifier.fillMaxWidth().height(if (shape.fraction) 132.dp else 70.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .then(if (shape.fraction) Modifier else Modifier.border(1.dp, Color(0xFFD4E3F5), RoundedCornerShape(16.dp))),
     ) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             if (shape.fraction) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(1.dp)) {
                     Text(numeratorLabel, color = Muted, style = MaterialTheme.typography.labelSmall)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (shape.root) Text("√", color = Ink, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (shape.root) Text("√", color = Ink, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                             Box(
                                 Modifier.widthIn(min = 54.dp).height(28.dp).clip(RoundedCornerShape(7.dp))
                                     .background(if (!denominatorSelected) Color(0xFFD8EFFA) else Color.White)
@@ -2156,7 +2230,8 @@ private fun NumericAnswerPad(
                             ) {
                                 Text(numerator.ifEmpty { "—" }, color = if (numerator.isEmpty()) Muted else Ink, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                             }
-                            Box(Modifier.widthIn(min = 60.dp).height(2.dp).background(Accent))
+                        }
+                        Box(Modifier.width(if (shape.root) 80.dp else 60.dp).height(2.dp).background(Accent))
                             Box(
                                 Modifier.widthIn(min = 54.dp).height(28.dp).clip(RoundedCornerShape(7.dp))
                                     .background(if (denominatorSelected) Color(0xFFD8EFFA) else Color.White)
@@ -2167,7 +2242,6 @@ private fun NumericAnswerPad(
                             ) {
                                 Text(denominator.ifEmpty { "—" }, color = if (denominator.isEmpty()) Muted else Ink, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                             }
-                        }
                     }
                     Text(denominatorLabel, color = Muted, style = MaterialTheme.typography.labelSmall)
                 }
@@ -2199,7 +2273,7 @@ private fun NumericKeypad(enabled: Boolean, copy: LessonCopy, onKey: (String) ->
                     Button(
                         onClick = { onKey(key) },
                         enabled = enabled,
-                        modifier = Modifier.weight(1f).height(50.dp)
+                        modifier = Modifier.weight(1f).height(56.dp)
                             .border(1.dp, if (accented) Color(0xFFB8D6E8) else Color(0xFFD8E3EC), RoundedCornerShape(14.dp))
                             .clearAndSetSemantics {
                                 contentDescription = keyDescription
@@ -2229,64 +2303,100 @@ private fun MatchingContent(
     exercise: MatchingExercise,
     completed: Boolean,
     selected: MutableMap<String, String>,
-    spanish: Boolean,
+    solutionViewed: Boolean,
+    copy: LessonCopy,
     onSelectionChanged: () -> Unit,
     onPairChecked: (Boolean, Map<String, String>?) -> Unit,
 ) {
-    val choosePair = if (spanish) "Elige una relación" else "Eiporavo peteĩ joaju"
-    val showsAngleDiagram = exercise.leftItems.any { it.text.contains("°") } &&
-        exercise.rightItems.any { it.id in setOf("acute", "right", "straight") }
+    val showsAngleDiagram = exercise.visual == "angle_pairs"
     if (showsAngleDiagram) {
-        AngleMatchingContent(exercise, completed, selected, spanish, onSelectionChanged, onPairChecked)
+        AngleMatchingContent(exercise, completed, solutionViewed, selected, copy, onSelectionChanged, onPairChecked)
         return
     }
-    exercise.leftItems.forEach { left ->
-        var expanded by remember(left.id) { mutableStateOf(false) }
-        Row(
-            Modifier.fillMaxWidth().padding(vertical = 3.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(left.text, Modifier.weight(.42f), color = Ink, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleSmall)
-            Box(Modifier.weight(.58f)) {
-                val current = exercise.rightItems.firstOrNull { it.id == selected[left.id] }?.text
-                Button(
-                    enabled = !completed,
-                    onClick = { expanded = true },
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)
-                        .border(if (current == null) 1.dp else 2.dp, if (current == null) Color(0xFFD0DCEB) else Accent, RoundedCornerShape(16.dp))
-                        .clearAndSetSemantics {
-                        contentDescription = "${left.text}. ${current ?: choosePair}"
-                        role = Role.Button
-                        if (completed) disabled()
-                        onClick(label = choosePair) { if (!completed) expanded = true; !completed }
-                    },
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp, pressedElevation = 0.dp, disabledElevation = 0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (current == null) Color.White else Color(0xFFE4F3FF),
-                        contentColor = Ink,
-                        disabledContainerColor = Color(0xFFF0F4FA),
-                        disabledContentColor = Muted,
-                    ),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
-                ) {
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Text(current ?: choosePair, Modifier.weight(1f), maxLines = 2, fontWeight = FontWeight.SemiBold)
-                    }
+    var activeLeft by remember(exercise.id) { mutableStateOf<String?>(null) }
+    var activeRight by remember(exercise.id) { mutableStateOf<String?>(null) }
+    val displayedPairs = if (solutionViewed) exercise.pairs else selected
+    LaunchedEffect(solutionViewed) {
+        if (solutionViewed) {
+            activeLeft = null
+            activeRight = null
+        }
+    }
+
+    fun assignPair(leftId: String, rightId: String) {
+        selected.entries.toList().filter { it.key != leftId && it.value == rightId }.forEach { selected.remove(it.key) }
+        selected[leftId] = rightId
+        activeLeft = null
+        activeRight = null
+        onSelectionChanged()
+    }
+
+    fun chooseLeft(leftId: String) {
+        if (completed) return
+        val rightId = activeRight
+        if (rightId != null) assignPair(leftId, rightId)
+        else {
+            activeLeft = if (activeLeft == leftId) null else leftId
+            activeRight = null
+            onSelectionChanged()
+        }
+    }
+
+    fun chooseRight(rightId: String) {
+        if (completed) return
+        val leftId = activeLeft
+        if (leftId != null) assignPair(leftId, rightId)
+        else {
+            activeRight = if (activeRight == rightId) null else rightId
+            activeLeft = null
+            onSelectionChanged()
+        }
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        if (solutionViewed) MatchingSolutionReview(copy)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                exercise.leftItems.forEachIndexed { index, left ->
+                    val paired = left.id in displayedPairs
+                    val pairNumber = if (paired) index + 1 else null
+                    val active = activeLeft == left.id
+                    val rightText = exercise.rightItems.firstOrNull { it.id == displayedPairs[left.id] }?.text
+                    MatchingPairCard(
+                        text = left.text,
+                        description = buildString {
+                            append("${copy.matchingLeftColumn}: ${left.text}")
+                            if (pairNumber != null) append(". ${copy.matchingPairLabel.format(pairNumber)}: $rightText")
+                            else if (active) append(". ${copy.matchingSelected}")
+                        },
+                        pairNumber = pairNumber,
+                        paired = paired,
+                        active = active,
+                        enabled = !completed,
+                        onClick = { chooseLeft(left.id) },
+                    )
                 }
-                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    exercise.rightItems.forEach { right ->
-                        DropdownMenuItem(
-                            modifier = Modifier.clearAndSetSemantics {
-                                contentDescription = right.text
-                                role = Role.Button
-                                onClick(label = right.text) { selected[left.id] = right.id; expanded = false; onSelectionChanged(); true }
-                            },
-                            text = { Text(right.text) },
-                            onClick = { selected[left.id] = right.id; expanded = false; onSelectionChanged() },
-                        )
-                    }
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                exercise.rightItems.forEach { right ->
+                    val leftId = displayedPairs.entries.firstOrNull { it.value == right.id }?.key
+                    val leftIndex = exercise.leftItems.indexOfFirst { it.id == leftId }
+                    val pairNumber = (leftIndex + 1).takeIf { leftIndex >= 0 }
+                    val active = activeRight == right.id
+                    val leftText = exercise.leftItems.firstOrNull { it.id == leftId }?.text
+                    MatchingPairCard(
+                        text = right.text,
+                        description = buildString {
+                            append("${copy.matchingRightColumn}: ${right.text}")
+                            if (pairNumber != null) append(". ${copy.matchingPairLabel.format(pairNumber)}: $leftText")
+                            else if (active) append(". ${copy.matchingSelected}")
+                        },
+                        pairNumber = pairNumber,
+                        paired = pairNumber != null,
+                        active = active,
+                        enabled = !completed,
+                        onClick = { chooseRight(right.id) },
+                    )
                 }
             }
         }
@@ -2298,14 +2408,21 @@ private fun MatchingContent(
 private fun AngleMatchingContent(
     exercise: MatchingExercise,
     completed: Boolean,
+    solutionViewed: Boolean,
     pairings: MutableMap<String, String>,
-    spanish: Boolean,
+    copy: LessonCopy,
     onSelectionChanged: () -> Unit,
     onPairChecked: (Boolean, Map<String, String>?) -> Unit,
 ) {
-    val copy = lessonCopy(spanish)
     var activeLeft by remember(exercise.id) { mutableStateOf<String?>(null) }
     var activeRight by remember(exercise.id) { mutableStateOf<String?>(null) }
+    val displayedPairs = if (solutionViewed) exercise.pairs else pairings
+    LaunchedEffect(solutionViewed) {
+        if (solutionViewed) {
+            activeLeft = null
+            activeRight = null
+        }
+    }
 
     fun pair(leftId: String, rightId: String) {
         activeLeft = null
@@ -2317,73 +2434,152 @@ private fun AngleMatchingContent(
     }
 
     fun selectLeft(leftId: String) {
-        if (completed || leftId in pairings) return
+        if (completed || leftId in displayedPairs) return
         val rightId = activeRight
-        if (rightId == null) activeLeft = leftId else pair(leftId, rightId)
+        if (rightId == null) {
+            activeLeft = if (activeLeft == leftId) null else leftId
+            onSelectionChanged()
+        } else pair(leftId, rightId)
     }
 
     fun selectRight(rightId: String) {
-        if (completed || rightId in pairings.values) return
+        if (completed || rightId in displayedPairs.values) return
         val leftId = activeLeft
-        if (leftId == null) activeRight = rightId else pair(leftId, rightId)
+        if (leftId == null) {
+            activeRight = if (activeRight == rightId) null else rightId
+            onSelectionChanged()
+        } else pair(leftId, rightId)
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text(copy.degreeColumn, Modifier.weight(1f), color = Muted, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-            Text(copy.angleColumn, Modifier.weight(1f), color = Muted, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        if (solutionViewed) MatchingSolutionReview(copy)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                exercise.leftItems.forEachIndexed { index, left ->
+                    val paired = left.id in displayedPairs
+                    val pairNumber = if (paired) index + 1 else null
+                    val active = activeLeft == left.id
+                    val rightText = exercise.rightItems.firstOrNull { it.id == displayedPairs[left.id] }?.text
+                    MatchingPairCard(
+                        text = left.text,
+                        description = buildString {
+                            append("${copy.degreeColumn}: ${left.text}")
+                            if (pairNumber != null) append(". ${copy.matchingPairLabel.format(pairNumber)}: $rightText")
+                            else if (active) append(". ${copy.matchingSelected}")
+                        },
+                        pairNumber = pairNumber,
+                        paired = paired,
+                        active = active,
+                        enabled = !completed,
+                        onClick = { selectLeft(left.id) },
+                    )
+                }
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                exercise.rightItems.forEach { right ->
+                    val leftId = displayedPairs.entries.firstOrNull { it.value == right.id }?.key
+                    val leftIndex = exercise.leftItems.indexOfFirst { it.id == leftId }
+                    val pairNumber = (leftIndex + 1).takeIf { leftIndex >= 0 }
+                    val active = activeRight == right.id
+                    val leftText = exercise.leftItems.firstOrNull { it.id == leftId }?.text
+                    MatchingPairCard(
+                        text = right.text,
+                        description = buildString {
+                            append("${copy.angleColumn}: ${right.text}")
+                            if (pairNumber != null) append(". ${copy.matchingPairLabel.format(pairNumber)}: $leftText")
+                            else if (active) append(". ${copy.matchingSelected}")
+                        },
+                        pairNumber = pairNumber,
+                        paired = pairNumber != null,
+                        active = active,
+                        enabled = !completed,
+                        relationId = right.diagram,
+                        onClick = { selectRight(right.id) },
+                    )
+                }
+            }
         }
-        exercise.leftItems.zip(exercise.rightItems).forEach { (left, right) ->
-            val leftSolved = left.id in pairings
-            val rightSolved = right.id in pairings.values
-            val leftActive = activeLeft == left.id
-            val rightActive = activeRight == right.id
-            val leftEnabled = !completed && !leftSolved
-            val rightEnabled = !completed && !rightSolved
-            val solvedBackground = Color(0xFFE9EDF3)
-            val idleBackground = Color(0xFFF4F7FB)
-            val activeBackground = Color(0xFFE4F3FF)
-            val solvedBorder = Color(0xFFD7DEE8)
-            val idleBorder = Color(0xFFE2EAF3)
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Surface(
-                    Modifier.weight(1f).height(76.dp).clickable(enabled = leftEnabled) { selectLeft(left.id) }
-                        .clearAndSetSemantics {
-                        contentDescription = left.text
-                        role = Role.Button
-                        selected = leftActive || leftSolved
-                        if (!leftEnabled) disabled()
-                        onClick(label = left.text) {
-                            if (leftEnabled) { selectLeft(left.id); true } else false
-                        }
-                    },
-                    shape = RoundedCornerShape(16.dp),
-                    color = when { leftSolved -> solvedBackground; leftActive -> activeBackground; else -> idleBackground },
-                    border = BorderStroke(if (leftActive) 2.dp else 1.dp, when { leftSolved -> solvedBorder; leftActive -> Accent; else -> idleBorder }),
-                    shadowElevation = if (leftEnabled && !leftActive) 2.dp else if (leftActive) 4.dp else 0.dp,
+    }
+}
+
+// @spec spec://modules/learning/FEAT-010-learning-demo#exercises
+@Composable
+private fun MatchingSolutionReview(copy: LessonCopy) {
+    Surface(
+        color = Color(0xFFFFF6E8),
+        shape = RoundedCornerShape(14.dp),
+        border = BorderStroke(1.dp, Color(0xFFF1D2A5)),
+    ) {
+        Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(copy.matchingSolutionReview, color = Ink, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
+            Text(copy.matchingSolutionNotCounted, color = Ink, style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+// @spec spec://modules/learning/FEAT-010-learning-demo#exercises
+@Composable
+private fun MatchingPairCard(
+    text: String,
+    description: String,
+    pairNumber: Int?,
+    paired: Boolean,
+    active: Boolean,
+    enabled: Boolean,
+    relationId: String? = null,
+    onClick: () -> Unit,
+) {
+    val shape = RoundedCornerShape(18.dp)
+    val background = when {
+        active -> Color(0xFFE4F3FF)
+        paired -> Color(0xFFF0F6FC)
+        else -> Color.White
+    }
+    val edge = if (active) Accent else if (paired) Color(0xFF96B8D2) else Color(0xFFD4E0EB)
+    Surface(
+        modifier = Modifier.fillMaxWidth().aspectRatio(1f)
+            .clickable(enabled = enabled, onClick = onClick)
+            .clearAndSetSemantics {
+                contentDescription = description
+                role = Role.Button
+                selected = paired || active
+                if (!enabled) disabled()
+                onClick(label = description) { if (enabled) { onClick(); true } else false }
+            },
+        shape = shape,
+        color = background,
+        border = BorderStroke(if (active) 2.dp else 1.dp, edge),
+        shadowElevation = if (enabled && !active) 2.dp else if (active) 4.dp else 0.dp,
+    ) {
+        Box(Modifier.fillMaxSize().padding(10.dp)) {
+            if (pairNumber != null) {
+                Box(
+                    Modifier.align(Alignment.TopEnd).size(26.dp).clip(CircleShape).background(Color(0xFFD9EAF7)),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Box(Modifier.fillMaxSize().padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
-                        Text(left.text, color = if (leftSolved) Muted else Ink, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(pairNumber.toString(), color = Ink, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.ExtraBold)
+                }
+            }
+            Column(
+                Modifier.fillMaxSize().padding(top = if (pairNumber != null) 16.dp else 0.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                if (relationId != null) AngleRelationDiagram(relationId, Modifier.size(48.dp), muted = paired)
+                if (relationId == null && '/' in text) {
+                    val fraction = text.split('/', limit = 2)
+                    Column(Modifier.widthIn(max = 78.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(fraction[0].trim(), color = Ink, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, maxLines = 1)
+                        Box(Modifier.fillMaxWidth().height(2.dp).background(Ink))
+                        Text(fraction[1].trim(), color = Ink, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, maxLines = 1)
                     }
-                }
-                Box(Modifier.weight(1f).height(76.dp), contentAlignment = Alignment.Center) {
-                    Box(
-                        Modifier.size(72.dp).shadow(if (rightEnabled && !rightActive) 2.dp else if (rightActive) 4.dp else 0.dp, RoundedCornerShape(16.dp)).clip(RoundedCornerShape(16.dp))
-                            .background(when { rightSolved -> solvedBackground; rightActive -> activeBackground; else -> idleBackground })
-                            .border(if (rightActive) 2.dp else 1.dp, when { rightSolved -> solvedBorder; rightActive -> Accent; else -> idleBorder }, RoundedCornerShape(16.dp))
-                            .clickable(enabled = rightEnabled) { selectRight(right.id) }
-                            .clearAndSetSemantics {
-                                contentDescription = right.text
-                                role = Role.Button
-                                selected = rightActive || rightSolved
-                                if (!rightEnabled) disabled()
-                                onClick(label = right.text) {
-                                    if (rightEnabled) { selectRight(right.id); true } else false
-                                }
-                            },
-                        contentAlignment = Alignment.Center,
-                    ) { AngleRelationDiagram(right.id, Modifier.size(48.dp), muted = rightSolved) }
-                }
+                } else Text(
+                    text,
+                    color = if (enabled || paired) Ink else Muted,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
             }
         }
     }
@@ -2442,46 +2638,34 @@ private fun StepContent(
     onDenominatorSelected: (Boolean) -> Unit,
     copy: LessonCopy,
 ) {
-    if (completed && progress?.correct == true) {
-        exercise.steps.lastOrNull()?.let { lastStep ->
-            NumericAnswerPad(
-                answer = progress.answer.orEmpty(),
-                shape = numericAnswerShape(lastStep.acceptedAnswers),
-                denominatorSelected = false,
-                placeholder = copy.answerPlaceholder,
-                numeratorLabel = copy.fractionNumerator,
-                denominatorLabel = copy.fractionDenominator,
-                enabled = false,
-                onPartSelected = {},
-            )
-        }
-        exercise.steps.forEachIndexed { index, finishedStep ->
-            Surface(color = Color(0xFFF0F4FC), shape = RoundedCornerShape(12.dp)) {
-                Text("${index + 1}. ${finishedStep.explanation}", Modifier.fillMaxWidth().padding(11.dp), color = Ink, style = MaterialTheme.typography.bodySmall)
+    val stepIndex = if (completed && progress?.correct == true) exercise.steps.lastIndex
+        else (progress?.stepIndex ?: 0).coerceIn(0, exercise.steps.lastIndex)
+    val shape = numericAnswerShape(exercise.steps[stepIndex].acceptedAnswers)
+    val input: @Composable () -> Unit = {
+        NumericAnswerPad(
+            answer = if (completed && progress?.correct == true) progress.answer.orEmpty().removePrefix(if (shape.root) "√" else "") else answer,
+            shape = shape,
+            denominatorSelected = denominatorSelected,
+            placeholder = copy.answerPlaceholder,
+            numeratorLabel = copy.fractionNumerator,
+            denominatorLabel = copy.fractionDenominator,
+            enabled = !completed,
+            onPartSelected = onDenominatorSelected,
+        )
+    }
+    Box(Modifier.fillMaxWidth().height(350.dp), contentAlignment = Alignment.Center) {
+        if (exercise.visual == "radical_fraction") {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("1", color = Ink, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                    Box(Modifier.width(58.dp).height(2.dp).background(Ink))
+                    Text("√2", color = Ink, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                }
+                Text("=", color = Ink, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Box(Modifier.width(154.dp)) { input() }
             }
-        }
-        return
+        } else input()
     }
-    val stepIndex = (progress?.stepIndex ?: 0).coerceIn(0, exercise.steps.lastIndex)
-    val step = exercise.steps[stepIndex]
-    val shape = numericAnswerShape(step.acceptedAnswers)
-    Text("${copy.stepLabel} ${stepIndex + 1} / ${exercise.steps.size}", color = Accent, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-    exercise.steps.take(stepIndex).forEachIndexed { index, finishedStep ->
-        Surface(color = Color(0xFFF0F4FC), shape = RoundedCornerShape(12.dp)) {
-            Text("${index + 1}. ${finishedStep.explanation}", Modifier.fillMaxWidth().padding(11.dp), color = Ink, style = MaterialTheme.typography.bodySmall)
-        }
-    }
-    Text(step.prompt, color = Ink, style = MaterialTheme.typography.bodyLarge)
-    NumericAnswerPad(
-        answer = answer,
-        shape = shape,
-        denominatorSelected = denominatorSelected,
-        placeholder = copy.answerPlaceholder,
-        numeratorLabel = copy.fractionNumerator,
-        denominatorLabel = copy.fractionDenominator,
-        enabled = !completed,
-        onPartSelected = onDenominatorSelected,
-    )
 }
 
 @Composable

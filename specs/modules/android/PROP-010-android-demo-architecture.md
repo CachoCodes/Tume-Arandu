@@ -43,14 +43,7 @@ status: active
 - общий `ExerciseResult`: число попыток при необходимости, final state (`correct` / `solution_viewed`) и последний ответ;
 - `ProgressSnapshot`: версия схемы, результаты по ID упражнений, завершённые lesson IDs, текущий lesson/exercise, XP, даты активности и streak.
 
-Курс — versioned JSON под `app/src/main/assets/courses/trigonometry.json`. Испанская локализация лежит в `trigonometry-es.json` с той же схемой и теми же ID упражнений, правильными вариантами и `acceptedAnswers`; переключение языка не создает отдельный прогресс. Корневые поля: `schemaVersion`, `id`, `locale`, `title`, `lessons`. У урока: `id`, `title`, `objective`, `theory[]`, `exercises[]`, `xpReward`. Типизированное упражнение содержит `id`, `type`, `prompt`, необязательные `hint`, `solutionSteps[]` и поля своего типа:
-
-- choice: `options[{id,text}]`, `correctOptionId`;
-- input: `acceptedAnswers[]`;
-- matching: `leftItems[]`, `rightItems[]`, `pairs[]`;
-- step-by-step: `steps[{prompt,acceptedAnswers,explanation}]`.
-
-ID уникальны в курсе. При загрузке локального JSON выполняются лёгкие структурные проверки (непустые обязательные поля, корректные ID/ссылки вариантов, хотя бы одно решение для каждого упражнения). Неверный встроенный файл — ошибка сборки/контента: экран показывает безопасное сообщение, приложение не падает.
+Курс — единый versioned JSON v2 под `app/src/main/assets/courses/trigonometry.json`. Он содержит обе локализации в объектах `{"gn-PY": "...", "es": "..."}` и явное поле `visual` для каждого упражнения. Отдельного испанского файла нет. Корневые поля: `schemaVersion`, `id`, `revision`, `defaultLocale`, `title`, `lessons`; полная структура и валидация заданы в `spec://modules/learning/PROP-011-course-json-format#root`. Android loader проверяет пакет до показа и выбирает локализованный текст, сохраняя общие ID и ответы. Некорректный встроенный файл показывает безопасное состояние ошибки без сброса прогресса. Прогресс DataStore остаётся в текущей схеме v1, поскольку ID существующих уроков и упражнений не меняются.
 
 Проверка input — нормализация с Unicode-aware trim, удаление внешних и повторных пробелов, сравнение с объявленными aliases. Не использовать `eval`, исполнение выражений или парсер алгебры. Дроби и запятые задаются явными aliases в контенте, а не эвристической математической эквивалентностью.
 
