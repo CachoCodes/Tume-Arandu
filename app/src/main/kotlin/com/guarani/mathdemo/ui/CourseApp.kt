@@ -103,6 +103,7 @@ import com.guarani.mathdemo.R
 import com.guarani.mathdemo.course.ChoiceExercise
 import com.guarani.mathdemo.course.Course
 import com.guarani.mathdemo.course.CourseLoader
+import com.guarani.mathdemo.course.TriangleDiagram
 import com.guarani.mathdemo.course.Exercise
 import com.guarani.mathdemo.course.InputExercise
 import com.guarani.mathdemo.course.Lesson
@@ -1325,7 +1326,7 @@ private fun ExercisePanel(
     val helpTipDismissed by repository.helpTipDismissed.collectAsState(initial = true)
     val completed = progress?.isTerminal == true
     val angleBuilder = exercise.visual == "angle_builder"
-    val ratiosCosine = exercise.visual == "triangle_choice"
+    val triangleChoice = exercise is ChoiceExercise && (exercise.visual == "triangle_choice" || exercise.triangle != null)
     val numericExercise = exercise is InputExercise || exercise is StepExercise
     var answer by rememberSaveable(exercise.id, progress?.answer) { mutableStateOf(progress?.answer.orEmpty()) }
     var denominatorSelected by rememberSaveable(exercise.id) { mutableStateOf(false) }
@@ -1452,8 +1453,8 @@ private fun ExercisePanel(
                         fontWeight = FontWeight.Bold,
                         color = Ink,
                     )
-                    if (exercise.visual in setOf("triangle_choice", "fraction_triangle")) {
-                        TriangleContextDiagram(copy, enlarged = true, tall = ratiosCosine)
+                    if (exercise.triangle != null || exercise.visual in setOf("triangle_choice", "fraction_triangle")) {
+                        TriangleContextDiagram(copy, enlarged = true, tall = triangleChoice, diagram = exercise.triangle)
                     }
                     if (exercise.visual == "straight_angle") StraightAngleDiagram()
                     when (exercise) {
@@ -1463,7 +1464,7 @@ private fun ExercisePanel(
                                 enabled = progress?.correct != true && !angleSolved,
                                 instruction = copy.angleSliderInstruction,
                             )
-                        } else if (!ratiosCosine) ChoiceContent(exercise, completed || feedback != null, choiceSelection) { selected ->
+                        } else if (!triangleChoice) ChoiceContent(exercise, completed || feedback != null, choiceSelection) { selected ->
                             choiceSelection = selected
                             feedback = null
                         }
@@ -1480,7 +1481,7 @@ private fun ExercisePanel(
                                     onPartSelected = { denominatorSelected = it },
                                 )
                             }
-                            if (exercise.visual in setOf("standard_number", "standard_fraction")) {
+                            if (exercise.triangle == null && exercise.visual in setOf("standard_number", "standard_fraction")) {
                                 Box(Modifier.fillMaxWidth().height(320.dp), contentAlignment = Alignment.Center) { input() }
                             } else input()
                         }
@@ -1544,14 +1545,14 @@ private fun ExercisePanel(
                     },
                 )
             }
-            if (exercise is ChoiceExercise && ratiosCosine && feedback == null && !completed) {
+            if (exercise is ChoiceExercise && triangleChoice && feedback == null && !completed) {
                 ChoiceContent(exercise, completed, choiceSelection, stackedFractions = true) { selected ->
                     choiceSelection = selected
                     feedback = null
                 }
             }
             val resultMessage = dockSuccessMessage ?: feedback?.takeIf { feedbackIsError }
-            if (resultMessage != null && exercise is ChoiceExercise && ratiosCosine) {
+            if (resultMessage != null && exercise is ChoiceExercise && triangleChoice) {
                 val selectedOption = exercise.options.firstOrNull { it.id == choiceSelection }
                 if (selectedOption != null) ResultChoice(selectedOption.text, !feedbackIsError)
             }
@@ -1657,14 +1658,18 @@ private fun ExercisePanel(
 // @spec spec://modules/learning/FEAT-010-learning-demo#exercises
 
 @Composable
-private fun TriangleContextDiagram(copy: LessonCopy, enlarged: Boolean = false, tall: Boolean = false) {
+private fun TriangleContextDiagram(copy: LessonCopy, enlarged: Boolean = false, tall: Boolean = false, diagram: TriangleDiagram? = null) {
     Canvas(
         Modifier.fillMaxWidth().height(if (tall) 420.dp else if (enlarged) 245.dp else 210.dp)
-            .semantics { contentDescription = copy.triangleDescription },
+            .semantics { contentDescription = diagram?.let { "${it.angleLabel}: ${it.base}, ${it.opposite}, ${it.hypotenuse}" } ?: copy.triangleDescription },
     ) {
-        val scale = min(size.width * (if (tall) .86f else .75f) / 4f, size.height * (if (tall) .7f else .84f) / 3f)
-        val base = 4f * scale
-        val altitude = 3f * scale
+        val angle = diagram?.angleDegrees ?: 36.87
+        val ratio = kotlin.math.tan(angle * PI / 180).toFloat()
+        val widthFraction = if (diagram == null) { if (tall) .86f else .75f } else { if (tall) .76f else .68f }
+        val heightFraction = if (diagram == null) { if (tall) .7f else .84f } else .72f
+        val base = min(size.width * widthFraction, size.height * heightFraction / ratio)
+        val altitude = base * ratio
+        val scale = base / 4f
         val a = Offset((size.width - base) / 2f, (size.height + altitude) / 2f)
         val b = Offset(a.x + base, a.y)
         val c = Offset(b.x, a.y - altitude)
@@ -1672,7 +1677,7 @@ private fun TriangleContextDiagram(copy: LessonCopy, enlarged: Boolean = false, 
         val orange = Color(0xFFF0A34A)
         drawLine(orange, Offset(b.x - mark, b.y), Offset(b.x - mark, b.y - mark), 2.dp.toPx())
         drawLine(orange, Offset(b.x - mark, b.y - mark), Offset(b.x, b.y - mark), 2.dp.toPx())
-        drawArc(orange, startAngle = -37f, sweepAngle = 37f, useCenter = false,
+        drawArc(orange, startAngle = -angle.toFloat(), sweepAngle = angle.toFloat(), useCenter = false,
             topLeft = Offset(a.x - scale * .45f, a.y - scale * .45f),
             size = Size(scale * .9f, scale * .9f), style = Stroke(2.dp.toPx()))
         val line = 4.dp.toPx()
@@ -1686,12 +1691,12 @@ private fun TriangleContextDiagram(copy: LessonCopy, enlarged: Boolean = false, 
                 typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
                 textAlign = NativePaint.Align.CENTER
             }
-            canvas.nativeCanvas.drawText("5", (a.x + c.x) / 2f - 12.dp.toPx(), (a.y + c.y) / 2f - 12.dp.toPx(), paint)
-            canvas.nativeCanvas.drawText("3", b.x + 23.dp.toPx(), (b.y + c.y) / 2f + 6.dp.toPx(), paint)
-            canvas.nativeCanvas.drawText("4", (a.x + b.x) / 2f, a.y + 27.dp.toPx(), paint)
+            canvas.nativeCanvas.drawText(diagram?.hypotenuse ?: "5", (a.x + c.x) / 2f - 12.dp.toPx(), (a.y + c.y) / 2f - 12.dp.toPx(), paint)
+            canvas.nativeCanvas.drawText(diagram?.opposite ?: "3", b.x + 23.dp.toPx(), (b.y + c.y) / 2f + 6.dp.toPx(), paint)
+            canvas.nativeCanvas.drawText(diagram?.base ?: "4", (a.x + b.x) / 2f, a.y + 27.dp.toPx(), paint)
             paint.color = Color(0xFFB36A14).toArgb()
             paint.typeface = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
-            canvas.nativeCanvas.drawText("α", a.x + scale * .86f, a.y - scale * .18f, paint)
+            canvas.nativeCanvas.drawText(diagram?.angleLabel ?: "α", a.x + base * (if (angle >= 55) .38f else .215f), a.y - scale * .18f, paint)
         }
     }
 }
@@ -1941,7 +1946,7 @@ private fun ExerciseHelpDialog(lesson: Lesson, exercise: Exercise, spanish: Bool
                         Text(if (spanish) "Objetivo" else "Ko mbo'epy", color = Accent, fontWeight = FontWeight.Bold)
                         Text(lesson.objective, color = Ink, style = MaterialTheme.typography.bodyMedium)
                         Text(if (spanish) "Teoría" else "Ñaikuaa", color = Accent, fontWeight = FontWeight.Bold)
-                        if (exercise.visual in setOf("triangle_choice", "fraction_triangle")) TriangleContextDiagram(copy)
+                        if (exercise.triangle != null || exercise.visual in setOf("triangle_choice", "fraction_triangle")) TriangleContextDiagram(copy, diagram = exercise.triangle)
                         lesson.theory.forEach { block ->
                             if (block.type == "formula") {
                                 Surface(color = Color(0xFFF0F4FC), shape = RoundedCornerShape(14.dp)) {
@@ -2653,7 +2658,7 @@ private fun StepContent(
             onPartSelected = onDenominatorSelected,
         )
     }
-    Box(Modifier.fillMaxWidth().height(350.dp), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxWidth().height(if (exercise.triangle == null) 350.dp else if (shape.fraction) 150.dp else 90.dp), contentAlignment = Alignment.Center) {
         if (exercise.visual == "radical_fraction") {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {

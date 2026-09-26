@@ -35,6 +35,14 @@ class CourseValidatorTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "visual"):
             validator.validate(course)
 
+    def test_triangle_contract_rejected(self):
+        for field, value in (("angleDegrees", 90), ("angleDegrees", -1), ("base", "")):
+            course = copy.deepcopy(COURSE)
+            course["lessons"][2]["exercises"][0]["triangle"][field] = value
+            with self.subTest(field=field, value=value), self.assertRaisesRegex(ValueError, "triangle"):
+                validator.validate(course)
+
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -11,6 +11,7 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
+| [WI-035 Контекстные треугольники](work/WI-035-context-triangles.md) | @maks | P0 | — |
 | [WI-033 Компоновка первого multiple choice по тригонометрическим отношениям](work/WI-033-ratios-cosine-choice-layout.md) | @maks | P1 | — |
 | [WI-031 Сопоставление двумя столбцами карточек](work/WI-031-matching-cards.md) | @maks | P1 | — |
 | [WI-030 Убрать вводящую в заблуждение схему из заданий](work/WI-030-contextual-exercise-diagrams.md) | @maks | P1 | — |

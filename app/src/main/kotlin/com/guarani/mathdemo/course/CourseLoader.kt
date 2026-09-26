@@ -61,6 +61,16 @@ object CourseLoader {
         val type = json.requiredString("type")
         val visual = json.requiredString("visual")
         require(visual in visuals[type].orEmpty()) { "visual $visual is not supported for $type" }
+        require(!json.has("triangle") || json.optJSONObject("triangle") != null) { "triangle must be an object" }
+        val triangle = json.optJSONObject("triangle")?.let { diagram ->
+            at("triangle") {
+                require(diagram.get("angleDegrees") is Number) { "angleDegrees must be a number" }
+                val degrees = diagram.getDouble("angleDegrees")
+                require(degrees > 0 && degrees < 90) { "angleDegrees must be between 0 and 90" }
+                TriangleDiagram(degrees, diagram.requiredString("angleLabel"), diagram.requiredString("base"),
+                    diagram.requiredString("opposite"), diagram.requiredString("hypotenuse"))
+            }
+        }
         val prompt = json.localized("prompt", locale)
         val hint = json.localized("hint", locale)
         val solution = json.getJSONArray("solutionSteps").localizedStrings(locale)
@@ -74,9 +84,9 @@ object CourseLoader {
                 val answer = json.requiredString("correctOptionId")
                 require(options.any { it.id == answer }) { "correctOptionId does not exist" }
                 if (visual == "angle_builder") require(answer.toIntOrNull()?.let { it in 0..180 } == true) { "angle target must be 0..180" }
-                ChoiceExercise(id, visual, prompt, hint, solution, options, answer)
+                ChoiceExercise(id, visual, prompt, hint, solution, options, answer, triangle)
             }
-            "input" -> InputExercise(id, visual, prompt, hint, solution, json.getJSONArray("acceptedAnswers").answers())
+            "input" -> InputExercise(id, visual, prompt, hint, solution, json.getJSONArray("acceptedAnswers").answers(), triangle)
             "matching" -> {
                 val left = json.getJSONArray("leftItems").objects().map { option ->
                     Option(option.requiredString("id"), option.localized("text", locale))
@@ -95,7 +105,7 @@ object CourseLoader {
                 require(pairs.keys == left.map(Option::id).toSet()) { "pairs reference unknown left item" }
                 require(pairs.values.toSet() == right.map(Option::id).toSet()) { "pairs reference unknown or repeated right item" }
                 if (visual == "ratio_pairs") require(right.all { '/' in it.text }) { "ratio_pairs items must use /" }
-                MatchingExercise(id, visual, prompt, hint, solution, left, right, pairs)
+                MatchingExercise(id, visual, prompt, hint, solution, left, right, pairs, triangle)
             }
             "step_by_step" -> {
                 val steps = json.getJSONArray("steps").objects().mapIndexed { index, step ->
@@ -104,7 +114,7 @@ object CourseLoader {
                     }
                 }
                 require(steps.isNotEmpty()) { "steps must not be empty" }
-                StepExercise(id, visual, prompt, hint, solution, steps)
+                StepExercise(id, visual, prompt, hint, solution, steps, triangle)
             }
             else -> error("unsupported type $type")
         }

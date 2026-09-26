@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "trigonometry-guarani",
-  "revision": 1,
+  "revision": 2,
   "defaultLocale": "gn-PY",
   "title": {
     "gn-PY": "Papapykuaa ángulo rehegua",
@@ -457,12 +457,19 @@
               }
             }
           ],
-          "correctOptionId": "half"
+          "correctOptionId": "half",
+          "triangle": {
+            "angleDegrees": 30,
+            "angleLabel": "30°",
+            "base": "√3",
+            "opposite": "1",
+            "hypotenuse": "2"
+          }
         },
         {
           "id": "notable-60",
           "type": "input",
-          "visual": "standard_number",
+          "visual": "standard_fraction",
           "prompt": {
             "gn-PY": "Mba'épa cos 60°? Ehai fracción ramo.",
             "es": "¿Cuánto vale cos 60°? Escribe la fracción."
@@ -484,7 +491,14 @@
           "acceptedAnswers": [
             "1/2",
             "0.5"
-          ]
+          ],
+          "triangle": {
+            "angleDegrees": 60,
+            "angleLabel": "60°",
+            "base": "1",
+            "opposite": "√3",
+            "hypotenuse": "2"
+          }
         },
         {
           "id": "notable-rationalization",
@@ -519,7 +533,14 @@
                 "es": "1/√2 × √2/√2 = √2/2."
               }
             }
-          ]
+          ],
+          "triangle": {
+            "angleDegrees": 45,
+            "angleLabel": "45°",
+            "base": "1",
+            "opposite": "1",
+            "hypotenuse": "√2"
+          }
         }
       ]
     },
@@ -592,7 +613,14 @@
               }
             }
           ],
-          "correctOptionId": "right"
+          "correctOptionId": "right",
+          "triangle": {
+            "angleDegrees": 36.87,
+            "angleLabel": "θ",
+            "base": "b",
+            "opposite": "a",
+            "hypotenuse": "c"
+          }
         },
         {
           "id": "identity-input",
@@ -618,7 +646,14 @@
           ],
           "acceptedAnswers": [
             "3/4"
-          ]
+          ],
+          "triangle": {
+            "angleDegrees": 36.87,
+            "angleLabel": "θ",
+            "base": "4",
+            "opposite": "3",
+            "hypotenuse": "5"
+          }
         },
         {
           "id": "identity-match",
@@ -760,7 +795,14 @@
               }
             }
           ],
-          "correctOptionId": "5"
+          "correctOptionId": "5",
+          "triangle": {
+            "angleDegrees": 30,
+            "angleLabel": "30°",
+            "base": "a",
+            "opposite": "?",
+            "hypotenuse": "10"
+          }
         },
         {
           "id": "side-input",
@@ -786,7 +828,14 @@
           ],
           "acceptedAnswers": [
             "4"
-          ]
+          ],
+          "triangle": {
+            "angleDegrees": 60,
+            "angleLabel": "60°",
+            "base": "?",
+            "opposite": "b",
+            "hypotenuse": "8"
+          }
         },
         {
           "id": "side-steps",
@@ -837,7 +886,14 @@
                 "es": "La hipotenusa mide 12."
               }
             }
-          ]
+          ],
+          "triangle": {
+            "angleDegrees": 30,
+            "angleLabel": "30°",
+            "base": "a",
+            "opposite": "6",
+            "hypotenuse": "?"
+          }
         }
       ]
     },
@@ -914,7 +970,14 @@
               }
             }
           ],
-          "correctOptionId": "4"
+          "correctOptionId": "4",
+          "triangle": {
+            "angleDegrees": 60,
+            "angleLabel": "60°",
+            "base": "?",
+            "opposite": "h",
+            "hypotenuse": "8 m"
+          }
         },
         {
           "id": "app-input",
@@ -941,7 +1004,14 @@
           "acceptedAnswers": [
             "6",
             "6 m"
-          ]
+          ],
+          "triangle": {
+            "angleDegrees": 45,
+            "angleLabel": "45°",
+            "base": "6 m",
+            "opposite": "?",
+            "hypotenuse": "c"
+          }
         },
         {
           "id": "app-match",
@@ -1083,7 +1153,14 @@
               }
             }
           ],
-          "correctOptionId": "7"
+          "correctOptionId": "7",
+          "triangle": {
+            "angleDegrees": 45,
+            "angleLabel": "45°",
+            "base": "?",
+            "opposite": "7",
+            "hypotenuse": "c"
+          }
         },
         {
           "id": "review-input",
@@ -1109,7 +1186,14 @@
           ],
           "acceptedAnswers": [
             "5/13"
-          ]
+          ],
+          "triangle": {
+            "angleDegrees": 22.62,
+            "angleLabel": "α",
+            "base": "12",
+            "opposite": "5",
+            "hypotenuse": "13"
+          }
         },
         {
           "id": "review-steps",
@@ -1160,7 +1244,14 @@
                 "es": "El lado opuesto mide 7."
               }
             }
-          ]
+          ],
+          "triangle": {
+            "angleDegrees": 30,
+            "angleLabel": "30°",
+            "base": "a",
+            "opposite": "?",
+            "hypotenuse": "14"
+          }
         }
       ]
     }

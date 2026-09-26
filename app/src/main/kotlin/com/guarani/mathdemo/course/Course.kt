@@ -21,9 +21,12 @@ data class TheoryBlock(val type: String, val body: String)
 
 data class Option(val id: String, val text: String, val diagram: String? = null)
 
+data class TriangleDiagram(val angleDegrees: Double, val angleLabel: String, val base: String, val opposite: String, val hypotenuse: String)
+
 sealed interface Exercise {
     val id: String
     val visual: String
+    val triangle: TriangleDiagram?
     val prompt: String
     val hint: String
     val solutionSteps: List<String>
@@ -37,6 +40,7 @@ data class ChoiceExercise(
     override val solutionSteps: List<String>,
     val options: List<Option>,
     val correctOptionId: String,
+    override val triangle: TriangleDiagram? = null,
 ) : Exercise
 
 data class InputExercise(
@@ -46,6 +50,7 @@ data class InputExercise(
     override val hint: String,
     override val solutionSteps: List<String>,
     val acceptedAnswers: List<String>,
+    override val triangle: TriangleDiagram? = null,
 ) : Exercise
 
 data class MatchingExercise(
@@ -57,6 +62,7 @@ data class MatchingExercise(
     val leftItems: List<Option>,
     val rightItems: List<Option>,
     val pairs: Map<String, String>,
+    override val triangle: TriangleDiagram? = null,
 ) : Exercise
 
 data class StepItem(
@@ -72,4 +78,5 @@ data class StepExercise(
     override val hint: String,
     override val solutionSteps: List<String>,
     val steps: List<StepItem>,
+    override val triangle: TriangleDiagram? = null,
 ) : Exercise

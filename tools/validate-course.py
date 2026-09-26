@@ -84,6 +84,13 @@ def validate(data):
             kind = exercise.get("type")
             visual = exercise.get("visual")
             check(visual in VISUALS.get(kind, set()), f"{ep}.visual", "unsupported type/visual")
+            if "triangle" in exercise:
+                triangle = exercise["triangle"]
+                check(isinstance(triangle, dict), f"{ep}.triangle", "expected object")
+                degrees = triangle.get("angleDegrees")
+                check(type(degrees) in (int, float) and 0 < degrees < 90, f"{ep}.triangle.angleDegrees", "angle must be between 0 and 90")
+                for field in ("angleLabel", "base", "opposite", "hypotenuse"):
+                    string(triangle.get(field), f"{ep}.triangle.{field}")
             for field in ("prompt", "hint"):
                 localized(exercise.get(field), f"{ep}.{field}")
             solution = exercise.get("solutionSteps")
