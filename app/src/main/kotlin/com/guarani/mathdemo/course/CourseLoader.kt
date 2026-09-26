@@ -5,6 +5,9 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 // @spec spec://modules/learning/PROP-011-course-json-format#validation
+const val LESSON_MADE_WITH = "Dulce Duro"
+const val LESSON_BASED_ON = "MEC Paraguay"
+
 object CourseLoader {
     private val visuals = mapOf(
         "multiple_choice" to setOf("triangle_choice", "angle_builder", "standard_choice"),
@@ -13,8 +16,12 @@ object CourseLoader {
         "step_by_step" to setOf("radical_fraction", "standard_steps"),
     )
 
-    fun load(context: Context, locale: String = "gn"): Course =
-        context.assets.open("courses/trigonometry.json").bufferedReader().use { parse(it.readText(), locale) }
+    const val COURSE_ASSET = "courses/trigonometry.json"
+    // Every approved exercise type with template content; opened in preview mode.
+    const val TEMPLATES_ASSET = "templates/exercise-templates.json"
+
+    fun load(context: Context, locale: String = "gn", asset: String = COURSE_ASSET): Course =
+        context.assets.open(asset).bufferedReader().use { parse(it.readText(), locale) }
 
     fun parse(json: String, locale: String = "gn"): Course {
         val language = if (locale == "es") "es" else "gn-PY"
@@ -36,6 +43,10 @@ object CourseLoader {
                         at("exercises[$exerciseIndex]") { parseExercise(exercise, language) }
                     }
                     require(exercises.isNotEmpty()) { "exercises must not be empty" }
+                    // @spec spec://modules/learning/PROP-011-course-json-format#lesson-source
+                    val source = at("source") { lesson.getJSONObject("source") }
+                    require(source.requiredString("madeWith") == LESSON_MADE_WITH) { "source.madeWith must be $LESSON_MADE_WITH" }
+                    require(source.requiredString("basedOn") == LESSON_BASED_ON) { "source.basedOn must be $LESSON_BASED_ON" }
                     val xp = lesson.getInt("xpReward")
                     require(xp >= 0) { "xpReward must not be negative" }
                     Lesson(

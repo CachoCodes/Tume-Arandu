@@ -129,11 +129,16 @@ import java.math.BigDecimal
 
 // @spec spec://modules/learning/FEAT-010-learning-demo#flow
 @Composable
-fun CourseApp(repository: ProgressRepository) {
+fun CourseApp(
+    repository: ProgressRepository,
+    courseAsset: String = CourseLoader.COURSE_ASSET,
+    unlockAll: Boolean = false,
+    startExerciseId: String? = null,
+) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val course = remember { runCatching { CourseLoader.load(context) }.getOrNull() }
+    val course = remember { runCatching { CourseLoader.load(context, asset = courseAsset) }.getOrNull() }
     val spanishLessons = remember {
-        runCatching { CourseLoader.load(context, "es").lessons.associateBy(Lesson::id) }.getOrDefault(emptyMap())
+        runCatching { CourseLoader.load(context, "es", courseAsset).lessons.associateBy(Lesson::id) }.getOrDefault(emptyMap())
     }
     val progressState by repository.progress.collectAsState(initial = ProgressState.Loading)
     val progress = (progressState as? ProgressState.Ready)?.snapshot
@@ -152,12 +157,20 @@ fun CourseApp(repository: ProgressRepository) {
         return
     }
 
+    // Preview mode can jump straight to one exercise.
+    LaunchedEffect(startExerciseId) {
+        val lesson = course.lessons.firstOrNull { lesson -> lesson.exercises.any { it.id == startExerciseId } } ?: return@LaunchedEffect
+        repository.saveCursor(lesson.id, startExerciseId!!)
+        nav.navigate("lesson/${lesson.id}")
+    }
+
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         NavHost(navController = nav, startDestination = "map") {
             composable("map") {
                 CourseMapScreen(
                     course = course,
                     progress = progress,
+                    unlockAll = unlockAll,
                     selectedTab = "map",
                     onMap = { scope.launch { nav.popBackStack("map", inclusive = false) } },
                     onTutor = { selectTab("tutor") },
@@ -240,13 +253,14 @@ fun CourseApp(repository: ProgressRepository) {
 private fun CourseMapScreen(
     course: Course,
     progress: ProgressSnapshot,
+    unlockAll: Boolean,
     selectedTab: String,
     onMap: () -> Unit,
     onTutor: () -> Unit,
     onProfile: () -> Unit,
     onOpen: (Lesson) -> Unit,
 ) {
-    CourseMap3DScreen(course, progress, onOpen) {
+    CourseMap3DScreen(course, progress, onOpen, unlockAll) {
         CourseBottomBar(selectedTab = selectedTab, onMap = onMap, onTutor = onTutor, onProfile = onProfile)
     }
 }
@@ -379,6 +393,7 @@ private fun TutorScreen(
 
     Column(Modifier.fillMaxSize().background(Color(0xFFF3F8FC)).statusBarsPadding().navigationBarsPadding().imePadding()) {
         StudyPageHeader("Tutor", courseTitle, "T", status = "DEMO · LOCAL")
+        OfflineModelCard()
         Column(
             Modifier.weight(1f).fillMaxWidth().padding(horizontal = 13.dp, vertical = 8.dp)
                 .clip(RoundedCornerShape(23.dp)).background(Color(0xFFEAF2F8))
@@ -421,6 +436,29 @@ private fun TutorScreen(
             ) { Text("↑", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) }
         }
         CourseBottomBar(selectedTab, onMap, onTutor, onProfile)
+    }
+}
+
+// Offline Tutor model entry point; the download itself is not implemented yet.
+// Draft canon: specs/modules/tutor/FEAT-011-ai-tutor.md (offline-provider).
+@Composable
+private fun OfflineModelCard() {
+    var requested by rememberSaveable { mutableStateOf(false) }
+    Surface(
+        Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(18.dp), color = Color.White,
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD4E3EF)),
+    ) {
+        Row(Modifier.padding(start = 14.dp, end = 8.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("Tutor sin internet", color = Ink, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                Text(
+                    if (requested) "La descarga todavía no está disponible." else "Modelo Gemma 3 1B · ≈550 MB · por Wi-Fi",
+                    color = Muted, style = MaterialTheme.typography.labelSmall,
+                )
+            }
+            TextButton(onClick = { requested = true }, enabled = !requested) { Text("Descargar", fontWeight = FontWeight.Bold) }
+        }
     }
 }
 
@@ -1812,6 +1850,7 @@ private fun MatchingContent(
         }
     }
 
+    val aspect = exercise.leftItems.size.coerceIn(1, 3) / 3f
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         if (solutionViewed) MatchingSolutionReview(copy)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top) {
@@ -1832,6 +1871,7 @@ private fun MatchingContent(
                         paired = paired,
                         active = active,
                         enabled = !completed,
+                        aspect = aspect,
                         onClick = { chooseLeft(left.id) },
                     )
                 }
@@ -1854,6 +1894,7 @@ private fun MatchingContent(
                         paired = pairNumber != null,
                         active = active,
                         enabled = !completed,
+                        aspect = aspect,
                         onClick = { chooseRight(right.id) },
                     )
                 }
@@ -1986,6 +2027,8 @@ private fun MatchingPairCard(
     active: Boolean,
     enabled: Boolean,
     relationId: String? = null,
+    // Width / height: the board keeps the approved three-row height whatever the number of pairs.
+    aspect: Float = 1f,
     onClick: () -> Unit,
 ) {
     val shape = RoundedCornerShape(18.dp)
@@ -1996,7 +2039,7 @@ private fun MatchingPairCard(
     }
     val edge = if (active) Accent else if (paired) Color(0xFF96B8D2) else Color(0xFFD4E0EB)
     Surface(
-        modifier = Modifier.fillMaxWidth().aspectRatio(1f)
+        modifier = Modifier.fillMaxWidth().aspectRatio(aspect)
             .clickable(enabled = enabled, onClick = onClick)
             .clearAndSetSemantics {
                 contentDescription = description

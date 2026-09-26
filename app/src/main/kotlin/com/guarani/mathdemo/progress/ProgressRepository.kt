@@ -15,6 +15,8 @@ import org.json.JSONObject
 
 // @spec spec://modules/android/PROP-010-android-demo-architecture#persistence
 private val Context.progressDataStore by preferencesDataStore(name = "learning_progress")
+// Preview mode keeps its answers apart from the learner's real progress.
+private val Context.previewDataStore by preferencesDataStore(name = "exercise_preview")
 private val SNAPSHOT_KEY = stringPreferencesKey("snapshot_v1")
 private val HELP_TIP_DISMISSED_KEY = booleanPreferencesKey("help_tip_dismissed_v1")
 
@@ -42,8 +44,12 @@ sealed interface ProgressState {
     data object Unavailable : ProgressState
 }
 
-class ProgressRepository(context: Context) {
-    private val store = context.applicationContext.progressDataStore
+class ProgressRepository(context: Context, preview: Boolean = false) {
+    private val store = context.applicationContext.let { if (preview) it.previewDataStore else it.progressDataStore }
+
+    suspend fun clear() {
+        store.edit { it.clear() }
+    }
 
     // @spec spec://modules/android/PROP-010-android-demo-architecture#persistence
     val helpTipDismissed: Flow<Boolean> = store.data

@@ -965,6 +965,7 @@ internal fun CourseMap3DScreen(
     course: Course,
     progress: ProgressSnapshot,
     onOpen: (Lesson) -> Unit,
+    unlockAll: Boolean = false,
     bottomBar: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
@@ -995,7 +996,7 @@ internal fun CourseMap3DScreen(
             }
         }
         Canvas(Modifier.fillMaxSize().graphicsLayer()) { drawOverlays(frame, nanos / 1e9, calm, unit, yPad) }
-        VerticalPager(pager, Modifier.fillMaxSize()) { page -> StageTargets(page, state, unit, yPad, onOpen) }
+        VerticalPager(pager, Modifier.fillMaxSize()) { page -> StageTargets(page, state, unit, yPad, unlockAll, onOpen) }
         val stage = pager.currentPage
         val (done, total) = state.stageCount(stage)
         StageCard(progress.xp, streakDays = 0, stage = stage, done = done, total = total, Modifier.align(Alignment.TopCenter).statusBarsPadding())
@@ -1005,7 +1006,7 @@ internal fun CourseMap3DScreen(
 
 // Tap targets sit exactly on the platforms of the stage at rest; reviews are part of the path, not buttons.
 @Composable
-private fun StageTargets(page: Int, state: MapProgress, unit: Float, yPad: Double, onOpen: (Lesson) -> Unit) {
+private fun StageTargets(page: Int, state: MapProgress, unit: Float, yPad: Double, unlockAll: Boolean, onOpen: (Lesson) -> Unit) {
     val density = LocalDensity.current
     val view = remember(page) { View3(page * SCREEN) }
     Box(Modifier.fillMaxSize()) {
@@ -1013,7 +1014,7 @@ private fun StageTargets(page: Int, state: MapProgress, unit: Float, yPad: Doubl
             val lesson = state.lessonAt[i]
             val center = view.project(LESSONS[i].up(TILE_HEIGHT))
             val w = RADIUS * Cam.scale * 2; val h = w * Cam.se + TILE_HEIGHT * 2
-            val open = lesson != null && i <= state.current
+            val open = lesson != null && (unlockAll || i <= state.current)
             val status = when { lesson == null -> "Cerrada"; i < state.done -> "Completada"; i == state.current -> "Actual"; else -> "Cerrada" }
             val title = "Lección ${lessonNumber(i)}" + (lesson?.let { ": ${it.title}" } ?: "")
             with(density) {

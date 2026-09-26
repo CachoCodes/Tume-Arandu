@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "trigonometry-guarani",
-  "revision": 2,
+  "revision": 3,
   "defaultLocale": "gn-PY",
   "title": {
     "gn-PY": "Papapykuaa ángulo rehegua",
@@ -10,6 +10,10 @@
   "lessons": [
     {
       "id": "angles",
+      "source": {
+        "madeWith": "Dulce Duro",
+        "basedOn": "MEC Paraguay"
+      },
       "title": {
         "gn-PY": "Ángulo ha medida",
         "es": "Medida de los ángulos"
@@ -200,6 +204,10 @@
     },
     {
       "id": "ratios",
+      "source": {
+        "madeWith": "Dulce Duro",
+        "basedOn": "MEC Paraguay"
+      },
       "title": {
         "gn-PY": "Seno, coseno ha tangente",
         "es": "Seno, coseno y tangente"
@@ -386,6 +394,10 @@
     },
     {
       "id": "notable-angles",
+      "source": {
+        "madeWith": "Dulce Duro",
+        "basedOn": "MEC Paraguay"
+      },
       "title": {
         "gn-PY": "Ángulo ojekuaavéva",
         "es": "Ángulos notables"
@@ -546,6 +558,10 @@
     },
     {
       "id": "ratio-relations",
+      "source": {
+        "madeWith": "Dulce Duro",
+        "basedOn": "MEC Paraguay"
+      },
       "title": {
         "gn-PY": "Joaju seno ha coseno rehegua",
         "es": "Relación entre seno y coseno"
@@ -724,6 +740,10 @@
     },
     {
       "id": "unknown-side",
+      "source": {
+        "madeWith": "Dulce Duro",
+        "basedOn": "MEC Paraguay"
+      },
       "title": {
         "gn-PY": "Eheka peteĩ lado",
         "es": "Calcula un lado"
@@ -899,6 +919,10 @@
     },
     {
       "id": "applications",
+      "source": {
+        "madeWith": "Dulce Duro",
+        "basedOn": "MEC Paraguay"
+      },
       "title": {
         "gn-PY": "Aplicación tekovépe",
         "es": "Aplicaciones en la vida diaria"
@@ -1082,6 +1106,10 @@
     },
     {
       "id": "review",
+      "source": {
+        "madeWith": "Dulce Duro",
+        "basedOn": "MEC Paraguay"
+      },
       "title": {
         "gn-PY": "Jehechajey ha desafío",
         "es": "Repaso y desafío"

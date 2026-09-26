@@ -1,0 +1,690 @@
+{
+  "schemaVersion": 2,
+  "id": "exercise-templates",
+  "revision": 1,
+  "defaultLocale": "gn-PY",
+  "title": {
+    "gn-PY": "Techaukaha",
+    "es": "Plantillas de ejercicios"
+  },
+  "lessons": [
+    {
+      "id": "templates-multiple-choice",
+      "source": {
+        "madeWith": "Dulce Duro",
+        "basedOn": "MEC Paraguay"
+      },
+      "title": {
+        "gn-PY": "Techaukaha: eiporavo",
+        "es": "Plantillas: elegir respuesta"
+      },
+      "objective": {
+        "gn-PY": "Techaukaha opaichagua tembiapo.",
+        "es": "Una plantilla aprobada por cada vista de este tipo."
+      },
+      "theory": [],
+      "xpReward": 0,
+      "exercises": [
+        {
+          "id": "tpl-triangle-choice",
+          "type": "multiple_choice",
+          "visual": "triangle_choice",
+          "prompt": {
+            "gn-PY": "Pe adyacente ha'e 4, hipotenusa 5. Mba'épa coseno?",
+            "es": "El lado adyacente mide 4 y la hipotenusa 5. ¿Cuál es el coseno?"
+          },
+          "hint": {
+            "gn-PY": "Coseno ombojoja adyacente ha hipotenusa.",
+            "es": "Coseno = lado adyacente / hipotenusa."
+          },
+          "solutionSteps": [
+            {
+              "gn-PY": "Coseno = adyacente / hipotenusa.",
+              "es": "Coseno = lado adyacente / hipotenusa."
+            },
+            {
+              "gn-PY": "Cos θ = 4/5.",
+              "es": "Cos θ = 4/5."
+            }
+          ],
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "gn-PY": "3/4",
+                "es": "3/4"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "gn-PY": "4/5",
+                "es": "4/5"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "gn-PY": "5/4",
+                "es": "5/4"
+              }
+            }
+          ],
+          "correctOptionId": "b"
+        },
+        {
+          "id": "tpl-angle-builder",
+          "type": "multiple_choice",
+          "visual": "angle_builder",
+          "prompt": {
+            "gn-PY": "Mboy grado oguereko peteĩ ángulo recto?",
+            "es": "¿Cuántos grados tiene un ángulo recto?"
+          },
+          "hint": {
+            "gn-PY": "Ejesareko pe fórmula rehegua-pe.",
+            "es": "Fíjate en la fórmula."
+          },
+          "solutionSteps": [
+            {
+              "gn-PY": "Ángulo recto ha'e peteĩ cuarto de vuelta.",
+              "es": "Un ángulo recto equivale a un cuarto de vuelta."
+            },
+            {
+              "gn-PY": "Peteĩ vuelta oguereko 360°, upévare 360° ÷ 4 = 90°.",
+              "es": "Una vuelta tiene 360°, así que 360° ÷ 4 = 90°."
+            }
+          ],
+          "options": [
+            {
+              "id": "45",
+              "text": {
+                "gn-PY": "45°",
+                "es": "45°"
+              }
+            },
+            {
+              "id": "90",
+              "text": {
+                "gn-PY": "90°",
+                "es": "90°"
+              }
+            },
+            {
+              "id": "180",
+              "text": {
+                "gn-PY": "180°",
+                "es": "180°"
+              }
+            }
+          ],
+          "correctOptionId": "90"
+        },
+        {
+          "id": "tpl-standard-choice",
+          "type": "multiple_choice",
+          "visual": "standard_choice",
+          "prompt": {
+            "gn-PY": "Tan 45° = 1 ha lado opuesto = 7 ramo, mboypa ipukukue lado adyacente?",
+            "es": "Si tan 45° = 1 y el lado opuesto mide 7, ¿cuánto mide el lado adyacente?"
+          },
+          "hint": {
+            "gn-PY": "Tan 45° = opuesto / adyacente.",
+            "es": "tan 45° = opuesto / adyacente."
+          },
+          "solutionSteps": [
+            {
+              "gn-PY": "1 = 7 / adyacente.",
+              "es": "1 = 7 / adyacente."
+            },
+            {
+              "gn-PY": "Pe lado adyacente ipukukue 7.",
+              "es": "El lado adyacente mide 7."
+            }
+          ],
+          "options": [
+            {
+              "id": "7",
+              "text": {
+                "gn-PY": "7",
+                "es": "7"
+              }
+            },
+            {
+              "id": "1",
+              "text": {
+                "gn-PY": "1",
+                "es": "1"
+              }
+            },
+            {
+              "id": "49",
+              "text": {
+                "gn-PY": "49",
+                "es": "49"
+              }
+            }
+          ],
+          "correctOptionId": "7",
+          "triangle": {
+            "angleDegrees": 45,
+            "angleLabel": "45°",
+            "base": "?",
+            "opposite": "7",
+            "hypotenuse": "c"
+          }
+        }
+      ]
+    },
+    {
+      "id": "templates-input",
+      "source": {
+        "madeWith": "Dulce Duro",
+        "basedOn": "MEC Paraguay"
+      },
+      "title": {
+        "gn-PY": "Techaukaha: ehai",
+        "es": "Plantillas: escribir respuesta"
+      },
+      "objective": {
+        "gn-PY": "Techaukaha opaichagua tembiapo.",
+        "es": "Una plantilla aprobada por cada vista de este tipo."
+      },
+      "theory": [],
+      "xpReward": 0,
+      "exercises": [
+        {
+          "id": "tpl-fraction-triangle",
+          "type": "input",
+          "visual": "fraction_triangle",
+          "prompt": {
+            "gn-PY": "Mboypa haʼe ángulo α seno?",
+            "es": "¿Cuál es el seno del ángulo α?"
+          },
+          "hint": {
+            "gn-PY": "Seno = opuesto / hipotenusa.",
+            "es": "Seno = lado opuesto / hipotenusa."
+          },
+          "solutionSteps": [
+            {
+              "gn-PY": "Eipuru sen θ = opuesto / hipotenusa.",
+              "es": "Usa sen θ = lado opuesto / hipotenusa."
+            },
+            {
+              "gn-PY": "Sen θ = 3/5.",
+              "es": "Sen θ = 3/5."
+            }
+          ],
+          "acceptedAnswers": [
+            "3/5"
+          ]
+        },
+        {
+          "id": "tpl-straight-angle",
+          "type": "input",
+          "visual": "straight_angle",
+          "prompt": {
+            "gn-PY": "Emoĩ número-pe: mboy grado oguereko peteĩ ángulo llano?",
+            "es": "Escribe el número: ¿cuántos grados tiene un ángulo llano?"
+          },
+          "hint": {
+            "gn-PY": "Ha'e peteĩ media vuelta.",
+            "es": "Equivale a media vuelta."
+          },
+          "solutionSteps": [
+            {
+              "gn-PY": "Peteĩ vuelta oguereko 360°.",
+              "es": "Una vuelta tiene 360°."
+            },
+            {
+              "gn-PY": "Media vuelta ha'e 360° ÷ 2 = 180°.",
+              "es": "Media vuelta es 360° ÷ 2 = 180°."
+            }
+          ],
+          "acceptedAnswers": [
+            "180",
+            "180°"
+          ]
+        },
+        {
+          "id": "tpl-standard-number",
+          "type": "input",
+          "visual": "standard_number",
+          "prompt": {
+            "gn-PY": "Peteĩ poste sombra 6 m ipukúva oguereko, ha kuarahy ángulo yvýre 45°. tan 45° = 1 ramo, mboypa poste yvate?",
+            "es": "Un poste proyecta una sombra de 6 m y el ángulo del sol con el suelo es 45°. Si tan 45° = 1, ¿cuánto mide el poste?"
+          },
+          "hint": {
+            "gn-PY": "tan 45° = altura / sombra.",
+            "es": "tan 45° = altura / sombra."
+          },
+          "solutionSteps": [
+            {
+              "gn-PY": "1 = altura / 6.",
+              "es": "1 = altura / 6."
+            },
+            {
+              "gn-PY": "Altura = 6 m.",
+              "es": "La altura es 6 m."
+            }
+          ],
+          "acceptedAnswers": [
+            "6",
+            "6 m"
+          ],
+          "triangle": {
+            "angleDegrees": 45,
+            "angleLabel": "45°",
+            "base": "6 m",
+            "opposite": "?",
+            "hypotenuse": "c"
+          }
+        },
+        {
+          "id": "tpl-standard-fraction",
+          "type": "input",
+          "visual": "standard_fraction",
+          "prompt": {
+            "gn-PY": "Pe opuesto ha'e 5, hipotenusa 13. Mba'épa seno? Ehai fracción ramo.",
+            "es": "El lado opuesto mide 5 y la hipotenusa 13. ¿Cuál es el seno? Escribe la fracción."
+          },
+          "hint": {
+            "gn-PY": "Seno = opuesto / hipotenusa.",
+            "es": "Seno = lado opuesto / hipotenusa."
+          },
+          "solutionSteps": [
+            {
+              "gn-PY": "Seno = opuesto / hipotenusa.",
+              "es": "Seno = lado opuesto / hipotenusa."
+            },
+            {
+              "gn-PY": "Sen θ = 5/13.",
+              "es": "Sen θ = 5/13."
+            }
+          ],
+          "acceptedAnswers": [
+            "5/13"
+          ],
+          "triangle": {
+            "angleDegrees": 22.62,
+            "angleLabel": "α",
+            "base": "12",
+            "opposite": "5",
+            "hypotenuse": "13"
+          }
+        }
+      ]
+    },
+    {
+      "id": "templates-matching",
+      "source": {
+        "madeWith": "Dulce Duro",
+        "basedOn": "MEC Paraguay"
+      },
+      "title": {
+        "gn-PY": "Techaukaha: embojoaju",
+        "es": "Plantillas: relacionar parejas"
+      },
+      "objective": {
+        "gn-PY": "Techaukaha opaichagua tembiapo.",
+        "es": "Una plantilla aprobada por cada vista de este tipo."
+      },
+      "theory": [],
+      "xpReward": 0,
+      "exercises": [
+        {
+          "id": "tpl-ratio-pairs",
+          "type": "matching",
+          "visual": "ratio_pairs",
+          "prompt": {
+            "gn-PY": "Embojoaju peteĩteĩ razón iládo ndive.",
+            "es": "Relaciona cada razón con sus lados."
+          },
+          "hint": {
+            "gn-PY": "Mandu'a: sen oñepyrũ opuesto reheve.",
+            "es": "Recuerda: el seno empieza con el lado opuesto."
+          },
+          "solutionSteps": [
+            {
+              "gn-PY": "sen = opuesto / hipotenusa.",
+              "es": "sen = opuesto / hipotenusa."
+            },
+            {
+              "gn-PY": "cos = adyacente / hipotenusa; tan = opuesto / adyacente.",
+              "es": "cos = adyacente / hipotenusa; tan = opuesto / adyacente."
+            }
+          ],
+          "leftItems": [
+            {
+              "id": "sin",
+              "text": {
+                "gn-PY": "sin α",
+                "es": "sin α"
+              }
+            },
+            {
+              "id": "cos",
+              "text": {
+                "gn-PY": "cos α",
+                "es": "cos α"
+              }
+            },
+            {
+              "id": "tan",
+              "text": {
+                "gn-PY": "tan α",
+                "es": "tan α"
+              }
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "o-h",
+              "text": {
+                "gn-PY": "Opuesto / hipotenusa",
+                "es": "Opuesto / hipotenusa"
+              }
+            },
+            {
+              "id": "a-h",
+              "text": {
+                "gn-PY": "Adyacente / hipotenusa",
+                "es": "Adyacente / hipotenusa"
+              }
+            },
+            {
+              "id": "o-a",
+              "text": {
+                "gn-PY": "Opuesto / adyacente",
+                "es": "Opuesto / adyacente"
+              }
+            }
+          ],
+          "pairs": [
+            {
+              "leftId": "sin",
+              "rightId": "o-h"
+            },
+            {
+              "leftId": "cos",
+              "rightId": "a-h"
+            },
+            {
+              "leftId": "tan",
+              "rightId": "o-a"
+            }
+          ]
+        },
+        {
+          "id": "tpl-angle-pairs",
+          "type": "matching",
+          "visual": "angle_pairs",
+          "prompt": {
+            "gn-PY": "Eipoko peteĩ medida ha ta'anga de ángulo ojoajúva hendive.",
+            "es": "Toca una medida y el dibujo del ángulo que le corresponde."
+          },
+          "hint": {
+            "gn-PY": "Emañamína umi medida: michĩve 90°-gui ha'éta agudo.",
+            "es": "Si mide menos de 90°, es agudo."
+          },
+          "solutionSteps": [
+            {
+              "gn-PY": "45° < 90°, upévare ha'e agudo.",
+              "es": "45° < 90°, así que es agudo."
+            },
+            {
+              "gn-PY": "90° ha'e recto; 180° ha'e llano.",
+              "es": "90° es recto; 180° es llano."
+            }
+          ],
+          "leftItems": [
+            {
+              "id": "forty-five",
+              "text": {
+                "gn-PY": "45°",
+                "es": "45°"
+              }
+            },
+            {
+              "id": "ninety",
+              "text": {
+                "gn-PY": "90°",
+                "es": "90°"
+              }
+            },
+            {
+              "id": "one-eighty",
+              "text": {
+                "gn-PY": "180°",
+                "es": "180°"
+              }
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "acute",
+              "text": {
+                "gn-PY": "Agudo",
+                "es": "Agudo"
+              },
+              "diagram": "acute"
+            },
+            {
+              "id": "right",
+              "text": {
+                "gn-PY": "Recto",
+                "es": "Recto"
+              },
+              "diagram": "right"
+            },
+            {
+              "id": "straight",
+              "text": {
+                "gn-PY": "Llano",
+                "es": "Llano"
+              },
+              "diagram": "straight"
+            }
+          ],
+          "pairs": [
+            {
+              "leftId": "forty-five",
+              "rightId": "acute"
+            },
+            {
+              "leftId": "ninety",
+              "rightId": "right"
+            },
+            {
+              "leftId": "one-eighty",
+              "rightId": "straight"
+            }
+          ]
+        },
+        {
+          "id": "tpl-standard-pairs",
+          "type": "matching",
+          "visual": "standard_pairs",
+          "prompt": {
+            "gn-PY": "Embojoaju peteĩ dato ha razón ikatúva ojepuru.",
+            "es": "Relaciona cada conjunto de datos con una razón que puedas usar."
+          },
+          "hint": {
+            "gn-PY": "Seno oipuru opuesto ha hipotenusa; tangente oipuru opuesto ha adyacente.",
+            "es": "El seno usa el lado opuesto y la hipotenusa; la tangente, los lados opuesto y adyacente."
+          },
+          "solutionSteps": [
+            {
+              "gn-PY": "Yvate ha hipotenusa: seno.",
+              "es": "Altura e hipotenusa: seno."
+            },
+            {
+              "gn-PY": "Yvate ha distancia yvýre: tangente.",
+              "es": "Altura y distancia en el suelo: tangente."
+            }
+          ],
+          "leftItems": [
+            {
+              "id": "height-hyp",
+              "text": {
+                "gn-PY": "Yvate ha hipotenusa",
+                "es": "Altura e hipotenusa"
+              }
+            },
+            {
+              "id": "height-ground",
+              "text": {
+                "gn-PY": "Yvate ha distancia yvýre",
+                "es": "Altura y distancia en el suelo"
+              }
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "sin",
+              "text": {
+                "gn-PY": "Seno",
+                "es": "Seno"
+              }
+            },
+            {
+              "id": "tan",
+              "text": {
+                "gn-PY": "Tangente",
+                "es": "Tangente"
+              }
+            }
+          ],
+          "pairs": [
+            {
+              "leftId": "height-hyp",
+              "rightId": "sin"
+            },
+            {
+              "leftId": "height-ground",
+              "rightId": "tan"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "templates-step-by-step",
+      "source": {
+        "madeWith": "Dulce Duro",
+        "basedOn": "MEC Paraguay"
+      },
+      "title": {
+        "gn-PY": "Techaukaha: pasokue",
+        "es": "Plantillas: paso a paso"
+      },
+      "objective": {
+        "gn-PY": "Techaukaha opaichagua tembiapo.",
+        "es": "Una plantilla aprobada por cada vista de este tipo."
+      },
+      "theory": [],
+      "xpReward": 0,
+      "exercises": [
+        {
+          "id": "tpl-radical-fraction",
+          "type": "step_by_step",
+          "visual": "radical_fraction",
+          "prompt": {
+            "gn-PY": "Ehai sin 45° denominador racional reheve.",
+            "es": "Escribe sin 45° con denominador racional."
+          },
+          "hint": {
+            "gn-PY": "Emboheta pe numerador ha denominador rehe √2.",
+            "es": "Multiplica el numerador y el denominador por √2."
+          },
+          "solutionSteps": [
+            {
+              "gn-PY": "1/√2 × √2/√2 = √2/2.",
+              "es": "1/√2 × √2/√2 = √2/2."
+            }
+          ],
+          "steps": [
+            {
+              "prompt": {
+                "gn-PY": "Emoracionalisa 1/√2.",
+                "es": "Racionaliza 1/√2."
+              },
+              "acceptedAnswers": [
+                "√2/2",
+                "sqrt(2)/2"
+              ],
+              "explanation": {
+                "gn-PY": "1/√2 × √2/√2 = √2/2.",
+                "es": "1/√2 × √2/√2 = √2/2."
+              }
+            }
+          ],
+          "triangle": {
+            "angleDegrees": 45,
+            "angleLabel": "45°",
+            "base": "1",
+            "opposite": "1",
+            "hypotenuse": "√2"
+          }
+        },
+        {
+          "id": "tpl-standard-steps",
+          "type": "step_by_step",
+          "visual": "standard_steps",
+          "prompt": {
+            "gn-PY": "Peteĩ ángulo 30° ha hipotenusa 14. Eheka pe lado opuesto.",
+            "es": "Un ángulo mide 30° y la hipotenusa mide 14. Calcula el lado opuesto."
+          },
+          "hint": {
+            "gn-PY": "sen 30° = 1/2 ha seno = opuesto / hipotenusa.",
+            "es": "sen 30° = 1/2 y seno = lado opuesto / hipotenusa."
+          },
+          "solutionSteps": [
+            {
+              "gn-PY": "1/2 = opuesto / 14.",
+              "es": "1/2 = lado opuesto / 14."
+            },
+            {
+              "gn-PY": "Opuesto = 14 × 1/2 = 7.",
+              "es": "Lado opuesto = 14 × 1/2 = 7."
+            }
+          ],
+          "steps": [
+            {
+              "prompt": {
+                "gn-PY": "Mba'épa 14 × 1/2?",
+                "es": "¿Cuánto es 14 × 1/2?"
+              },
+              "acceptedAnswers": [
+                "7"
+              ],
+              "explanation": {
+                "gn-PY": "Mitã 14 ha'e 7.",
+                "es": "La mitad de 14 es 7."
+              }
+            },
+            {
+              "prompt": {
+                "gn-PY": "Mba'épa pe lado opuesto?",
+                "es": "¿Cuánto mide el lado opuesto?"
+              },
+              "acceptedAnswers": [
+                "7"
+              ],
+              "explanation": {
+                "gn-PY": "Pe lado opuesto ha'e 7.",
+                "es": "El lado opuesto mide 7."
+              }
+            }
+          ],
+          "triangle": {
+            "angleDegrees": 30,
+            "angleLabel": "30°",
+            "base": "a",
+            "opposite": "?",
+            "hypotenuse": "14"
+          }
+        }
+      ]
+    }
+  ]
+}

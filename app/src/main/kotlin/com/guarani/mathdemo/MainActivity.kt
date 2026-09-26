@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import com.guarani.mathdemo.progress.ProgressRepository
 import com.guarani.mathdemo.ui.CourseApp
+import kotlinx.coroutines.runBlocking
 
 // @spec spec://modules/android/PROP-010-android-demo-architecture#navigation
 // @spec spec://modules/learning/FEAT-010-learning-demo#language-and-visuals
@@ -17,7 +18,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setLightSystemBars()
-        val repository = ProgressRepository(applicationContext)
+        // Preview mode (adb only): `-e preview courses/trigonometry.json` or `-e preview templates/exercise-templates.json`
+        // opens every lesson with a throwaway progress store, so screens can be reviewed without touching real progress.
+        val preview = intent.getStringExtra("preview")?.takeIf { it.startsWith("courses/") || it.startsWith("templates/") }
+        val repository = ProgressRepository(applicationContext, preview = preview != null)
+        if (preview != null) runBlocking { repository.clear() }
         setContent {
             val colors = remember {
                 androidx.compose.material3.lightColorScheme(
@@ -30,7 +35,9 @@ class MainActivity : ComponentActivity() {
                     onSurfaceVariant = Color(0xFF66728A),
                 )
             }
-            MaterialTheme(colorScheme = colors) { CourseApp(repository) }
+            MaterialTheme(colorScheme = colors) {
+                if (preview != null) CourseApp(repository, preview, unlockAll = true, startExerciseId = intent.getStringExtra("exercise")) else CourseApp(repository)
+            }
         }
     }
 

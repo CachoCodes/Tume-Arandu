@@ -42,6 +42,33 @@ class CourseValidatorTests(unittest.TestCase):
             with self.subTest(field=field, value=value), self.assertRaisesRegex(ValueError, "triangle"):
                 validator.validate(course)
 
+    def test_lesson_source_required(self):
+        for field, value in (("madeWith", None), ("basedOn", "Otro")):
+            course = copy.deepcopy(COURSE)
+            course["lessons"][1]["source"][field] = value
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, rf"lessons\[1\]\.source\.{field}"):
+                validator.validate(course)
+        course = copy.deepcopy(COURSE)
+        del course["lessons"][1]["source"]
+        with self.assertRaisesRegex(ValueError, r"lessons\[1\]\.source"):
+            validator.validate(course)
+
+    def test_exercise_without_picture_rejected(self):
+        course = copy.deepcopy(COURSE)
+        del course["lessons"][2]["exercises"][0]["triangle"]
+        with self.assertRaisesRegex(ValueError, "visual part"):
+            validator.validate(course)
+        course = copy.deepcopy(COURSE)
+        course["lessons"][3]["exercises"][2]["triangle"] = course["lessons"][2]["exercises"][0]["triangle"]
+        with self.assertRaisesRegex(ValueError, "without a triangle"):
+            validator.validate(course)
+
+    def test_templates_cover_every_visual(self):
+        path = Path(__file__).parents[1].joinpath("app/src/main/assets/templates/exercise-templates.json")
+        templates = json.loads(path.read_text())
+        validator.validate(templates)
+        used = {(e["type"], e["visual"]) for l in templates["lessons"] for e in l["exercises"]}
+        self.assertEqual(used, {(t, v) for t, vs in validator.VISUALS.items() for v in vs})
 
 
 if __name__ == "__main__":

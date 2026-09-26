@@ -10,6 +10,10 @@ VISUALS = {
     "matching": {"standard_pairs", "ratio_pairs", "angle_pairs"},
     "step_by_step": {"standard_steps", "radical_fraction"},
 }
+# Every non-matching exercise shows a picture; the standard_* screens draw it from `triangle`, so they require one.
+# Matching exercises are card boards and never get a triangle.
+NEEDS_TRIANGLE = {"standard_choice", "standard_number", "standard_fraction", "standard_steps"}
+SOURCE = {"madeWith": "Dulce Duro", "basedOn": "MEC Paraguay"}
 
 
 def check(condition, path, message):
@@ -68,6 +72,10 @@ def validate(data):
         path = f"course.lessons[{li}]"
         for field in ("title", "objective"):
             localized(lesson.get(field), f"{path}.{field}")
+        source = lesson.get("source")
+        check(isinstance(source, dict), f"{path}.source", "expected object")
+        for field, value in SOURCE.items():
+            check(source.get(field) == value, f"{path}.source.{field}", f"expected {value!r}")
         check(type(lesson.get("xpReward")) is int and lesson["xpReward"] >= 0, f"{path}.xpReward", "expected nonnegative integer")
         theory = lesson.get("theory")
         check(isinstance(theory, list), f"{path}.theory", "expected array")
@@ -84,6 +92,10 @@ def validate(data):
             kind = exercise.get("type")
             visual = exercise.get("visual")
             check(visual in VISUALS.get(kind, set()), f"{ep}.visual", "unsupported type/visual")
+            if visual in NEEDS_TRIANGLE:
+                check("triangle" in exercise, f"{ep}.triangle", f"{visual} needs a triangle: every exercise has a visual part")
+            if kind == "matching":
+                check("triangle" not in exercise, f"{ep}.triangle", "matching exercises are cards without a triangle")
             if "triangle" in exercise:
                 triangle = exercise["triangle"]
                 check(isinstance(triangle, dict), f"{ep}.triangle", "expected object")

@@ -1,5 +1,7 @@
 # Формат курса v2
 
+ИИ-агенты перед созданием урока читают [правила для ИИ](lesson-authoring-ai.md). Каждый урок содержит `source` (Dulce Duro, MEC Paraguay), каждое задание, кроме сопоставления, — визуальную часть. Эталон каждого вида — шаблон в `app/src/main/assets/templates/exercise-templates.json`.
+
 Встроенный курс хранится в одном файле [`trigonometry.json`](../app/src/main/assets/courses/trigonometry.json). Новый урок добавляется в массив `lessons` этого файла; текущая карта поддерживает 1–10 уроков. Android выбирает текст по `gn-PY` или `es`; ID и правильные ответы общие для обоих языков.
 
 ```json
@@ -11,6 +13,7 @@
   "title": {"gn-PY": "Trigonometría", "es": "Trigonometría"},
   "lessons": [{
     "id": "example-lesson",
+    "source": {"madeWith": "Dulce Duro", "basedOn": "MEC Paraguay"},
     "title": {"gn-PY": "Ko mbo'epy", "es": "Esta lección"},
     "objective": {"gn-PY": "Jejapo", "es": "Objetivo"},
     "theory": [{"type": "text", "body": {"gn-PY": "Ñemyesakã", "es": "Explicación"}}],
@@ -19,6 +22,7 @@
       "id": "example-choice",
       "type": "multiple_choice",
       "visual": "standard_choice",
+      "triangle": {"angleDegrees": 30, "angleLabel": "30°", "base": "√3", "opposite": "1", "hypotenuse": "2"},
       "prompt": {"gn-PY": "Mboy?", "es": "¿Cuánto?"},
       "hint": {"gn-PY": "Ejesareko", "es": "Observa"},
       "solutionSteps": [{"gn-PY": "Peteĩ", "es": "Uno"}],
