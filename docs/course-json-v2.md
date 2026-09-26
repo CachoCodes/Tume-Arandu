@@ -1,6 +1,6 @@
 # Формат курса v2
 
-Встроенный курс хранится в одном файле [`trigonometry.json`](../app/src/main/assets/courses/trigonometry.json). Новый урок добавляется в массив `lessons` этого файла. Android выбирает текст по `gn-PY` или `es`; ID и правильные ответы общие для обоих языков.
+Встроенный курс хранится в одном файле [`trigonometry.json`](../app/src/main/assets/courses/trigonometry.json). Новый урок добавляется в массив `lessons` этого файла; текущая карта поддерживает 1–10 уроков. Android выбирает текст по `gn-PY` или `es`; ID и правильные ответы общие для обоих языков.
 
 ```json
 {

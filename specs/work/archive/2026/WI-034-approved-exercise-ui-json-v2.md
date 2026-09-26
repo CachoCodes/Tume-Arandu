@@ -13,7 +13,7 @@ Canon action: new-spec
 
 ## Specs
 
-- Governing: планируемый `spec://modules/learning/PROP-011-course-json-format#root`.
+- Governing: `spec://modules/learning/PROP-011-course-json-format#root`.
 - Governing: `spec://modules/learning/FEAT-010-learning-demo#exercises`.
 - Constraint: `spec://modules/android/PROP-010-android-demo-architecture#course-schema`.
 
@@ -36,7 +36,13 @@ Canon action: new-spec
 
 ## Result
 
-Не выполнено.
+Выполнено 2026-09-25. Реализация опубликована коммитом `7a67d30`; на момент финальных проверок исходный код и пакет совпадали с этим коммитом. Последующее изменение касается только записи результата и статуса задачи. REVIEW: математическую корректность и переводы новых пакетов проверяет автор; импорт пользовательских файлов и раздельное пространство прогресса курсов остаются вне scope.
 
 | Criterion | Check / evidence | Result |
 |---|---|---|
+| AC-1 | CLI проверил 7 уроков / 21 упражнение; `tools/test_course_validator.py` — 4 теста, включая повреждённые пакеты; Android открыт в Guaraní и Español из одного файла. ID и ответы сохранены при миграции. | passed |
+| AC-2 | На отдельном AVD `guarani-ui-review` выполнены angle builder (90°), straight angle (180), angle matching (3 пары), triangle fraction (3/5), triangle choice (4/5), ratio matching (3 пары), radical fraction (√2/2). Оформление выбирается через `visual`. | passed |
+| AC-3 | Проверены ошибка и успех выбора ответа, переход Continue, ввод дроби и правильный radical step; кнопка объяснения открыта на испанском. Неверные ответы остаются нетерминальными в существующей очереди возврата. | passed |
+| AC-4 | Финальная `:app:assembleDebug --offline` прошла; `adb install -r` на emulator-5554 и отдельном emulator-5556; пользовательские данные не очищались. Последняя правка знака корня проверена в работающем APK после повторной установки. | passed |
+| AC-5 | `python3 tools/validate-course.py app/src/main/assets/courses/trigonometry.json`, `python3 tools/test_course_validator.py`, `python3 tools/spec-lint.py`, `git diff --check` прошли; руководство `docs/course-json-v2.md` и PROP-011 опубликованы. | passed |
+| AC-6 | Открыт PR https://github.com/CachoCodes/Tume-Arandu/pull/2 в main запрошенного репозитория. | passed |
