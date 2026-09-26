@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Selección múltiple · propuesta visual</title>
+<style>
+:root{color-scheme:light;--bg:#f3f7fd;--panel:#eaf3fd;--line:#d4e0ed;--text:#172232;--muted:#667a90;--blue:#3869b9;--action:#3968be;--green:#69c4e6}
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;background:#e9f0f8;color:var(--text);font:16px system-ui,-apple-system,sans-serif}
+.review{height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;color:var(--muted);font-size:12px}.review a{color:var(--blue);text-decoration:none}.review strong{font-weight:600}
+.phone{width:min(100%,430px);height:calc(100dvh - 44px);max-height:940px;margin:auto;background:#fff;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto auto auto auto;box-shadow:0 18px 70px #54729238;overflow:hidden}
+.top{display:flex;align-items:center;gap:14px;padding:22px 22px 8px}.close{color:var(--muted);font-size:29px;line-height:1;text-decoration:none}.progress{height:10px;flex:1;border-radius:20px;background:#dce9f4;overflow:hidden}.progress:before{content:"";display:block;width:34%;height:100%;background:var(--green);border-radius:inherit}.language{border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--blue);font-weight:800;padding:6px 8px}
+.prompt{padding:15px 24px 0}.eyebrow{font-size:12px;font-weight:800;color:var(--blue);letter-spacing:.08em;text-transform:uppercase}.prompt h1{font-size:25px;line-height:1.2;letter-spacing:-.035em;margin:8px 0 0;max-width:365px}
+.diagram{min-height:0;margin:12px 18px 8px;padding:8px 10px;display:grid;place-items:center}.diagram svg{display:block;width:100%;height:100%;max-height:520px;overflow:visible}.triangle{fill:none;stroke:var(--blue);stroke-width:4;stroke-linejoin:round;stroke-linecap:round}.angle{fill:none;stroke:#d99d51;stroke-width:2}.diagram text{fill:var(--text);font-size:23px;font-weight:750;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}.diagram .alpha{fill:#ca8b39;font-size:22px}
+.answers{display:grid;gap:8px;padding:4px 22px 10px}.choice{height:58px;border:2px solid var(--line);border-bottom-width:4px;border-radius:17px;background:#fff;color:var(--text);font:inherit;cursor:pointer;display:grid;place-items:center;transition:background .15s,border-color .15s}.choice[aria-pressed=true]{border-color:var(--blue);background:#e6f2fe}.fraction{display:inline-grid;grid-template-rows:auto 1px auto;gap:2px;min-width:34px;text-align:center;font-size:22px;font-weight:800;line-height:1}.fraction i{display:block;background:currentColor}.fraction span{display:block}
+.actions{display:flex;gap:10px;padding:0 22px 20px}.help{width:56px;flex:none;border:2px solid var(--line);border-bottom-width:4px;border-radius:16px;background:#fff;color:var(--blue);display:grid;place-items:center;cursor:pointer}.help svg{width:27px;height:27px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.check{flex:1;border:0;border-bottom:4px solid #245d97;border-radius:16px;background:var(--action);color:white;font:800 15px system-ui;cursor:pointer}.check:disabled{background:#c5d4e3;border-color:#aebfcf;color:#60778c;cursor:default}
+.feedback{display:none;padding:16px 22px 20px;background:#fff0ed;border-top:1px solid #f0cfc8;gap:10px}.feedback strong{color:#a34e40;font-size:22px}.feedback p{margin:0;color:#744f49;font-size:14px}.feedback button{min-height:46px;border-radius:13px;font:800 14px system-ui;cursor:pointer}.hint-again{background:#fff;border:2px solid #daa49a;color:#a34e40}.retry{background:var(--action);border:0;border-bottom:3px solid #245d97;color:#fff}
+.success{display:none;margin-top:2px;padding:16px 22px 20px;background:#e5f4e8;border-top:1px solid #c9e6cf;gap:10px}.success strong{color:#267442;font-size:22px}.success p{margin:0;color:#3f6550;font-size:14px}.success button{min-height:46px;border-radius:13px;font:800 14px system-ui;cursor:pointer}.show-how{background:#fff;border:2px solid #78bc8b;color:#267442}.continue{background:var(--action);border:0;border-bottom:3px solid #245d97;color:#fff}
+.phone.is-correct .answers .choice:not([aria-pressed="true"]),.phone.is-correct .actions,.phone.is-incorrect .actions{display:none}.phone.is-correct .choice[aria-pressed="true"]{border-color:#60ae78;background:#f2fbf4;color:#267442}.phone.is-incorrect .choice[aria-pressed="true"]{border-color:#d98d80;background:#fff4f0}.phone.is-incorrect .diagram svg{width:78%;height:78%}.phone.is-correct .success,.phone.is-incorrect .feedback{display:grid}
+button:focus-visible,a:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+dialog{max-width:min(370px,calc(100vw - 32px));border:1px solid var(--line);border-radius:18px;background:#fff;color:var(--text);padding:22px}dialog::backdrop{background:#0009}dialog h2{margin:0 0 10px;font-size:20px}dialog p{line-height:1.5}dialog button{background:var(--action);border:0;border-radius:10px;color:white;padding:10px 16px;font:700 14px system-ui}
+@media(max-width:430px){.diagram svg{width:90%;height:90%}}
+@media(max-height:680px){.top{padding-top:12px}.prompt{padding-top:6px}.prompt h1{font-size:20px}.answers{gap:5px}.choice{height:46px}.fraction{font-size:18px}.actions{padding-bottom:9px}.diagram svg{max-height:340px}}
+</style>
+<div class="review"><strong>Propuesta visual · solo navegador</strong><a href="/gallery">← Capturas del APK</a></div>
+<main class="phone">
+  <div class="top"><a class="close" href="/gallery" aria-label="Volver a la galería">×</a><div class="progress" aria-label="Progreso de la lección"></div><button class="language" type="button" aria-label="Idioma guaraní">GN</button></div>
+  <div class="prompt"><div class="eyebrow">Seno, coseno y tangente</div><h1>El lado adyacente mide 4 y la hipotenusa 5. ¿Cuál es el coseno?</h1></div>
+  <div class="diagram" aria-label="Triángulo rectángulo: catetos 3 y 4, hipotenusa 5, ángulo alfa junto al lado 4">
+    <svg viewBox="0 0 360 400" role="img" aria-labelledby="diagramTitle" preserveAspectRatio="xMidYMid meet"><title id="diagramTitle">Triángulo de referencia 3–4–5</title>
+      <path class="triangle" d="M32 350 H326 V44 Z"/><path class="angle" d="M62 350 A30 30 0 0 0 53 329 M299 350 V323 H326"/>
+      <text x="178" y="383">4</text><text x="347" y="201">3</text><text x="162" y="181">5</text><text class="alpha" x="73" y="333">α</text>
+    </svg>
+  </div>
+  <div class="answers" role="group" aria-label="Elige una respuesta">
+    <button class="choice" type="button" data-value="3/4" aria-pressed="false" aria-label="Tres cuartos"><span class="fraction"><span>3</span><i></i><span>4</span></span></button>
+    <button class="choice" type="button" data-value="4/5" aria-pressed="false" aria-label="Cuatro quintos"><span class="fraction"><span>4</span><i></i><span>5</span></span></button>
+    <button class="choice" type="button" data-value="5/4" aria-pressed="false" aria-label="Cinco cuartos"><span class="fraction"><span>5</span><i></i><span>4</span></span></button>
+  </div>
+  <div class="actions"><button class="help" type="button" aria-label="Abrir ayuda"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a7 7 0 0 0-4 12.7c.8.6 1 1.4 1 2.3h6c0-.9.2-1.7 1-2.3A7 7 0 0 0 12 3Z"/><path d="M9 21h6M10 18h4"/></svg></button><button class="check" type="button" disabled>Comprobar respuesta</button></div>
+  <div class="feedback" role="status"><strong>↻ Casi</strong><p></p><button class="hint-again" type="button">Ver una pista</button><button class="retry" type="button">Continuar</button></div>
+  <div class="success" role="status"><strong>✓ ¡Muy bien!</strong><p>Elegiste 4/5, el coseno del ángulo α.</p><button class="show-how" type="button">Ver cómo se resuelve</button><button class="continue" type="button">Continuar</button></div>
+</main>
+<dialog class="hint-dialog"><h2>Una pista</h2><p>El coseno es el lado adyacente dividido por la hipotenusa. En este triángulo, usa 4 y 5.</p><button type="button">Cerrar</button></dialog>
+<dialog class="solution-dialog"><h2>Así se resuelve</h2><ol><li>El lado junto al ángulo α mide <strong>4</strong>: es el adyacente.</li><li>El lado más largo mide <strong>5</strong>: es la hipotenusa.</li><li>Coseno = adyacente ÷ hipotenusa = <strong>4/5</strong>.</li></ol><button type="button">Volver al ejercicio</button></dialog>
+<script>
+const phone=document.querySelector('.phone'),choices=[...document.querySelectorAll('.choice')],check=document.querySelector('.check'),feedback=document.querySelector('.feedback'),hint=document.querySelector('.hint-dialog'),solution=document.querySelector('.solution-dialog');
+let selected='';
+choices.forEach(choice=>choice.addEventListener('click',()=>{selected=choice.dataset.value;choices.forEach(button=>button.setAttribute('aria-pressed',String(button===choice)));check.disabled=false;phone.classList.remove('is-incorrect')}));
+check.addEventListener('click',()=>{if(selected==='4/5'){phone.classList.add('is-correct')}else{feedback.querySelector('p').textContent=`Elegiste ${selected}. Busca adyacente ÷ hipotenusa.`;phone.classList.add('is-incorrect')}});
+document.querySelector('.help').addEventListener('click',()=>hint.showModal());hint.querySelector('button').addEventListener('click',()=>hint.close());
+document.querySelector('.hint-again').addEventListener('click',()=>hint.showModal());document.querySelector('.retry').addEventListener('click',()=>phone.classList.remove('is-incorrect'));
+document.querySelector('.show-how').addEventListener('click',()=>solution.showModal());solution.querySelector('button').addEventListener('click',()=>solution.close());
+document.querySelector('.continue').addEventListener('click',()=>location.href='/prototype/angle-builder');
+</script>
+</html>

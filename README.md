@@ -22,7 +22,7 @@ The debug APK is written to `app/build/outputs/apk/debug/app-debug.apk`. Android
 
 ## Project layout
 
-- `app/src/main/assets/courses/` — Guaraní and Spanish course content.
+- `app/src/main/assets/courses/` — one localized JSON v2 course for Guaraní and Spanish.
 - `app/src/main/kotlin/com/guarani/mathdemo/` — course loading, exercise validation, local progress, and Compose UI.
 - `tools/math-prop/` — optional Three.js artwork renderer. It requires Node.js, npm, and Google Chrome at the macOS application path configured in `render.mjs`; run `npm ci && npm run render` from this directory.
 - `tools/map-decorations/` — Blender source scenes and visual reference assets; these are not bundled into the app.
@@ -30,7 +30,7 @@ The debug APK is written to `app/build/outputs/apk/debug/app-debug.apk`. Android
 
 ## Contributing
 
-Fork the repository or create a branch, keep changes focused, and open a pull request against `main`. Before submitting Android changes, run `./gradlew :app:assembleDebug`.
+Fork the repository or create a branch, keep changes focused, and open a pull request against `main`. To add or edit lessons, follow [the course JSON v2 guide](docs/course-json-v2.md), then run `python3 tools/validate-course.py app/src/main/assets/courses/trigonometry.json`. Before submitting Android changes, run `./gradlew :app:assembleDebug`.
 
 ## License
 

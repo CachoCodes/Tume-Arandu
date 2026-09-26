@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Relacionar ángulos · propuesta visual</title>
+<style>
+:root{color-scheme:light;--text:#172232;--muted:#667a90;--blue:#3869b9;--line:#d4e0ed}
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;background:#e9f0f8;color:var(--text);font:16px system-ui,-apple-system,sans-serif}
+.review{height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;color:var(--muted);font-size:12px}.review a{color:var(--blue);text-decoration:none}.review strong{font-weight:600}
+.phone{width:min(100%,430px);height:calc(100dvh - 44px);max-height:940px;margin:auto;background:#fff;display:flex;flex-direction:column;box-shadow:0 18px 70px #54729238;overflow:hidden}
+.top{display:flex;align-items:center;gap:14px;padding:22px 22px 8px}.close{color:var(--muted);font-size:29px;line-height:1;text-decoration:none}.progress{height:10px;flex:1;border-radius:20px;background:#dce9f4;overflow:hidden}.progress:before{content:"";display:block;width:56%;height:100%;background:#75c6e5;border-radius:inherit}.language{border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--blue);font-weight:800;padding:6px 8px}
+.prompt{padding:16px 24px 0}.eyebrow{font-size:12px;font-weight:800;color:var(--blue);letter-spacing:.08em;text-transform:uppercase}.prompt h1{font-size:23px;line-height:1.2;letter-spacing:-.03em;margin:8px 0}
+.board{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:12px;padding:24px 22px 26px}
+.card{position:relative;min-height:75px;border:2px solid var(--line);border-bottom-width:4px;border-radius:18px;background:#fff;color:var(--text);font:800 17px system-ui;line-height:1.2;padding:14px;cursor:pointer;display:grid;place-items:center;text-align:center}
+.card[data-side=left]{font-size:24px}.angle-figure{display:grid;justify-items:center;gap:8px;font-size:16px}.angle-figure svg{width:84px;height:70px;overflow:visible}.ray{fill:none;stroke:var(--blue);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.arc{fill:none;stroke:#58b7e0;stroke-width:3}.vertex{fill:#e9a547}.card.selected{border-color:var(--blue);background:#eaf4fc;color:#245eaf}.card.paired{border-color:#7db8da;background:#f0f8fd}.card.paired:after{content:attr(data-pair);position:absolute;top:8px;right:9px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#3869b9;color:#fff;font:800 12px system-ui}.card:disabled{cursor:default}
+.actions{display:flex;gap:9px;padding:0 22px 18px}.actions button{height:52px;border-radius:14px;cursor:pointer}.small{width:52px;flex:none;border:2px solid var(--line);border-bottom-width:4px;background:#fff;color:var(--blue);display:grid;place-items:center}.small svg{width:27px;height:27px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.check{flex:1;border:0;border-bottom:4px solid #245d97;background:#3968be;color:#fff;font:800 14px system-ui}.check:disabled{background:#c5d4e3;border-color:#aebfcf;color:#60778c;cursor:default}
+.feedback,.success{display:none;padding:16px 22px 20px;gap:10px}.feedback{background:#fff0ed;border-top:1px solid #f0cfc8}.success{background:#e5f4e8;border-top:1px solid #c9e6cf}.feedback strong{color:#a34e40;font-size:22px}.success strong{color:#267442;font-size:22px}.feedback p,.success p{margin:0;font-size:14px}.feedback p{color:#744f49}.success p{color:#3f6550}.feedback button,.success button{min-height:46px;border-radius:13px;font:800 14px system-ui;cursor:pointer}.secondary{background:#fff;border:2px solid #daa49a;color:#a34e40}.primary{background:#3968be;border:0;border-bottom:3px solid #245d97;color:#fff}.success .secondary{border-color:#78bc8b;color:#267442}.phone.is-correct .actions,.phone.is-incorrect .actions{display:none}.phone.is-correct .success,.phone.is-incorrect .feedback{display:grid}
+button:focus-visible,a:focus-visible{outline:3px solid var(--blue);outline-offset:3px}dialog{max-width:min(370px,calc(100vw - 32px));border:1px solid var(--line);border-radius:18px;background:#fff;color:var(--text);padding:22px}dialog::backdrop{background:#17223299}dialog h2{margin:0 0 10px;font-size:20px}dialog p{line-height:1.5}dialog button{background:#3968be;border:0;border-radius:10px;color:white;padding:10px 16px;font:700 14px system-ui}
+@media(max-height:680px){.top{padding-top:10px}.prompt{padding-top:6px}.prompt h1{font-size:19px}.board{padding-top:14px;padding-bottom:14px;gap:8px}.card{min-height:58px;padding:8px}.actions{padding-bottom:8px}.actions button{height:45px}}
+</style>
+<div class="review"><strong>Propuesta visual</strong><a href="/prototype/matching">← Relacionar razones</a></div>
+<main class="phone">
+  <div class="top"><a class="close" href="/gallery" aria-label="Volver a la galería">×</a><div class="progress" aria-label="Progreso de la lección"></div><button class="language" type="button" aria-label="Idioma guaraní">GN</button></div>
+  <div class="prompt"><div class="eyebrow">Medida de los ángulos</div><h1>Relaciona cada medida con su ángulo</h1></div>
+  <div class="board" aria-label="Relacionar medidas y dibujos de ángulos">
+    <button class="card" type="button" data-side="left" data-key="45">45°</button><button class="card" type="button" data-side="right" data-key="180" aria-label="Ángulo llano"><span class="angle-figure"><svg viewBox="0 0 90 70" aria-hidden="true"><path class="ray" d="M10 43 H80"/><circle class="vertex" cx="45" cy="43" r="6"/></svg><span>Llano</span></span></button>
+    <button class="card" type="button" data-side="left" data-key="90">90°</button><button class="card" type="button" data-side="right" data-key="45" aria-label="Ángulo agudo"><span class="angle-figure"><svg viewBox="0 0 90 70" aria-hidden="true"><path class="ray" d="M16 55 H75 M16 55 L58 13"/><path class="arc" d="M34 55 A18 18 0 0 0 29 42"/><circle class="vertex" cx="16" cy="55" r="6"/></svg><span>Agudo</span></span></button>
+    <button class="card" type="button" data-side="left" data-key="180">180°</button><button class="card" type="button" data-side="right" data-key="90" aria-label="Ángulo recto"><span class="angle-figure"><svg viewBox="0 0 90 70" aria-hidden="true"><path class="ray" d="M18 55 H76 M18 55 V8"/><path class="arc" d="M18 40 H33 V55"/><circle class="vertex" cx="18" cy="55" r="6"/></svg><span>Recto</span></span></button>
+  </div>
+  <div class="actions"><button class="small help" type="button" aria-label="Abrir ayuda"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a7 7 0 0 0-4 12.7c.8.6 1 1.4 1 2.3h6c0-.9.2-1.7 1-2.3A7 7 0 0 0 12 3Z"/><path d="M9 21h6M10 18h4"/></svg></button><button class="check" type="button" disabled>Comprobar parejas</button></div>
+  <div class="feedback" role="status"><strong>↻ Casi</strong><p>Revisa la abertura de cada ángulo.</p><button class="secondary hint-again" type="button">Ver una pista</button><button class="primary retry" type="button">Continuar</button></div>
+  <div class="success" role="status"><strong>✓ ¡Muy bien!</strong><p>Relacionaste correctamente las tres medidas.</p><button class="secondary show-how" type="button">Ver cómo se resuelve</button><button class="primary continue" type="button">Continuar</button></div>
+</main>
+<dialog class="hint-dialog"><h2>Una pista</h2><p>El ángulo recto forma una esquina de 90°.</p><button type="button">Cerrar</button></dialog>
+<dialog class="solution-dialog"><h2>Así se resuelve</h2><p>45° es agudo: menor que 90°.<br>90° es recto.<br>180° es llano: forma una línea recta.</p><button type="button">Volver al ejercicio</button></dialog>
+<script>
+const phone=document.querySelector('.phone'),cards=[...document.querySelectorAll('.card')],check=document.querySelector('.check'),pairs=[];let selected=null;
+cards.forEach(card=>card.addEventListener('click',()=>{
+  if(card.disabled)return;
+  if(selected===card){card.classList.remove('selected');selected=null;return}
+  if(!selected||selected.dataset.side===card.dataset.side){selected?.classList.remove('selected');selected=card;card.classList.add('selected');return}
+  const first=selected;first.classList.remove('selected');selected=null;
+  const left=first.dataset.side==='left'?first:card,right=first.dataset.side==='right'?first:card;
+  pairs.push([left.dataset.key,right.dataset.key]);for(const item of [first,card]){item.classList.add('paired');item.dataset.pair=pairs.length;item.disabled=true}
+  check.disabled=pairs.length<3;
+}));
+check.addEventListener('click',()=>phone.classList.add(pairs.every(([left,right])=>left===right)?'is-correct':'is-incorrect'));
+document.querySelector('.retry').addEventListener('click',()=>{phone.classList.remove('is-incorrect');pairs.length=0;cards.forEach(card=>{card.disabled=false;card.classList.remove('paired','selected');delete card.dataset.pair});check.disabled=true});
+const hint=document.querySelector('.hint-dialog'),solution=document.querySelector('.solution-dialog');
+document.querySelectorAll('.help,.hint-again').forEach(button=>button.addEventListener('click',()=>hint.showModal()));hint.querySelector('button').addEventListener('click',()=>hint.close());
+document.querySelector('.show-how').addEventListener('click',()=>solution.showModal());solution.querySelector('button').addEventListener('click',()=>solution.close());
+document.querySelector('.continue').addEventListener('click',()=>location.href='/prototype/step-by-step');
+</script>
+</html>

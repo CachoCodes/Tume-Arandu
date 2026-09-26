@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GuaraniMath · макет карты</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101820;color:#c7d5df;font:14px system-ui,sans-serif;height:100dvh;display:grid;grid-template-rows:48px 1fr 36px;overflow:hidden}header,footer{background:#18242e;display:flex;align-items:center;justify-content:space-between;padding:0 16px;gap:12px}header a{color:#c7d5df;font-size:12px}main{display:grid;place-items:center;min-height:0;padding:8px}.phone{position:relative;height:min(calc(100dvh - 100px),calc(96vw * 864 / 390));aspect-ratio:390/864;border-radius:8px;overflow:hidden;box-shadow:0 8px 40px #0008;background:#fff;color:#245271;container-type:inline-size}svg.scene{width:100%;height:100%;display:block}.status{position:absolute;top:2%;left:7%;right:7%;display:flex;justify-content:space-between;color:#a9bbc8;font-size:3cqw}.streak{position:absolute;top:6.7%;left:4%;right:4%;height:7.2%;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;padding:0 4cqw;border-radius:5cqw;background:#f8fcffc4;border:1px solid #fff9;box-shadow:0 2px 9px #315c7d16}.topic{width:10cqw;height:10cqw;color:#2775bf}.xp{text-align:center;font-size:5cqw;font-weight:700;color:#244b68;white-space:nowrap}.xp small{font-size:3cqw;color:#61798a;font-weight:600}.series{justify-self:end;display:flex;flex-direction:row;align-items:center;gap:1.4cqw;line-height:1}.series strong{font-size:4.5cqw;color:#244b68;text-align:right;font-variant-numeric:tabular-nums}.series .flame{flex:none}.flame{color:#f7a143;width:5cqw;height:6.2cqw}.series.inactive .flame{color:#9aaab6}.series.inactive .flame .core{fill:#cbd5dd}.series:not(.inactive) .flame{filter:drop-shadow(0 0 3px #ffb55140)}.dock{position:absolute;bottom:3.4%;left:4%;right:4%;height:7.8%;display:flex;align-items:center;border-radius:6cqw;background:rgba(246,252,255,.065);border:1px solid #ffffffb8;backdrop-filter:blur(2px) saturate(1.08);box-shadow:0 8px 18px #315c7d16,inset 0 1px 0 #fff8}.dock button{border:0;background:none;flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1cqw;color:#9bb2d0;font:2.6cqw system-ui;cursor:pointer}.icon{width:10cqw;height:10cqw;border-radius:50%;display:grid;place-items:center;background:transparent;color:#69a4ed;font-size:5cqw;font-weight:700}.dock button:first-child{color:#69a4ed;font-weight:700}.dock button:first-child .icon{background:transparent}.dock button:focus-visible{outline:2px solid #1763d5;border-radius:5cqw}.home{position:absolute;bottom:1%;left:35%;right:35%;height:.45%;border-radius:10px;background:#59656b}footer{font-size:12px}footer span:last-child{color:#a9bbc8}text{font-family:system-ui,sans-serif;fill:#245271} @media(max-width:600px){header{font-size:11px}header a{font-size:10px}footer{font-size:10px}}
+</style>
+<header><strong>GuaraniMath · визуальный макет</strong><a href="http://127.0.0.1:8765/">Android ↗</a><span>Итерация 13 · 3D</span></header>
+<main><div class="phone" aria-label="Визуальный макет карты семи уровней">
+<svg class="scene" viewBox="0 0 390 864" role="img" aria-label="Изометрическая карта с круглыми платформами сверху вниз, стоящим треугольником с подписями на передней грани"><defs><filter id="shadow" x="-50%" y="-100%" width="200%" height="300%"><feGaussianBlur stdDeviation="1.2"/></filter></defs><g id="props"></g><g id="tiles"></g></svg>
+<div class="status"><span>11:06 ◷</span><span>◢ ▰ ▮</span></div>
+<div class="streak"><svg class="topic" viewBox="0 0 32 32" role="img" aria-label="Trigonometría" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 25H27V7Z"/><path d="M22 25v-5h5" stroke-width="1.5"/></svg><div class="xp">240 <small>XP</small></div><div class="series" aria-label="Serie de 3 días; experiencia ganada hoy"><strong>3</strong><svg class="flame" viewBox="0 0 32 40" aria-hidden="true"><path fill="currentColor" d="M18 1c3 10-6 12-3 20 4-1 6-5 6-9 9 9 11 15 8 21-5 10-21 9-25-1-4-10 2-15 6-20-1 7 1 9 3 10C10 12 19 10 18 1Z"/><path class="core" fill="#ffe9b4" d="M17 22c1 5-4 7-3 11 1 4 7 3 8 0 1-4-2-7-5-11Z"/></svg></div></div>
+<nav class="dock" aria-label="Vista de navegación"><button type="button" aria-label="Tape"><span class="icon"><svg width="68%" height="68%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6C9 4 6 4 3 5v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1v14"/><path d="M6 8c1-.2 2 0 3 .5m-3 3c1-.2 2 0 3 .5m6-3.5c1-.5 2-.7 3-.5m-3 4c1-.5 2-.7 3-.5" stroke-width="1.3"/></svg></span>Tape</button><button type="button" aria-label="Tutor"><span class="icon"><svg width="65%" height="65%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="7" width="16" height="13" rx="4"/><path d="M12 7V3m-3 13h6"/><circle cx="12" cy="3" r="1"/><circle cx="8.5" cy="12" r="1"/><circle cx="15.5" cy="12" r="1"/></svg></span>Tutor</button><button type="button" aria-label="Perfil"><span class="icon"><svg width="72%" height="72%" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 8 10-4 10 4-10 4Z"/><path d="M8 10v3q6 2 12 0v-3M24 8v6"/><path d="M8.5 14v2a5.5 5.5 0 0011 0v-2M5.5 25q1-4 5-4m7 0q4 0 5 4"/><path d="M12 18q2 1.8 4 0"/><circle cx="11.5" cy="15.5" r=".7" stroke="none" fill="currentColor"/><circle cx="16.5" cy="15.5" r=".7" stroke="none" fill="currentColor"/></svg></span>Perfil</button></nav><div class="home"></div>
+</div></main><footer><span>Локальный визуальный макет · серия дней: демонстрационные данные</span><span id="note">Android не изменён</span></footer>
+<script>
+// Orthographic camera. Azimuth 45°, elevation 40°.
+// All scene positions are world (x,y,z); UI chrome alone is screen space.
+const radians=degrees=>degrees*Math.PI/180;
+const CAMERA={azimuth:radians(45),elevation:radians(40),scale:Math.sqrt(1.5),origin:[195,429]};
+const ca=Math.cos(CAMERA.azimuth),sa=Math.sin(CAMERA.azimuth),ce=Math.cos(CAMERA.elevation),se=Math.sin(CAMERA.elevation);
+const vector=([x,y,z=0])=>[CAMERA.scale*(ca*x-sa*y),CAMERA.scale*(se*(sa*x+ca*y)-ce*z)];
+const project=p=>{const v=vector(p);return[v[0]+CAMERA.origin[0],v[1]+CAMERA.origin[1]]};
+const onGround=([px,py])=>{const x=(px-CAMERA.origin[0])/CAMERA.scale,y=(py-CAMERA.origin[1])/(CAMERA.scale*se);return[ca*x+sa*y,-sa*x+ca*y,0]};
+const points=ps=>ps.map(p=>p.join(',')).join(' ');
+const poly=(ps,fill,extra='')=>`<polygon points="${points(ps.map(project))}" fill="${fill}" ${extra}/>`;
+const label=(x,y,s,size=11,extra='')=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${size}" font-weight="650" ${extra}>${s}</text>`;
+const add=(a,b)=>a.map((v,i)=>v+(b[i]||0));
+// Rotate only the object around its vertical axis; camera and ground stay fixed.
+const rotateZ=([x,y,z=0],angle)=>[x*Math.cos(angle)-y*Math.sin(angle),x*Math.sin(angle)+y*Math.cos(angle),z];
+const localToWorld=(origin,angle,p)=>add(origin,rotateZ(p,angle));
+// One light for contact and cast shadows on z=0.
+// Key light sits behind the viewer, higher than the camera (55° elevation).
+const lightElevation=radians(55);
+const LIGHT=[sa*Math.cos(lightElevation),ca*Math.cos(lightElevation),Math.sin(lightElevation)];
+const VIEW=[sa*ce,ca*ce,se];
+const dot=(a,b)=>a.reduce((sum,v,i)=>sum+v*b[i],0);
+const castShadow=([x,y,z=0])=>[x-z*LIGHT[0]/LIGHT[2],y-z*LIGHT[1]/LIGHT[2],0];
+const shade=(hex,normal,angle=0)=>{const intensity=.58+.42*Math.max(0,dot(rotateZ(normal,angle),LIGHT));return '#'+hex.slice(1).match(/../g).map(c=>Math.round(parseInt(c,16)*intensity).toString(16).padStart(2,'0')).join('')};
+const visible=(normal,angle)=>dot(rotateZ(normal,angle),VIEW)>0;
+const TRIANGLE_YAW=radians(-25);
+const shadow=ps=>poly(ps.map(castShadow),'#315c7d24','filter="url(#shadow)"');
+// Compact descending layout; all positions still use the same world camera.
+const columns=[140,140,195,250,250,195,140];
+const lessons=columns.map((x,i)=>onGround([x,190+i*70]));
+const RADIUS=30,SEGMENTS=64;
+const circleFootprint=(c,z=0)=>Array.from({length:SEGMENTS},(_,i)=>add(c,[RADIUS*Math.cos(i*2*Math.PI/SEGMENTS),RADIUS*Math.sin(i*2*Math.PI/SEGMENTS),z]));
+let tiles='';lessons.forEach((c,i)=>{
+ const height=6,top=circleFootprint(c,height),base=circleFootprint(c);
+ const material=i<2?'#bde797':i===2?'#d7f2ff':'#edf4f8';
+ tiles+=shadow(top)+poly(base,'#41677d55','stroke="#41677d33" stroke-width="1"');
+ // A cylindrical platform: visible side normals and all vertices use the restored camera.
+ for(let k=0;k<SEGMENTS;k++){const j=(k+1)%SEGMENTS,angle=(k+.5)*2*Math.PI/SEGMENTS,normal=[Math.cos(angle),Math.sin(angle),0];if(dot(normal,VIEW)>0)tiles+=poly([top[k],top[j],base[j],base[k]],shade(material,normal));}
+ tiles+=poly(top,shade(material,[0,0,1]),'stroke="#f4fbff" stroke-width=".65"');
+ // Surface lettering: baseline parallel to the camera, compressed by the ground tilt.
+ const p=project(add(c,[0,0,height]));const flat=Math.sin(CAMERA.elevation);
+ tiles+=`<g transform="matrix(1 0 0 ${flat} ${p[0]} ${p[1]})">`+label(0,8,i+1,24);
+ tiles+='</g>';
+});document.querySelector('#tiles').innerHTML=tiles;
+// Vertical lettering on a world plane (local u horizontal, local -z down).
+function verticalMatrix(origin,angle,depth=0){const p=project(localToWorld(origin,angle,[0,depth,0])),u=vector(rotateZ([1,0,0],angle)),down=vector([0,0,-1]);return `matrix(${u[0]} ${u[1]} ${down[0]} ${down[1]} ${p[0]} ${p[1]})`}
+// A single teaching sculpture, with the same matte material and circular footing as lessons.
+const PROP_CENTER=onGround([88,444]);
+function propBase(){
+ const ring=z=>Array.from({length:SEGMENTS},(_,i)=>add(PROP_CENTER,[46*Math.cos(i*2*Math.PI/SEGMENTS),46*Math.sin(i*2*Math.PI/SEGMENTS),z]));
+ const top=ring(5),base=ring(0),material='#e5f2fa';
+ let s=shadow(top);
+ for(let k=0;k<SEGMENTS;k++){
+  const j=(k+1)%SEGMENTS,a=(k+.5)*2*Math.PI/SEGMENTS,normal=[Math.cos(a),Math.sin(a),0];
+  if(dot(normal,VIEW)>0)s+=poly([top[k],top[j],base[j],base[k]],shade(material,normal));
+ }
+ return s+poly(top,shade(material,[0,0,1]),'stroke="#f4fbff" stroke-width=".8"');
+}
+function triangle(){
+ const angle=TRIANGLE_YAW,width=70,height=width/Math.sqrt(3),scale=1.2;
+ const world=p=>localToWorld(PROP_CENTER,angle,[(p[0]-width/2)*scale,p[1]+5,(p[2]||0)*scale+5]);
+ const front=[[0,0,0],[width,0,0],[width,0,height]].map(world),back=[[0,-10,0],[width,-10,0],[width,-10,height]].map(world);
+ const material='#d7f2ff',edge='stroke="#afcfdf" stroke-width=".8" stroke-linejoin="round"';
+ let s='';
+ if(visible([1,0,0],angle))s+=poly([front[1],back[1],back[2],front[2]],shade(material,[1,0,0],angle),edge);
+ const normal=[-.5,0,Math.sqrt(3)/2];
+ if(visible(normal,angle))s+=poly([front[0],back[0],back[2],front[2]],shade(material,normal,angle),edge);
+ s+=poly(front,shade(material,[0,1,0],angle));
+ s+=`<g transform="${verticalMatrix(world([0,0,0]),angle)} scale(${scale})">`;
+ // Keep the geometry legible at map scale: angle, three side lengths, right-angle mark.
+ s+=`<path d="M59 0v-10h11" fill="none" stroke="#648da6" stroke-width="1.1" stroke-linejoin="round"/>`;
+ s+=label(25,-4,'30°',7)+label(44,-4,'√3',7)+label(61,-27,'60°',6)+label(64,-17,'1',7)+label(44,-16,'2',7)+'</g>';
+ return s;
+}
+document.querySelector('#props').innerHTML=propBase()+triangle();
+const params=new URLSearchParams(location.search),earnedToday=params.get('today')!=='0';
+const days=/^\d{1,3}$/.test(params.get('days')||'')?params.get('days'):'3';
+const series=document.querySelector('.series');series.querySelector('strong').textContent=days;series.classList.toggle('inactive',!earnedToday);series.setAttribute('aria-label',`Serie de ${days} días; ${earnedToday?'experiencia ganada hoy':'sin experiencia hoy'}`);
+document.querySelectorAll('.dock button').forEach(b=>b.onclick=()=>document.querySelector('#note').textContent=`${b.getAttribute('aria-label')} · только визуальный макет`);
+console.assert(lessons.slice(1).every((c,i)=>project(c)[1]>project(lessons[i])[1]),'Lessons descend from top to bottom');
+// Runnable geometry checks: detect projection, footprint and yaw regressions.
+const near=(a,b)=>Math.abs(a-b)<1e-8;
+const axis=vector([46,0,0]);console.assert(near(Math.atan2(axis[1],axis[0]),Math.atan(Math.sin(CAMERA.elevation))),'Ground axis must follow camera elevation');
+console.assert(lessons.every(c=>circleFootprint(c).every(p=>near(Math.hypot(p[0]-c[0],p[1]-c[1]),RADIUS)&&near(p[2],0))),'All lesson platforms have circular ground contact');
+console.assert(lessons.every(c=>onGround(project(c)).every((v,i)=>near(v,c[i]))),'World/screen roundtrip');
+console.assert(near(Math.hypot(...rotateZ([104,0,0],TRIANGLE_YAW)),104),'Z rotation preserves triangle length');
+// Camera and depth invariants across the complete map.
+const diagonals=lessons.map(c=>{const ps=circleFootprint(c,6).map(project);return[Math.hypot(ps[8][0]-ps[40][0],ps[8][1]-ps[40][1]),Math.hypot(ps[24][0]-ps[56][0],ps[24][1]-ps[56][1])]});
+console.assert(diagonals.every(d=>d.every((v,i)=>near(v,diagonals[0][i]))),'All seven platforms have identical scale and tilt');
+console.assert(visible([0,1,0],TRIANGLE_YAW),'Triangle front faces the viewer');
+console.assert(near(castShadow([25,35,0])[0],25)&&near(castShadow([25,35,0])[1],35),'Shadow touches every ground contact');
+console.assert(vector(castShadow([0,0,20]))[1]<0&&dot(LIGHT,VIEW)>0,'Light is behind viewer; shadows extend away');
+</script>
+</html>

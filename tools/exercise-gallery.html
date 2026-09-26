@@ -1,0 +1,55 @@
+<!doctype html>
+<!-- @spec spec://modules/learning/FEAT-010-learning-demo#exercises -->
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ejercicios · GuaraniMath</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101820;color:#e8f0f5;font:14px system-ui,sans-serif;height:100vh;display:grid;grid-template-rows:48px 1fr 36px;overflow:hidden}
+header,footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;background:#18242e;color:#c7d5df}
+header a{color:#e8f0f5;text-decoration:none;border:1px solid #415261;border-radius:8px;padding:6px 10px}
+header .links{display:flex;gap:8px}
+main{display:grid;grid-template-rows:auto 1fr;min-height:0;gap:8px;padding:8px}
+nav{display:flex;gap:6px;overflow-x:auto;padding:0 0 4px;scrollbar-width:thin;scrollbar-color:#415261 transparent}
+nav button{flex:0 0 auto;border:1px solid #354451;border-radius:7px;padding:6px 9px;background:#18242e;color:#c7d5df;font:inherit;font-size:12px;cursor:pointer}
+nav button[aria-pressed="true"]{border-color:#8ca2b3;background:#263744;color:#fff}
+nav button:focus-visible,header a:focus-visible{outline:2px solid #e8f0f5;outline-offset:2px}
+.viewer{display:grid;place-items:center;min-height:0;overflow:auto}
+img{display:block;max-width:96vw;max-height:calc(100vh - 130px);width:auto;height:auto;object-fit:contain;border-radius:8px;box-shadow:0 8px 40px #0008;user-select:none;-webkit-user-drag:none}
+footer{font-size:12px;color:#a9bbc8}
+@media(max-width:560px){header,footer{padding:0 9px;font-size:11px}header strong{display:none}header .links{width:100%;justify-content:space-between}header a{padding:5px 7px;font-size:11px}footer span:first-child{max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+</style>
+<header><strong>GuaraniMath · Capturas Android</strong><span class="links"><a href="/prototype/multiple-choice">Propuesta · selección múltiple ↗</a><a href="/">← Volver al emulador</a></span></header>
+<main>
+<nav id="examples" aria-label="Tipos de ejercicio"></nav>
+<div class="viewer"><img id="screen" src="/gallery-image/multiple_choice.png" alt="Captura real de Android: selección múltiple"></div>
+</main>
+<footer><span id="caption">APK · ratios-cosine · selección múltiple</span><span id="status">Captura del APK</span></footer>
+<script>
+const examples=[
+  {id:"multiple_choice",exerciseId:"ratios-cosine",label:"Selección múltiple",alt:"selección múltiple"},
+  {id:"angle_builder",exerciseId:"angles-choice",label:"Construcción de ángulo",alt:"construcción de ángulo"},
+  {id:"numeric_input",exerciseId:"angles-input",label:"Entrada numérica",alt:"entrada numérica"},
+  {id:"fraction_input",exerciseId:"ratios-sine",label:"Entrada de fracción",alt:"entrada de fracción"},
+  {id:"matching",exerciseId:"ratios-match",label:"Relacionar conceptos",alt:"relación de conceptos"},
+  {id:"angle_matching",exerciseId:"angles-match",label:"Relacionar ángulos",alt:"relación de ángulos"},
+  {id:"step_by_step",exerciseId:"notable-rationalization",label:"Paso a paso",alt:"resolución paso a paso"}
+];
+const list=document.querySelector("#examples"),screen=document.querySelector("#screen"),caption=document.querySelector("#caption"),status=document.querySelector("#status");
+function selectExample(example){
+  screen.src=`/gallery-image/${example.id}.png`;
+  screen.alt=`Captura real de Android: ${example.alt}`;
+  caption.textContent=`APK · ${example.exerciseId} · ${example.label.toLocaleLowerCase("es")}`;
+  status.textContent="Cargando captura…";
+  list.querySelectorAll("button").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.id===example.id)));
+}
+for(const example of examples){
+  const button=document.createElement("button");
+  button.type="button";button.textContent=example.label;button.dataset.id=example.id;
+  button.setAttribute("aria-pressed",String(example.id===examples[0].id));
+  button.addEventListener("click",()=>selectExample(example));list.append(button);
+}
+screen.addEventListener("load",()=>status.textContent="Captura del APK");
+screen.addEventListener("error",()=>status.textContent="No se encontró esta captura");
+</script>
+</html>
