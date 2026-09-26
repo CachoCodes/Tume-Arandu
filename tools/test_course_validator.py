@@ -10,12 +10,12 @@ MODULE = Path(__file__).with_name("validate-course.py")
 spec = importlib.util.spec_from_file_location("course_validator", MODULE)
 validator = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(validator)
-COURSE = json.loads(Path(__file__).parents[1].joinpath("app/src/main/assets/courses/trigonometry.json").read_text())
+COURSE = json.loads(Path(__file__).parents[1].joinpath("app/src/main/assets/courses/trigonometry.json").read_text(encoding="utf-8"))
 
 
 class CourseValidatorTests(unittest.TestCase):
     def test_built_in_course(self):
-        self.assertEqual(validator.validate(COURSE), (7, 21))
+        self.assertEqual(validator.validate(COURSE), (8, 48))
 
     def test_missing_translation_reports_path(self):
         course = copy.deepcopy(COURSE)
