@@ -24,7 +24,7 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
-| [WI-035 Контекстные треугольники](work/archive/2026/WI-035-context-triangles.md) | @maks | P0 | — |
+| [WI-036 Контекстные треугольники](work/archive/2026/WI-036-context-triangles.md) | @maks | P0 | — |
 | [WI-034 Единый JSON уроков и согласованный Android UI заданий](work/archive/2026/WI-034-approved-exercise-ui-json-v2.md) | @maks | P0 | — |
 | [WI-029 Полный и копируемый репозиторий Tume-Arandu](work/archive/2026/WI-029-complete-copyable-repository.md) | @maks | P0 | — |
 | [WI-028 Треугольник и игровая подача упражнений](work/archive/2026/WI-028-exercise-triangle-and-gameful-controls.md) | @maks | P1 | — |
