@@ -11,9 +11,8 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
-| [WI-033 Компоновка первого multiple choice по тригонометрическим отношениям](work/WI-033-ratios-cosine-choice-layout.md) | @maks | P1 | — |
 | [WI-031 Сопоставление двумя столбцами карточек](work/WI-031-matching-cards.md) | @maks | P1 | — |
-| [WI-030 Убрать вводящую в заблуждение схему из заданий](work/WI-030-contextual-exercise-diagrams.md) | @maks | P1 | — |
+| [WI-033 Компоновка первого multiple choice](work/WI-033-ratios-cosine-choice-layout.md) | @maks | P1 | — |
 
 ## Blocked
 
@@ -24,9 +23,17 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
+| [WI-042 Возврат 3D с круглыми уровнями](work/archive/2026/WI-042-local-map-3d-round-levels.md) | @maks | P1 | — |
+| [WI-041 Плоская карта сверху](work/archive/2026/WI-041-local-map-top-view.md) | @maks | P1 | — |
+| [WI-040 Свет и глубина локальной карты](work/archive/2026/WI-040-local-map-light-depth.md) | @maks | P1 | — |
 | [WI-039 Читаемые ответы и последовательная помощь](work/archive/2026/WI-039-exercise-tools.md) | @maks | P0 | — |
+| [WI-038 Единое пространство локальной карты](work/archive/2026/WI-038-local-map-camera.md) | @maks | P1 | — |
+| [WI-037 Вторая итерация локальной карты](work/archive/2026/WI-037-local-map-second-pass.md) | @maks | P1 | — |
 | [WI-036 Контекстные треугольники](work/archive/2026/WI-036-context-triangles.md) | @maks | P0 | — |
+| [WI-035 Локальный визуальный макет карты](work/archive/2026/WI-035-local-map-preview.md) | @maks | P1 | — |
 | [WI-034 Единый JSON уроков и согласованный Android UI заданий](work/archive/2026/WI-034-approved-exercise-ui-json-v2.md) | @maks | P0 | — |
+| [WI-032 Локальная галерея скриншотов заданий](work/archive/2026/WI-032-exercise-preview-gallery.md) | @maks | P1 | — |
+| [WI-030 Убрать вводящую в заблуждение схему из заданий](work/archive/2026/WI-030-contextual-exercise-diagrams.md) | @maks | P1 | — |
 | [WI-029 Полный и копируемый репозиторий Tume-Arandu](work/archive/2026/WI-029-complete-copyable-repository.md) | @maks | P0 | — |
 | [WI-028 Треугольник и игровая подача упражнений](work/archive/2026/WI-028-exercise-triangle-and-gameful-controls.md) | @maks | P1 | — |
 | [WI-027 Убрать Пифагора из курса и поправить ввод](work/archive/2026/WI-027-remove-pythagoras-and-fix-answer-tools.md) | @maks | P1 | — |
