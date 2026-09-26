@@ -80,3 +80,7 @@ data class StepExercise(
     val steps: List<StepItem>,
     override val triangle: TriangleDiagram? = null,
 ) : Exercise
+
+// @spec spec://modules/learning/FEAT-010-learning-demo#solutions
+fun Exercise.helpSteps(): List<String> = listOf(hint) +
+    if (solutionSteps.size <= 4) solutionSteps else solutionSteps.take(3) + solutionSteps.last()

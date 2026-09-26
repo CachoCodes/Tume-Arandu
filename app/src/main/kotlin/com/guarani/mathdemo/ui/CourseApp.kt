@@ -116,6 +116,7 @@ import com.guarani.mathdemo.progress.ExerciseResult
 import com.guarani.mathdemo.progress.ProgressRepository
 import com.guarani.mathdemo.progress.ProgressState
 import com.guarani.mathdemo.progress.ProgressSnapshot
+import com.guarani.mathdemo.course.helpSteps
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -1324,7 +1325,8 @@ private fun ExercisePanel(
     var calculatorOpen by rememberSaveable(exercise.id) { mutableStateOf(false) }
     var helpTipClosed by rememberSaveable { mutableStateOf(false) }
     val helpTipDismissed by repository.helpTipDismissed.collectAsState(initial = true)
-    val completed = progress?.isTerminal == true
+    var fullSolutionFinished by rememberSaveable(exercise.id) { mutableStateOf(false) }
+    val completed = progress?.correct == true || fullSolutionFinished
     val angleBuilder = exercise.visual == "angle_builder"
     val triangleChoice = exercise is ChoiceExercise && (exercise.visual == "triangle_choice" || exercise.triangle != null)
     val numericExercise = exercise is InputExercise || exercise is StepExercise
@@ -1360,7 +1362,6 @@ private fun ExercisePanel(
         else null
     val openSolution: () -> Unit = {
         helpOpen = true
-        if (feedback == null && !completed && progress?.solutionViewed != true) scope.launch { repository.showSolution(exercise.id) }
     }
 
     val submitNumericAnswer: () -> Unit = {
@@ -1454,7 +1455,7 @@ private fun ExercisePanel(
                         color = Ink,
                     )
                     if (exercise.triangle != null || exercise.visual in setOf("triangle_choice", "fraction_triangle")) {
-                        TriangleContextDiagram(copy, enlarged = true, tall = triangleChoice, diagram = exercise.triangle)
+                        TriangleContextDiagram(copy, tall = triangleChoice, diagram = exercise.triangle)
                     }
                     if (exercise.visual == "straight_angle") StraightAngleDiagram()
                     when (exercise) {
@@ -1489,7 +1490,7 @@ private fun ExercisePanel(
                             exercise,
                             completed || feedback != null,
                             matchingSelections,
-                            progress?.solutionViewed == true,
+                            fullSolutionFinished,
                             copy,
                             onSelectionChanged = { feedback = null },
                             onPairChecked = { correct, completePairs ->
@@ -1651,16 +1652,24 @@ private fun ExercisePanel(
       }
     }
 
-    if (helpOpen) ExerciseHelpDialog(lesson, exercise, spanish) { helpOpen = false }
+    if (helpOpen) ExerciseHelpDialog(exercise, spanish, onDismiss = { helpOpen = false }, onFinish = {
+        resultSaving = true
+        scope.launch {
+            repository.showSolution(exercise.id)
+            fullSolutionFinished = true
+            helpOpen = false
+            resultSaving = false
+        }
+    })
     if (calculatorOpen) CalculatorDialog(copy, onDismiss = { calculatorOpen = false })
 }
 
 // @spec spec://modules/learning/FEAT-010-learning-demo#exercises
 
 @Composable
-private fun TriangleContextDiagram(copy: LessonCopy, enlarged: Boolean = false, tall: Boolean = false, diagram: TriangleDiagram? = null) {
+private fun TriangleContextDiagram(copy: LessonCopy, tall: Boolean = false, diagram: TriangleDiagram? = null) {
     Canvas(
-        Modifier.fillMaxWidth().height(if (tall) 420.dp else if (enlarged) 245.dp else 210.dp)
+        Modifier.fillMaxWidth().height(if (tall) 370.dp else 210.dp)
             .semantics { contentDescription = diagram?.let { "${it.angleLabel}: ${it.base}, ${it.opposite}, ${it.hypotenuse}" } ?: copy.triangleDescription },
     ) {
         val angle = diagram?.angleDegrees ?: 36.87
@@ -1771,18 +1780,19 @@ private fun CalculatorDialog(copy: LessonCopy, onDismiss: () -> Unit) {
     fun press(key: String) {
         hasError = false
         when (key) {
+            "DEG" -> Unit
             "AC" -> { expression = ""; result = null }
             "⌫" -> { expression = expression.dropLast(1); result = null }
             "=" -> {
                 result = runCatching { ArithmeticExpressionParser(expression).evaluate() }
-                    .map { BigDecimal.valueOf(it).stripTrailingZeros().toPlainString() }
+                    .map { BigDecimal.valueOf(it).setScale(12, java.math.RoundingMode.HALF_UP).stripTrailingZeros().toPlainString() }
                     .getOrNull()
                 hasError = result == null
             }
             else -> {
                 if (result != null && (key.firstOrNull()?.isDigit() == true || key == "." || key == "(")) expression = ""
                 result = null
-                expression = (expression + key).take(48)
+                expression = (expression + when (key) { "sin", "cos", "tan" -> "$key("; "√" -> "sqrt("; "x²" -> "^2"; "xʸ" -> "^"; else -> key }).take(96)
             }
         }
     }
@@ -1820,7 +1830,9 @@ private fun CalculatorDialog(copy: LessonCopy, onDismiss: () -> Unit) {
                         }
                     }
                     val rows = listOf(
-                        listOf("AC", "(", ")", "⌫"),
+                        listOf("sin", "cos", "tan", "√"),
+                        listOf("π", "x²", "xʸ", "AC"),
+                        listOf("(", ")", "DEG", "⌫"),
                         listOf("7", "8", "9", "÷"),
                         listOf("4", "5", "6", "×"),
                         listOf("1", "2", "3", "−"),
@@ -1849,123 +1861,29 @@ private fun CalculatorDialog(copy: LessonCopy, onDismiss: () -> Unit) {
     }
 }
 
-private class ArithmeticExpressionParser(private val source: String) {
-    private var cursor = 0
-
-    fun evaluate(): Double {
-        require(source.isNotBlank())
-        val value = parseExpression()
-        skipSpaces()
-        require(cursor == source.length && value.isFinite())
-        return value
-    }
-
-    private fun parseExpression(): Double {
-        var value = parseTerm()
-        while (true) {
-            skipSpaces()
-            value = when (source.getOrNull(cursor)) {
-                '+' -> { cursor++; value + parseTerm() }
-                '-', '−' -> { cursor++; value - parseTerm() }
-                else -> return value
-            }
-        }
-    }
-
-    private fun parseTerm(): Double {
-        var value = parseFactor()
-        while (true) {
-            skipSpaces()
-            value = when (source.getOrNull(cursor)) {
-                '*', '×' -> { cursor++; value * parseFactor() }
-                '/', '÷' -> {
-                    cursor++
-                    val divisor = parseFactor()
-                    require(divisor != 0.0)
-                    value / divisor
-                }
-                else -> return value
-            }
-        }
-    }
-
-    private fun parseFactor(): Double {
-        skipSpaces()
-        when (source.getOrNull(cursor)) {
-            '+' -> { cursor++; return parseFactor() }
-            '-', '−' -> { cursor++; return -parseFactor() }
-            '(' -> {
-                cursor++
-                val value = parseExpression()
-                skipSpaces()
-                require(source.getOrNull(cursor) == ')')
-                cursor++
-                return value
-            }
-        }
-        val start = cursor
-        var hasDigit = false
-        var hasPoint = false
-        while (true) {
-            val character = source.getOrNull(cursor) ?: break
-            when (character) {
-                in '0'..'9' -> { hasDigit = true; cursor++ }
-                '.' -> { require(!hasPoint); hasPoint = true; cursor++ }
-                else -> break
-            }
-        }
-        require(hasDigit)
-        return source.substring(start, cursor).toDouble()
-    }
-
-    private fun skipSpaces() {
-        while (source.getOrNull(cursor)?.isWhitespace() == true) cursor++
-    }
-}
-
+// @spec spec://modules/learning/FEAT-010-learning-demo#solutions
 @Composable
-private fun ExerciseHelpDialog(lesson: Lesson, exercise: Exercise, spanish: Boolean, onDismiss: () -> Unit) {
+private fun ExerciseHelpDialog(exercise: Exercise, spanish: Boolean, onDismiss: () -> Unit, onFinish: () -> Unit) {
     val copy = lessonCopy(spanish)
+    // Keep the basic hint and the final answer even when the author supplied many steps.
+    val steps = exercise.helpSteps()
+    var step by rememberSaveable(exercise.id) { mutableStateOf(0) }
+    val last = step == steps.lastIndex
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-            Surface(
-                Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp).heightIn(max = 760.dp),
-                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-                color = Color.White,
-                shadowElevation = 14.dp,
-            ) {
-                Column {
-                    Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 12.dp, top = 10.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.fillMaxSize().padding(12.dp), contentAlignment = Alignment.Center) {
+            Surface(Modifier.fillMaxWidth().heightIn(max = 720.dp), shape = RoundedCornerShape(24.dp), color = Color.White) {
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(copy.solutionTitle, Modifier.weight(1f), color = Ink, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                        TextButton(onClick = onDismiss) { Text(if (spanish) "Cerrar" else "Mboty", color = Accent) }
+                        TextButton(onClick = onDismiss) { Text(if (spanish) "Cerrar" else "Mboty") }
                     }
-                    Column(
-                        Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(bottom = 24.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        Text(if (spanish) "Objetivo" else "Ko mbo'epy", color = Accent, fontWeight = FontWeight.Bold)
-                        Text(lesson.objective, color = Ink, style = MaterialTheme.typography.bodyMedium)
-                        Text(if (spanish) "Teoría" else "Ñaikuaa", color = Accent, fontWeight = FontWeight.Bold)
+                    Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(if (spanish) "Paso ${step + 1} de ${steps.size}" else "Paso ${step + 1} / ${steps.size}", color = Accent, fontWeight = FontWeight.Bold)
                         if (exercise.triangle != null || exercise.visual in setOf("triangle_choice", "fraction_triangle")) TriangleContextDiagram(copy, diagram = exercise.triangle)
-                        lesson.theory.forEach { block ->
-                            if (block.type == "formula") {
-                                Surface(color = Color(0xFFF0F4FC), shape = RoundedCornerShape(14.dp)) {
-                                    Text(block.body, Modifier.fillMaxWidth().padding(12.dp), color = Ink, fontWeight = FontWeight.SemiBold)
-                                }
-                            } else Text(block.body, color = Ink, style = MaterialTheme.typography.bodyMedium)
-                            if (exercise.visual in setOf("angle_builder", "straight_angle", "angle_pairs") && "90°" in block.body && "180°" in block.body) AngleVisual()
-                        }
-                        Surface(color = Color(0xFFEAF3FF), shape = RoundedCornerShape(14.dp)) {
-                            Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                                Text(copy.hintPrefix, color = Accent, fontWeight = FontWeight.Bold)
-                                Text(exercise.hint, color = Ink, style = MaterialTheme.typography.bodyMedium)
-                            }
-                        }
-                        Text(copy.solutionTitle, color = Accent, fontWeight = FontWeight.Bold)
-                        exercise.solutionSteps.forEachIndexed { step, text ->
-                            Text("${step + 1}. $text", color = Ink, style = MaterialTheme.typography.bodyMedium)
-                        }
+                        Text(steps[step], color = Ink, style = MaterialTheme.typography.titleMedium)
                     }
+                    PrimaryAction(text = if (last) copy.continueAction else if (spanish) "Siguiente" else "Esegi",
+                        onClick = { if (last) onFinish() else step++ }, modifier = Modifier.fillMaxWidth())
                 }
             }
         }
@@ -1998,15 +1916,15 @@ private fun ChoiceContent(
     onSelect: (String) -> Unit,
 ) {
     if (stackedFractions) {
-        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             exercise.options.forEach { option ->
                 val selected = option.id == selectedId
                 val fraction = option.text.split('/', limit = 2)
                 Button(
                     onClick = { onSelect(option.id) },
                     enabled = !completed,
-                    modifier = Modifier.fillMaxWidth().height(60.dp)
-                        .then(if (selected) Modifier.border(2.dp, Accent, RoundedCornerShape(16.dp)) else Modifier)
+                    modifier = Modifier.fillMaxWidth().height(76.dp)
+                        .border(if (selected) 2.dp else 1.dp, if (selected) Accent else Color(0xFF718299), RoundedCornerShape(16.dp))
                         .clearAndSetSemantics {
                             contentDescription = option.text
                             role = Role.RadioButton
@@ -2042,7 +1960,7 @@ private fun ChoiceContent(
                     onClick = { onSelect(option.id) },
                     enabled = !completed,
                     modifier = Modifier.fillMaxWidth().heightIn(min = if (exercise.options.size <= 3) 110.dp else 82.dp).then(
-                        if (selected) Modifier.border(2.dp, Accent, RoundedCornerShape(18.dp)) else Modifier
+                        Modifier.border(if (selected) 2.dp else 1.dp, if (selected) Accent else Color(0xFF718299), RoundedCornerShape(18.dp))
                     ).clearAndSetSemantics {
                         contentDescription = if (selected) "${option.text}, elegido" else option.text
                         role = Role.RadioButton
@@ -2214,7 +2132,7 @@ private fun NumericAnswerPad(
     val numerator = answer.substringBefore('/')
     val denominator = answer.substringAfter('/', "")
     Box(
-        Modifier.fillMaxWidth().height(if (shape.fraction) 132.dp else 70.dp)
+        Modifier.fillMaxWidth().height(if (shape.fraction) 152.dp else 70.dp)
             .clip(RoundedCornerShape(16.dp))
             .then(if (shape.fraction) Modifier else Modifier.border(1.dp, Color(0xFFD4E3F5), RoundedCornerShape(16.dp))),
     ) {
@@ -2226,26 +2144,26 @@ private fun NumericAnswerPad(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             if (shape.root) Text("√", color = Ink, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                             Box(
-                                Modifier.widthIn(min = 54.dp).height(28.dp).clip(RoundedCornerShape(7.dp))
+                                Modifier.widthIn(min = 84.dp).height(42.dp).clip(RoundedCornerShape(7.dp))
                                     .background(if (!denominatorSelected) Color(0xFFD8EFFA) else Color.White)
                                     .border(if (!denominatorSelected) 1.5.dp else 1.dp, if (!denominatorSelected) Accent else Color(0xFFC7D6E7), RoundedCornerShape(7.dp))
                                     .clickable(enabled = enabled) { onPartSelected(false) }
                                     .padding(horizontal = 8.dp),
                                 contentAlignment = Alignment.Center,
                             ) {
-                                Text(numerator.ifEmpty { "—" }, color = if (numerator.isEmpty()) Muted else Ink, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                                Text(numerator.ifEmpty { "—" }, color = if (numerator.isEmpty()) Muted else Ink, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
                             }
                         }
-                        Box(Modifier.width(if (shape.root) 80.dp else 60.dp).height(2.dp).background(Accent))
+                        Box(Modifier.width(if (shape.root) 110.dp else 94.dp).height(2.dp).background(Accent))
                             Box(
-                                Modifier.widthIn(min = 54.dp).height(28.dp).clip(RoundedCornerShape(7.dp))
+                                Modifier.widthIn(min = 84.dp).height(42.dp).clip(RoundedCornerShape(7.dp))
                                     .background(if (denominatorSelected) Color(0xFFD8EFFA) else Color.White)
                                     .border(if (denominatorSelected) 1.5.dp else 1.dp, if (denominatorSelected) Accent else Color(0xFFC7D6E7), RoundedCornerShape(7.dp))
                                     .clickable(enabled = enabled) { onPartSelected(true) }
                                     .padding(horizontal = 8.dp),
                                 contentAlignment = Alignment.Center,
                             ) {
-                                Text(denominator.ifEmpty { "—" }, color = if (denominator.isEmpty()) Muted else Ink, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                                Text(denominator.ifEmpty { "—" }, color = if (denominator.isEmpty()) Muted else Ink, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
                             }
                     }
                     Text(denominatorLabel, color = Muted, style = MaterialTheme.typography.labelSmall)
