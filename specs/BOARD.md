@@ -11,9 +11,6 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
-| [WI-059 Линейный курс из 13 уроков](work/WI-059-linear-13-lesson-course.md) | @maks | P0 | — |
-| [WI-060 Компактный APK для пересылки](work/WI-060-compact-android-apk.md) | @maks | P1 | — |
-| [WI-061 Объединить PR 3 с итоговым Android-курсом](work/WI-061-merge-pr3-unified-course.md) | @maks | P0 | — |
 | [WI-054 Экономный интерактивный просмотр Android](work/WI-054-low-load-android-preview.md) | @maks | P0 | — |
 | [WI-031 Сопоставление двумя столбцами карточек](work/WI-031-matching-cards.md) | @maks | P1 | — |
 | [WI-033 Компоновка первого multiple choice](work/WI-033-ratios-cosine-choice-layout.md) | @maks | P1 | — |
@@ -27,6 +24,9 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
+| [WI-059 Линейный курс из 13 уроков](work/archive/2026/WI-059-linear-13-lesson-course.md) | @maks | P0 | — |
+| [WI-060 Компактный APK для пересылки](work/archive/2026/WI-060-compact-android-apk.md) | @maks | P1 | — |
+| [WI-061 Объединить PR 3 с итоговым Android-курсом](work/archive/2026/WI-061-merge-pr3-unified-course.md) | @maks | P0 | — |
 | [WI-057 Концепты первых трёх уроков в Android](work/archive/2026/WI-057-android-concept-lessons.md) | @maks | P0 | — |
 | [WI-058 Язык ответа Tutor для смешанных вопросов](work/archive/2026/WI-058-tutor-reply-language.md) | @maks | P1 | — |
 | [WI-056 Книжечки перед первыми тремя уроками на карте](work/archive/2026/WI-056-concept-book-map-nodes.md) | @maks | P0 | — |

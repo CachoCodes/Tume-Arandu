@@ -32,4 +32,12 @@ PR #3 сейчас конфликтует с `main` в JSON курса и тес
 
 ## Result
 
-В работе.
+Готово 2026-09-27. Конфликт в JSON курса разрешён в merge-коммите `60762df` с родителями `e896d78` (`main`) и `7508c9e` (PR #3); коммит отправлен в `main`. GitHub показывает [PR #3](https://github.com/CachoCodes/Tume-Arandu/pull/3) как `MERGED` с `mergedAt=2026-09-27T04:45:33Z`.
+
+| Criterion | Check / evidence | Result |
+|---|---|---|
+| AC-1 | Сравнение JSON PR #3 и итогового курса: сохранены все 8 lesson ID и все 48 exercise ID; `python3 tools/validate-course.py app/src/main/assets/courses/trigonometry.json`: 26/89. | passed |
+| AC-2 | `git rev-list --parents -n 1 60762df` показывает оба родителя; `gh pr view 3 --repo CachoCodes/Tume-Arandu --json state,mergedAt,mergeCommit` вернул `MERGED`, merge-коммит `60762df`. | passed |
+| AC-3 | Объединённый `share` APK собран, установлен через `adb install -r`; ранний и [поздний урок PR](../../../../docs/handoff/screenshots/linear-lesson13.png) доступны с карты, прежние 180 XP сохранены. | passed |
+
+REVIEW: технических замечаний по объединению нет.

@@ -3893,8 +3893,8 @@
           ],
           "correctOptionId": "12/13",
           "triangle": {
-            "angleDegrees": 67,
-            "angleLabel": "67°",
+            "angleDegrees": 23,
+            "angleLabel": "23°",
             "base": "12",
             "opposite": "5",
             "hypotenuse": "13"
