@@ -47,6 +47,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.vector.PathParser
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
@@ -295,7 +297,8 @@ internal fun AdaptiveLessonsPlaceholderScreen(onBack: () -> Unit) {
                             else "Techapyrã añónte: ndaha'éi ne resultado.", 13, FontWeight.Bold, ProfileMuted)
                     }
                     Box(Modifier.fillMaxWidth().height(52.dp).background(Yellow, RoundedCornerShape(17.dp))
-                        .clickable { showTestNotice = true }.semantics { role = Role.Button },
+                        .clickable { showTestNotice = true }.pointerHoverIcon(PointerIcon.Hand)
+                        .semantics { role = Role.Button },
                         contentAlignment = Alignment.Center) {
                         Label(if (spanish) "Hacer la prueba" else "Ehasa prueba", 17, FontWeight.Black, ProfileInk)
                     }
