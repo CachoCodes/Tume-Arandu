@@ -33,4 +33,13 @@ WI-059/061 завершили единый курс. Существующий Tu
 
 ## Result
 
-В работе.
+Готово 2026-09-27. Реализация в коммите `470df00` (ветка `integration/pr3-13-lessons`); перед итоговой записью отслеживаемое Git-дерево чистое. Компактный APK установлен поверх прежнего приложения в запущенном Android Emulator `emulator-5554`.
+
+| Criterion | Check / evidence | Result |
+|---|---|---|
+| AC-1 | `adb devices` показывает `emulator-5554 device`, `dumpsys activity` — `com.guarani.mathdemo/.MainActivity` как top resumed; [карта после установки](../../../../docs/handoff/screenshots/tume-final-map.png). | passed |
+| AC-2 | На эмуляторе проверены [книжечка](../../../../docs/handoff/screenshots/tume-credit-book-gn.png), [основной урок](../../../../docs/handoff/screenshots/tume-credit-lesson-gn.png) и [повторение 13](../../../../docs/handoff/screenshots/tume-review13-gn.png); после переключения языка подпись стала «Creado con el equipo Tume Arandu». | passed |
+| AC-3 | `python3 tools/check_tutor_handoff.py`: PASS — на первом шаге кнопки AI нет, на последнем есть, Tutor получает редактируемый черновик, возврат оставляет упражнение нерешённым. Вручную повторено на испанском и на уроке 13 с пошаговым заданием; [GN финальный шаг](../../../../docs/handoff/screenshots/tume-help-last-gn.png), [ES финальный шаг](../../../../docs/handoff/screenshots/tume-help-last-es.png), [Tutor GN](../../../../docs/handoff/screenshots/tume-tutor-gn.png). Автоматической отправки нового вопроса не было. | passed |
+| AC-4 | `:app:assembleDebug` и `:app:assembleShare` успешны; `adb install -r` — Success. После установки реальный прогресс остался 180 XP и 3/6 первого этапа; Tutor возвращает к тому же заданию. | passed |
+
+REVIEW: формулировки Guaraní Jopara нужно вычитать с носителем/преподавателем. Офлайн-модель Tutor остаётся прежним незавершённым направлением; новый переход использует существующий онлайн-Tutor и не отправляет вопрос без действия ученика.
