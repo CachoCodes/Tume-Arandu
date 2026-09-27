@@ -11,6 +11,7 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
+| [WI-062 Плашка Tume Arandu и переход к Tutor из помощи](work/WI-062-lesson-credit-and-tutor-help.md) | @maks | P0 | — |
 | [WI-054 Экономный интерактивный просмотр Android](work/WI-054-low-load-android-preview.md) | @maks | P0 | — |
 | [WI-031 Сопоставление двумя столбцами карточек](work/WI-031-matching-cards.md) | @maks | P1 | — |
 | [WI-033 Компоновка первого multiple choice](work/WI-033-ratios-cosine-choice-layout.md) | @maks | P1 | — |

@@ -156,7 +156,10 @@ fun CourseApp(
     val nav = rememberNavController()
     val scope = rememberCoroutineScope()
     val catalog = remember(context) { AvatarCatalog(context) }
+    var tutorDraft by rememberSaveable { mutableStateOf<String?>(null) }
+    var tutorSpanish by rememberSaveable { mutableStateOf(false) }
     fun selectTab(route: String) {
+        if (route == "tutor") { tutorDraft = null; tutorSpanish = false }
         nav.navigate(route) {
             popUpTo(nav.graph.findStartDestination().id) { saveState = true }
             launchSingleTop = true
@@ -218,6 +221,11 @@ fun CourseApp(
                     onMap = { selectTab("map") },
                     onTutor = { selectTab("tutor") },
                     onProfile = { selectTab("profile") },
+                    incomingDraft = tutorDraft,
+                    spanishInitially = tutorSpanish,
+                    onDraftConsumed = { tutorDraft = null },
+                    onReturnToLesson = if (nav.previousBackStackEntry?.destination?.route == "lesson/{lessonId}")
+                        ({ nav.popBackStack() }) else null,
                 )
             }
             composable("profile") {
@@ -269,6 +277,11 @@ fun CourseApp(
                     progress = progress,
                     repository = repository,
                     onBack = { nav.popBackStack() },
+                    onAskTutor = { question, spanish ->
+                        tutorDraft = question
+                        tutorSpanish = spanish
+                        nav.navigate("tutor")
+                    },
                     onFinish = {
                         val award = if (lesson.id in progress.completedLessonIds) 0 else lesson.xpReward
                         scope.launch {
@@ -358,6 +371,10 @@ private fun TutorScreen(
     onMap: () -> Unit,
     onTutor: () -> Unit,
     onProfile: () -> Unit,
+    incomingDraft: String?,
+    spanishInitially: Boolean,
+    onDraftConsumed: () -> Unit,
+    onReturnToLesson: (() -> Unit)?,
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val outbox = remember(context) { TutorOutbox(context) }
@@ -368,11 +385,11 @@ private fun TutorScreen(
     var configuring by rememberSaveable { mutableStateOf(false) }
     var pending by remember { mutableStateOf(outbox.pending()) }
     var statusText by remember { mutableStateOf("") }
+    var retryAvailable by remember { mutableStateOf(false) }
+    var spanish by rememberSaveable { mutableStateOf(spanishInitially) }
+    fun t(gn: String, es: String) = if (spanish) es else gn
     val messages = remember {
-        mutableStateListOf(
-            TutorMessage("Maitei. Mba'épepa ikatu roipytyvõ ko mbo'epy rehe?", fromTutor = true),
-            TutorMessage("Ikatu ñañe'ẽ seno, coseno ha ángulo recto rehe.", fromTutor = true),
-        ).apply {
+        mutableStateListOf<TutorMessage>().apply {
             outbox.pending()?.let { last ->
                 add(TutorMessage(last.question, fromTutor = false))
                 last.answer?.let { add(TutorMessage(it, fromTutor = true)) }
@@ -381,17 +398,21 @@ private fun TutorScreen(
     }
     val chatScroll = rememberScrollState()
     var draft by rememberSaveable { mutableStateOf("") }
+    LaunchedEffect(incomingDraft) {
+        if (!incomingDraft.isNullOrBlank()) { draft = incomingDraft; onDraftConsumed() }
+    }
     fun send(text: String) {
         val message = text.trim()
         if (message.isEmpty() || !connection.configured || pending?.answer == null && pending != null) return
         val item = PendingTutorQuestion(question = message)
         if (!outbox.savePending(item)) {
-            statusText = "No se pudo guardar la pregunta. Intenta de nuevo."
+            statusText = t("Ndaikatúi oñeñongatu porandu. Eha'ã jey.", "No se pudo guardar la pregunta. Intenta de nuevo.")
             return
         }
         pending = item
         messages += TutorMessage(message, fromTutor = false)
-        statusText = "Pregunta guardada. Enviando…"
+        retryAvailable = false
+        statusText = t("Porandu oñeñongatúma. Oñemondo…", "Pregunta guardada. Enviando…")
         draft = ""
     }
     // @spec spec://modules/android/PROP-010-android-demo-architecture#online
@@ -412,26 +433,32 @@ private fun TutorScreen(
                     "completed" -> {
                         val answer = result.answer.orEmpty()
                         if (answer.isBlank()) {
-                            statusText = "El servidor no devolvió una respuesta. Puedes reintentar."
+                            retryAvailable = true
+                            statusText = t("Servidor nombohováiri. Ikatu reha'ã jey.", "El servidor no devolvió una respuesta. Puedes reintentar.")
                             break
                         }
                         val done = current.copy(answer = answer)
                         outbox.savePending(done)
                         pending = done
                         messages += TutorMessage(answer, fromTutor = true)
-                        statusText = "Respuesta Online"
+                        retryAvailable = false
+                        statusText = t("Mbohovái internet rupive", "Respuesta Online")
                         break
                     }
                     "error", "not_found", "expired" -> {
-                        statusText = "No se pudo responder (${result.error ?: result.status}). Puedes reintentar."
+                        retryAvailable = true
+                        statusText = t("Ndaikatúi oñembohovái (${result.error ?: result.status}). Eha'ã jey.",
+                            "No se pudo responder (${result.error ?: result.status}). Puedes reintentar.")
                         break
                     }
                     "queued", "submitting", "in_progress" -> {
-                        statusText = "Esperando respuesta Online…"
+                        retryAvailable = false
+                        statusText = t("Oñeha'arõ mbohovái internet rupive…", "Esperando respuesta Online…")
                         delay(4_000)
                     }
                     else -> {
-                        statusText = "Respuesta del servidor no reconocida. Puedes reintentar."
+                        retryAvailable = true
+                        statusText = t("Servidor mbohovái ndojekuaái. Eha'ã jey.", "Respuesta del servidor no reconocida. Puedes reintentar.")
                         break
                     }
                 }
@@ -441,22 +468,29 @@ private fun TutorScreen(
                     draft = current.question
                     outbox.clearPending()
                     pending = null
-                    statusText = "Esta pregunta no se relaciona con las matemáticas. Reformúlala."
+                    retryAvailable = false
+                    statusText = t("Ko porandu ndaha'éi papapykuaa rehegua. Ehai jey.",
+                        "Esta pregunta no se relaciona con las matemáticas. Reformúlala.")
                     break
                 }
                 if (error.code == 401 || error.code == 400 || error.code == 409 || error.code == 429 || error.code == 503) {
+                    retryAvailable = error.code != 401 && error.code != 429
                     statusText = when (error.code) {
-                        401 -> "Token de acceso incorrecto. Configura la conexión."
-                        429 -> "Se alcanzó el límite mensual de preguntas. Intenta el próximo mes."
-                        else -> "Error del servidor (${error.code}). Revisa la configuración."
+                        401 -> t("Jeike hag̃ua token ndoikói. Emohenda jeike.", "Token de acceso incorrecto. Configura la conexión.")
+                        429 -> t("Opa ko jasy porandu renda. Eha'ã jey ambue jasy.", "Se alcanzó el límite mensual de preguntas. Intenta el próximo mes.")
+                        else -> t("Servidor jejavy (${error.code}). Ejesareko ñemohenda rehe.",
+                            "Error del servidor (${error.code}). Revisa la configuración.")
                     }
                     break
                 }
-                statusText = "Conexión inestable. Reintentando…"
+                retryAvailable = false
+                statusText = t("Internet ndopytái porã. Oñeha'ã jey…", "Conexión inestable. Reintentando…")
                 delay(waitMs)
                 waitMs = (waitMs * 2).coerceAtMost(30_000L)
             } catch (_: IOException) {
-                statusText = "Sin conexión. La pregunta está guardada; se reintentará."
+                retryAvailable = false
+                statusText = t("Internet ndaipóri. Porandu oñeñongatúma; oñeha'ãta jey.",
+                    "Sin conexión. La pregunta está guardada; se reintentará.")
                 delay(waitMs)
                 waitMs = (waitMs * 2).coerceAtMost(30_000L)
             }
@@ -465,7 +499,15 @@ private fun TutorScreen(
     LaunchedEffect(messages.size) { chatScroll.animateScrollTo(chatScroll.maxValue) }
 
     Column(Modifier.fillMaxSize().background(Color(0xFFF3F8FC)).statusBarsPadding().navigationBarsPadding().imePadding()) {
-        StudyPageHeader("Tutor", courseTitle, "T", status = if (connection.configured) "ONLINE" else "SIN CONFIGURAR")
+        StudyPageHeader(t("AI mbo'ehára", "Tutor"), courseTitle, "T",
+            status = if (connection.configured) "ONLINE" else t("NE'ĨRA OÑEMOHENDA", "SIN CONFIGURAR"))
+        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween) {
+            if (onReturnToLesson != null) TextButton(onClick = onReturnToLesson) {
+                Text(t("← Ejevy mbo'epy-pe", "← Volver a la lección"))
+            } else Spacer(Modifier.width(1.dp))
+            TextButton(onClick = { spanish = !spanish }) { Text(if (spanish) "GN" else "ES") }
+        }
         Surface(
             Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 4.dp),
             shape = RoundedCornerShape(18.dp), color = Color.White,
@@ -473,11 +515,12 @@ private fun TutorScreen(
             Column(Modifier.padding(horizontal = 14.dp, vertical = 8.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        if (connection.configured) "Las preguntas se envían por internet al proveedor de IA."
-                        else "Configura tu servidor para preguntar a la IA.",
+                        if (connection.configured) t("Ne porandu oñemondo internet rupive AI-pe.",
+                            "Las preguntas se envían por internet al proveedor de IA.")
+                        else t("Emohenda servidor reporandu hag̃ua AI-pe.", "Configura tu servidor para preguntar a la IA."),
                         Modifier.weight(1f), color = Muted, style = MaterialTheme.typography.labelSmall,
                     )
-                    TextButton(onClick = { configuring = !configuring }) { Text("Configurar") }
+                    TextButton(onClick = { configuring = !configuring }) { Text(t("Emohenda", "Configurar")) }
                 }
                 if (configuring) {
                     OutlinedTextField(
@@ -489,27 +532,31 @@ private fun TutorScreen(
                         value = tokenDraft, onValueChange = { tokenDraft = it },
                         modifier = Modifier.fillMaxWidth(), singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
-                        label = { Text("Token de acceso") },
+                        label = { Text(t("Jeike hag̃ua token", "Token de acceso")) },
                     )
                     TextButton(onClick = {
                         val next = TutorConnection(endpointDraft.trim(), tokenDraft.trim())
-                        if (!next.configured) statusText = "Introduce una URL HTTPS y un token."
+                        if (!next.configured) statusText = t("Ehai HTTPS URL ha token.", "Introduce una URL HTTPS y un token.")
                         else if (outbox.saveConnection(next)) {
                             connection = next
-                            statusText = "Conexión guardada."
+                            statusText = t("Jeike oñeñongatúma.", "Conexión guardada.")
                             configuring = false
-                        } else statusText = "No se pudo guardar la conexión."
-                    }) { Text("Guardar") }
+                        } else statusText = t("Ndaikatúi oñeñongatu jeike.", "No se pudo guardar la conexión.")
+                    }) { Text(t("Eñongatu", "Guardar")) }
                 }
             }
         }
-        OfflineModelCard()
+        OfflineModelCard(spanish)
         Column(
             Modifier.weight(1f).fillMaxWidth().padding(horizontal = 13.dp, vertical = 8.dp)
                 .clip(RoundedCornerShape(23.dp)).background(Color(0xFFEAF2F8))
                 .verticalScroll(chatScroll).padding(horizontal = 13.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            TutorBubble(TutorMessage(t("Maitei. Mba'épepa ikatu roipytyvõ ko mbo'epy rehe?",
+                "Hola. ¿En qué te puedo ayudar con esta lección?"), fromTutor = true))
+            TutorBubble(TutorMessage(t("Ikatu ñañe'ẽ seno, coseno ha ángulo recto rehe.",
+                "Podemos hablar del seno, coseno y los ángulos rectos."), fromTutor = true))
             messages.forEach { message -> TutorBubble(message) }
         }
         Row(
@@ -528,14 +575,15 @@ private fun TutorScreen(
         if (statusText.isNotBlank()) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(statusText, Modifier.weight(1f), color = Muted, style = MaterialTheme.typography.labelSmall)
-                if (pending != null && pending?.answer == null && (statusText.contains("reintentar") || statusText.contains("Revisa"))) {
+                if (pending != null && pending?.answer == null && retryAvailable) {
                     TextButton(onClick = {
                         val retry = PendingTutorQuestion(question = pending!!.question)
                         if (outbox.savePending(retry)) {
                             pending = retry
-                            statusText = "Enviando de nuevo…"
+                            retryAvailable = false
+                            statusText = t("Oñemondo jey…", "Enviando de nuevo…")
                         }
-                    }) { Text("Reintentar") }
+                    }) { Text(t("Eha'ã jey", "Reintentar")) }
                 }
             }
         }
@@ -547,7 +595,7 @@ private fun TutorScreen(
                 value = draft,
                 onValueChange = { draft = it },
                 modifier = Modifier.weight(1f),
-                placeholder = { Text("Ehai ne porandu...") },
+                placeholder = { Text(t("Ehai ne porandu...", "Escribe tu pregunta...")) },
                 shape = RoundedCornerShape(23.dp),
                 maxLines = 3,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
@@ -566,7 +614,7 @@ private fun TutorScreen(
 // Offline Tutor model entry point; the download itself is not implemented yet.
 // Draft canon: specs/modules/tutor/FEAT-011-ai-tutor.md (offline-provider).
 @Composable
-private fun OfflineModelCard() {
+private fun OfflineModelCard(spanish: Boolean) {
     var requested by rememberSaveable { mutableStateOf(false) }
     Surface(
         Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 4.dp),
@@ -575,13 +623,17 @@ private fun OfflineModelCard() {
     ) {
         Row(Modifier.padding(start = 14.dp, end = 8.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Tutor sin internet", color = Ink, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                Text(if (spanish) "Tutor sin internet" else "AI mbo'ehára internet'ỹre",
+                    color = Ink, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
                 Text(
-                    if (requested) "La descarga todavía no está disponible." else "Modelo Gemma 3 1B · ≈550 MB · por Wi-Fi",
+                    if (requested) { if (spanish) "La descarga todavía no está disponible." else "Ñemboguejy ndojeguerekói gueteri." }
+                    else { if (spanish) "Modelo Gemma 3 1B · ≈550 MB · por Wi-Fi" else "Gemma 3 1B · ≈550 MB · Wi-Fi rupive" },
                     color = Muted, style = MaterialTheme.typography.labelSmall,
                 )
             }
-            TextButton(onClick = { requested = true }, enabled = !requested) { Text("Descargar", fontWeight = FontWeight.Bold) }
+            TextButton(onClick = { requested = true }, enabled = !requested) {
+                Text(if (spanish) "Descargar" else "Emboguejy", fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
@@ -678,6 +730,7 @@ private fun LessonScreen(
     progress: ProgressSnapshot,
     repository: ProgressRepository,
     onBack: () -> Unit,
+    onAskTutor: (String, Boolean) -> Unit,
     onFinish: () -> Unit,
 ) {
     var spanish by rememberSaveable(lesson.id) { mutableStateOf(false) }
@@ -711,6 +764,13 @@ private fun LessonScreen(
             completedCount = displayedLesson.exercises.count { progress.results[it.id]?.isTerminal == true },
             progress = progress.results[exercise.id],
             repository = repository,
+            onAskTutor = {
+                val question = if (spanish)
+                    "Ayúdame a entender este ejercicio de trigonometría de ${displayedLesson.title}: ${exercise.prompt}"
+                else
+                    "Eipytyvõ chéve aikũmby hag̃ua ko trigonometría tembiaporã ${displayedLesson.title} rehegua: ${exercise.prompt}"
+                onAskTutor(question, spanish)
+            },
             onNext = {
                 val next = displayedLesson.exercises.drop(exerciseIndex + 1)
                     .firstOrNull { progress.results[it.id]?.isTerminal != true }
@@ -936,6 +996,7 @@ private fun lessonCopy(spanish: Boolean) = if (spanish) LessonCopy(
     triangleDescription = "Triángulo rectángulo rehegua: cateto opuesto 3, cateto adyacente 4, hipotenusa 5, ángulo alfa ha ángulo recto.",
 )
 
+// @spec spec://modules/learning/FEAT-010-learning-demo#lesson-content
 @Composable
 internal fun ScreenHeader(
     title: String,
@@ -966,12 +1027,14 @@ internal fun ScreenHeader(
                 drawLine(Ink, tip, Offset(size.width * .49f, size.height * .71f), stroke, cap = StrokeCap.Round)
             }
         }
-        Text(
-            title,
-            Modifier.weight(1f).padding(start = 12.dp),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-        )
+        Column(Modifier.weight(1f).padding(start = 12.dp)) {
+            Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Surface(Modifier.padding(top = 4.dp), shape = RoundedCornerShape(8.dp), color = Color(0xFFEAF4ED)) {
+                Text(if (spanish) "Creado con el equipo Tume Arandu" else "Tume Arandu aty ndive ojejapo",
+                    Modifier.padding(horizontal = 8.dp, vertical = 3.dp), color = Color(0xFF286B50),
+                    fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+            }
+        }
         Button(
             onClick = onToggleLanguage,
             modifier = Modifier.padding(start = 8.dp).height(40.dp).clearAndSetSemantics {
@@ -997,6 +1060,7 @@ private fun ExercisePanel(
     completedCount: Int,
     progress: ExerciseResult?,
     repository: ProgressRepository,
+    onAskTutor: () -> Unit,
     onNext: () -> Unit,
     onFinish: () -> Unit,
 ) {
@@ -1339,7 +1403,10 @@ private fun ExercisePanel(
       }
     }
 
-    if (helpOpen) ExerciseHelpDialog(exercise, spanish, onDismiss = { helpOpen = false }, onFinish = {
+    if (helpOpen) ExerciseHelpDialog(exercise, spanish, onDismiss = { helpOpen = false }, onAskTutor = {
+        helpOpen = false
+        onAskTutor()
+    }, onFinish = {
         resultSaving = true
         scope.launch {
             repository.showSolution(exercise.id)
@@ -1565,7 +1632,7 @@ private fun CalculatorDialog(copy: LessonCopy, onDismiss: () -> Unit) {
 
 // @spec spec://modules/learning/FEAT-010-learning-demo#solutions
 @Composable
-private fun ExerciseHelpDialog(exercise: Exercise, spanish: Boolean, onDismiss: () -> Unit, onFinish: () -> Unit) {
+private fun ExerciseHelpDialog(exercise: Exercise, spanish: Boolean, onDismiss: () -> Unit, onAskTutor: () -> Unit, onFinish: () -> Unit) {
     val copy = lessonCopy(spanish)
     // Keep the basic hint and the final answer even when the author supplied many steps.
     val steps = exercise.helpSteps()
@@ -1580,9 +1647,14 @@ private fun ExerciseHelpDialog(exercise: Exercise, spanish: Boolean, onDismiss: 
                         TextButton(onClick = onDismiss) { Text(if (spanish) "Cerrar" else "Mboty") }
                     }
                     Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(if (spanish) "Paso ${step + 1} de ${steps.size}" else "Paso ${step + 1} / ${steps.size}", color = Accent, fontWeight = FontWeight.Bold)
+                        Text("${copy.stepLabel} ${step + 1} / ${steps.size}", color = Accent, fontWeight = FontWeight.Bold)
                         if (exercise.triangle != null || exercise.visual in setOf("triangle_choice", "fraction_triangle")) TriangleContextDiagram(copy, diagram = exercise.triangle)
                         Text(steps[step], color = Ink, style = MaterialTheme.typography.titleMedium)
+                    }
+                    if (last) Button(onClick = onAskTutor, modifier = Modifier.fillMaxWidth().height(48.dp),
+                        shape = RoundedCornerShape(13.dp), border = BorderStroke(1.dp, Accent),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE8F3FC), contentColor = Accent)) {
+                        Text(if (spanish) "Preguntar al Tutor con IA" else "Eporandu AI mbo'ehárape", fontWeight = FontWeight.Bold)
                     }
                     PrimaryAction(text = if (last) copy.continueAction else if (spanish) "Siguiente" else "Esegi",
                         onClick = { if (last) onFinish() else step++ }, modifier = Modifier.fillMaxWidth())
