@@ -24,6 +24,7 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
+| [WI-063 Вернуть зигзаг карты курса](work/archive/2026/WI-063-restore-zigzag-course-map.md) | @maks | P0 | — |
 | [WI-062 Плашка Tume Arandu и переход к Tutor из помощи](work/archive/2026/WI-062-lesson-credit-and-tutor-help.md) | @maks | P0 | — |
 | [WI-059 Линейный курс из 13 уроков](work/archive/2026/WI-059-linear-13-lesson-course.md) | @maks | P0 | — |
 | [WI-060 Компактный APK для пересылки](work/archive/2026/WI-060-compact-android-apk.md) | @maks | P1 | — |

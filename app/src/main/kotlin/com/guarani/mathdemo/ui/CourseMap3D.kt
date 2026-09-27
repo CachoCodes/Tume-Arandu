@@ -235,7 +235,7 @@ private fun text(c: NCanvas, s: String, x: Double, y: Double, size: Double, rgb:
     c.drawText(s, x.toFloat(), y.toFloat(), p)
 }
 
-// ---------- Layout: seven screens, one straight path of book → lesson → review triplets ----------
+// ---------- Layout: seven screens, one winding path of book → lesson → review triplets ----------
 private const val SCREEN = 864.0
 private const val STAGE_TOP = 226.0
 private const val STAGE_BOTTOM = 600.0
@@ -255,7 +255,12 @@ private class MapNode(val stage: Int, val k: Int, val type: Char, val n: Int) {
 private val NODES = STAGES.flatMapIndexed { s, st -> st.types.mapIndexed { k, t -> MapNode(s, k, t, st.types.length) } }
 private val COURSE_SLOTS = NODES.indices.filter { !NODES[it].book }
 private val MAP_HEIGHT = STAGES.size * SCREEN
-private fun mapX(i: Int): Double = CENTER_X
+private fun mapX(i: Int): Double {
+    val n = NODES[i]
+    val stage = STAGES[n.stage]
+    val phase = if (n.n == 3) n.k * PI / 2 else n.k * 2 * PI / (n.n - 1)
+    return CENTER_X + stage.dir * stage.amp * sin(phase)
+}
 private fun mapY(i: Int): Double {
     val n = NODES[i]
     return n.stage * SCREEN + if (n.n == 3) 290.0 + n.k * 140.0 else STAGE_TOP + n.k * (STAGE_BOTTOM - STAGE_TOP) / 5
