@@ -246,10 +246,14 @@ fun CourseApp(
                     catalog = catalog,
                     onOpen = ::openLesson,
                     onAvatar = { nav.navigate("avatar") },
+                    onAdaptive = { nav.navigate("adaptive") },
                     onMap = { selectTab("map") },
                     onTutor = { selectTab("tutor") },
                     onProfile = { selectTab("profile") },
                 )
+            }
+            composable("adaptive") {
+                AdaptiveLessonsPlaceholderScreen(onBack = { nav.popBackStack() })
             }
             composable("avatar") {
                 AvatarEditorScreen(progress.avatar, progress, course, catalog,

@@ -24,6 +24,7 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
+| [WI-065 Заглушка адаптации уроков из профиля](work/archive/2026/WI-065-profile-adaptive-placeholder.md) | @maks | P0 | — |
 | [WI-064 Просмотр у синуса и мягкая прокрутка карты](work/archive/2026/WI-064-sine-preview-and-gentle-paging.md) | @maks | P0 | — |
 | [WI-063 Вернуть зигзаг карты курса](work/archive/2026/WI-063-restore-zigzag-course-map.md) | @maks | P0 | — |
 | [WI-062 Плашка Tume Arandu и переход к Tutor из помощи](work/archive/2026/WI-062-lesson-credit-and-tutor-help.md) | @maks | P0 | — |

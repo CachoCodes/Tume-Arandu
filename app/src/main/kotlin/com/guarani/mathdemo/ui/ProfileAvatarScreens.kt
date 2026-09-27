@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -219,7 +220,8 @@ private fun Meadow(editor: Boolean, modifier: Modifier = Modifier) {
 // @spec spec://modules/android/PROP-010-android-demo-architecture#navigation
 @Composable
 internal fun NewProfileScreen(course: Course, progress: ProgressSnapshot, catalog: AvatarCatalog,
-    onOpen: (Lesson) -> Unit, onAvatar: () -> Unit, onMap: () -> Unit, onTutor: () -> Unit, onProfile: () -> Unit) {
+    onOpen: (Lesson) -> Unit, onAvatar: () -> Unit, onAdaptive: () -> Unit,
+    onMap: () -> Unit, onTutor: () -> Unit, onProfile: () -> Unit) {
     Box(Modifier.fillMaxSize().background(Color(0xFF79C95A))) {
         Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
             Meadow(false, Modifier.matchParentSize())
@@ -230,6 +232,13 @@ internal fun NewProfileScreen(course: Course, progress: ProgressSnapshot, catalo
                     shadow=Shadow(Color(0x59285A19),Offset(0f,titleShadow),0f))
                 Spacer(Modifier.height(38.dp))
                 ProfileIdentity(course, progress, onAvatar)
+                WhiteCard {
+                    Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Label("Mbo'epy ndéve g̃uarã", 19, FontWeight.Black)
+                        Label("Lecciones adaptadas según tus errores", 14, FontWeight.Bold, ProfileMuted)
+                        ProfileAction("Eike / Entrar", 50.dp, true, onAdaptive)
+                    }
+                }
                 ProfileTape(course, progress, onOpen)
                 ProfileCollection(course, progress, catalog, onAvatar)
                 ProfileWeek()
@@ -238,6 +247,38 @@ internal fun NewProfileScreen(course: Course, progress: ProgressSnapshot, catalo
         }
         Box(Modifier.align(Alignment.BottomCenter).navigationBarsPadding()) {
             CourseBottomBar("profile", onMap, onTutor, onProfile)
+        }
+    }
+}
+
+// @spec spec://modules/learning/FEAT-010-learning-demo#adaptive-placeholder
+@Composable
+internal fun AdaptiveLessonsPlaceholderScreen(onBack: () -> Unit) {
+    var spanish by rememberSaveable { mutableStateOf(false) }
+    Box(Modifier.fillMaxSize().background(Color(0xFF79C95A))) {
+        Meadow(false, Modifier.matchParentSize())
+        Column(Modifier.fillMaxWidth().statusBarsPadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(48.dp).background(Color.White, CircleShape)
+                    .clickable(onClick = onBack).semantics { contentDescription = if (spanish) "Volver al perfil" else "Ejevy perfil-pe"; role = Role.Button },
+                    contentAlignment = Alignment.Center) { Label("←", 25, FontWeight.Black, ProfileBlue) }
+                Spacer(Modifier.weight(1f))
+                Box(Modifier.size(56.dp).background(Color.White, RoundedCornerShape(18.dp))
+                    .clickable { spanish = !spanish }.semantics { contentDescription = if (spanish) "Cambiar a guaraní" else "Cambiar a español"; role = Role.Button },
+                    contentAlignment = Alignment.Center) { Label(if (spanish) "GN" else "ES", 17, FontWeight.Black, ProfileBlue) }
+            }
+            Label(if (spanish) "Lecciones a tu ritmo" else "Mbo'epy nde ritmópe", 28, FontWeight.Black, Color.White)
+            WhiteCard {
+                Column(Modifier.fillMaxWidth().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Label("✦", 36, FontWeight.Black, ProfileBlue)
+                    Label(if (spanish) "En preparación" else "Oñembosako'i gueteri", 22, FontWeight.Black)
+                    Label(
+                        if (spanish) "Aquí las lecciones se adaptarán según la frecuencia y la gravedad de tus errores. Podrás practicar lo que más necesitas."
+                        else "Ko'ápe mbo'epy oñemoambuéta rejavy jepykue ha umi jejavy tuichakue rehe. Ikatúta repraktika umi mba'e reikotevẽvéva.",
+                        17, FontWeight.SemiBold, ProfileMuted,
+                    )
+                }
+            }
         }
     }
 }
