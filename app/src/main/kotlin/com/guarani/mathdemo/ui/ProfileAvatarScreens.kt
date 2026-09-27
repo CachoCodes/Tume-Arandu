@@ -255,6 +255,7 @@ internal fun NewProfileScreen(course: Course, progress: ProgressSnapshot, catalo
 @Composable
 internal fun AdaptiveLessonsPlaceholderScreen(onBack: () -> Unit) {
     var spanish by rememberSaveable { mutableStateOf(false) }
+    var showTestNotice by rememberSaveable { mutableStateOf(false) }
     Box(Modifier.fillMaxSize().background(Color(0xFF79C95A))) {
         Meadow(false, Modifier.matchParentSize())
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).statusBarsPadding().navigationBarsPadding()
@@ -276,6 +277,31 @@ internal fun AdaptiveLessonsPlaceholderScreen(onBack: () -> Unit) {
                 Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     Box(Modifier.background(Color(0xFFFFF3CC), CircleShape).padding(horizontal = 12.dp, vertical = 7.dp)) {
                         Label(if (spanish) "EN PREPARACIÓN" else "OÑEMBOSAKO'I", 12, FontWeight.Black, Color(0xFF876000))
+                    }
+                    Column(Modifier.fillMaxWidth().background(Color(0xFFEDF4FF), RoundedCornerShape(20.dp)).padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Label(if (spanish) "Dificultad adaptativa" else "Mbo'epy hasykue", 17, FontWeight.Black,
+                                modifier = Modifier.weight(1f))
+                            Label("6 / 10", 23, FontWeight.Black, ProfileBlue)
+                        }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            repeat(10) { level ->
+                                Box(Modifier.weight(1f).height(13.dp).background(
+                                    if (level < 6) ProfileBlue else Color(0xFFD4DFEF), RoundedCornerShape(4.dp)))
+                            }
+                        }
+                        Label(if (spanish) "Valor de ejemplo: aún no es tu resultado."
+                            else "Techapyrã añónte: ndaha'éi ne resultado.", 13, FontWeight.Bold, ProfileMuted)
+                    }
+                    Box(Modifier.fillMaxWidth().height(52.dp).background(Yellow, RoundedCornerShape(17.dp))
+                        .clickable { showTestNotice = true }.semantics { role = Role.Button },
+                        contentAlignment = Alignment.Center) {
+                        Label(if (spanish) "Hacer la prueba" else "Ehasa prueba", 17, FontWeight.Black, ProfileInk)
+                    }
+                    if (showTestNotice) {
+                        Label(if (spanish) "La prueba todavía está en preparación."
+                            else "Prueba oñembosako'i gueteri.", 14, FontWeight.Bold, ProfileMuted)
                     }
                     Label(if (spanish) "¿Qué tendrá en cuenta?" else "Mba'épa ohecháta?", 21, FontWeight.Black)
                     AdaptiveSignal("↻", if (spanish) "Errores que se repiten" else "Rejavy jey jey",

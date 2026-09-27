@@ -24,6 +24,7 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
+| [WI-067 Шкала сложности и кнопка теста в заглушке адаптации](work/archive/2026/WI-067-adaptive-scale-test-placeholder.md) | @maks | P0 | — |
 | [WI-066 Сделать заглушку адаптации понятной](work/archive/2026/WI-066-clarify-adaptive-placeholder.md) | @maks | P0 | — |
 | [WI-065 Заглушка адаптации уроков из профиля](work/archive/2026/WI-065-profile-adaptive-placeholder.md) | @maks | P0 | — |
 | [WI-064 Просмотр у синуса и мягкая прокрутка карты](work/archive/2026/WI-064-sine-preview-and-gentle-paging.md) | @maks | P0 | — |
