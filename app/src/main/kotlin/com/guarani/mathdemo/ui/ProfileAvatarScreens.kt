@@ -235,8 +235,8 @@ internal fun NewProfileScreen(course: Course, progress: ProgressSnapshot, catalo
                 WhiteCard {
                     Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         Label("Mbo'epy ndéve g̃uarã", 19, FontWeight.Black)
-                        Label("Lecciones adaptadas según tus errores", 14, FontWeight.Bold, ProfileMuted)
-                        ProfileAction("Eike / Entrar", 50.dp, true, onAdaptive)
+                        Label("Descubre cómo cambiarán tus lecciones cuando necesites más práctica.", 14, FontWeight.Bold, ProfileMuted)
+                        ProfileAction("Ehecha / Ver cómo funciona", 50.dp, true, onAdaptive)
                     }
                 }
                 ProfileTape(course, progress, onOpen)
@@ -257,7 +257,8 @@ internal fun AdaptiveLessonsPlaceholderScreen(onBack: () -> Unit) {
     var spanish by rememberSaveable { mutableStateOf(false) }
     Box(Modifier.fillMaxSize().background(Color(0xFF79C95A))) {
         Meadow(false, Modifier.matchParentSize())
-        Column(Modifier.fillMaxWidth().statusBarsPadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).statusBarsPadding().navigationBarsPadding()
+            .padding(horizontal = 16.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(48.dp).background(Color.White, CircleShape)
                     .clickable(onClick = onBack).semantics { contentDescription = if (spanish) "Volver al perfil" else "Ejevy perfil-pe"; role = Role.Button },
@@ -267,18 +268,47 @@ internal fun AdaptiveLessonsPlaceholderScreen(onBack: () -> Unit) {
                     .clickable { spanish = !spanish }.semantics { contentDescription = if (spanish) "Cambiar a guaraní" else "Cambiar a español"; role = Role.Button },
                     contentAlignment = Alignment.Center) { Label(if (spanish) "GN" else "ES", 17, FontWeight.Black, ProfileBlue) }
             }
-            Label(if (spanish) "Lecciones a tu ritmo" else "Mbo'epy nde ritmópe", 28, FontWeight.Black, Color.White)
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Label(if (spanish) "Lecciones a tu ritmo" else "Mbo'epy nde ritmópe", 28, FontWeight.Black, Color.White)
+                Label(if (spanish) "Así cambiará tu práctica" else "Péicha oñemoambuéta nde práctica", 16, FontWeight.Bold, Color.White)
+            }
             WhiteCard {
-                Column(Modifier.fillMaxWidth().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Label("✦", 36, FontWeight.Black, ProfileBlue)
-                    Label(if (spanish) "En preparación" else "Oñembosako'i gueteri", 22, FontWeight.Black)
-                    Label(
-                        if (spanish) "Aquí las lecciones se adaptarán según la frecuencia y la gravedad de tus errores. Podrás practicar lo que más necesitas."
-                        else "Ko'ápe mbo'epy oñemoambuéta rejavy jepykue ha umi jejavy tuichakue rehe. Ikatúta repraktika umi mba'e reikotevẽvéva.",
-                        17, FontWeight.SemiBold, ProfileMuted,
-                    )
+                Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Box(Modifier.background(Color(0xFFFFF3CC), CircleShape).padding(horizontal = 12.dp, vertical = 7.dp)) {
+                        Label(if (spanish) "EN PREPARACIÓN" else "OÑEMBOSAKO'I", 12, FontWeight.Black, Color(0xFF876000))
+                    }
+                    Label(if (spanish) "¿Qué tendrá en cuenta?" else "Mba'épa ohecháta?", 21, FontWeight.Black)
+                    AdaptiveSignal("↻", if (spanish) "Errores que se repiten" else "Rejavy jey jey",
+                        if (spanish) "Un mismo error aparece varias veces." else "Peteĩ mba'e rejavy heta jey.")
+                    AdaptiveSignal("!", if (spanish) "Errores que te frenan" else "Jejavy nde jokóva",
+                        if (spanish) "El error impide avanzar." else "Pe jejavy nderehejái eho tenonde.")
+                    Label("↓", 26, FontWeight.Black, ProfileBlue, Modifier.align(Alignment.CenterHorizontally))
+                    Column(Modifier.fillMaxWidth().background(ProfileBlue, RoundedCornerShape(22.dp)).padding(18.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Label(if (spanish) "Tu siguiente práctica" else "Nde práctica oúva", 19, FontWeight.Black, Color.White)
+                        Label(if (spanish) "Más ejemplos, un repaso breve o ejercicios extra."
+                            else "Techapyrãve, jehechajey mbyky térã ejercicio hetave.",
+                            15, FontWeight.Bold, Color.White)
+                    }
                 }
             }
+            Label(if (spanish) "Por ahora no analizamos tus respuestas ni cambiamos tus lecciones."
+                else "Ko'ág̃a ndorohechái ne mbohovái ha noñemoambuéi gueteri nde mbo'epy.",
+                14, FontWeight.Bold, Color.White, Modifier.padding(horizontal = 5.dp))
+        }
+    }
+}
+
+@Composable
+private fun AdaptiveSignal(symbol: String, title: String, detail: String) {
+    Row(Modifier.fillMaxWidth().background(Color(0xFFFFF8E3), RoundedCornerShape(18.dp)).padding(13.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(44.dp).background(Yellow, CircleShape), contentAlignment = Alignment.Center) {
+            Label(symbol, 23, FontWeight.Black, ProfileInk)
+        }
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Label(title, 16, FontWeight.Black)
+            Label(detail, 13, FontWeight.Bold, ProfileMuted)
         }
     }
 }
