@@ -32,6 +32,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -45,6 +47,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -83,7 +86,15 @@ import com.guarani.mathdemo.course.Course
 import com.guarani.mathdemo.course.Lesson
 import com.guarani.mathdemo.progress.ProgressSnapshot
 import com.guarani.mathdemo.progress.AvatarLook
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.changedToDown
+import androidx.compose.ui.input.pointer.changedToUp
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.ref.SoftReference
 import kotlin.math.PI
@@ -237,8 +248,8 @@ private fun text(c: NCanvas, s: String, x: Double, y: Double, size: Double, rgb:
 
 // ---------- Layout: seven screens, one winding path of book → lesson → review triplets ----------
 private const val SCREEN = 864.0
-private const val STAGE_TOP = 226.0
-private const val STAGE_BOTTOM = 600.0
+private const val STAGE_TOP = 250.0
+private const val STAGE_BOTTOM = 570.0
 private const val TROPHY_Y = 688.0
 private const val CENTER_X = 195.0
 private const val RADIUS = 30.0
@@ -263,7 +274,7 @@ private fun mapX(i: Int): Double {
 }
 private fun mapY(i: Int): Double {
     val n = NODES[i]
-    return n.stage * SCREEN + if (n.n == 3) 290.0 + n.k * 140.0 else STAGE_TOP + n.k * (STAGE_BOTTOM - STAGE_TOP) / 5
+    return n.stage * SCREEN + if (n.n == 3) 300.0 + n.k * 120.0 else STAGE_TOP + n.k * (STAGE_BOTTOM - STAGE_TOP) / 5
 }
 private val LESSONS = NODES.indices.map { Cam.mapToWorld(mapX(it), mapY(it)) }
 private fun radiusOf(i: Int) = when { NODES[i].lesson -> RADIUS; NODES[i].book -> BOOK_RADIUS; else -> REVIEW_RADIUS }
@@ -273,7 +284,7 @@ private fun lessonNumber(i: Int) = (0..i).count { NODES[it].lesson }
 private fun bay(s: Int, upper: Boolean): Pair<Double, Double> {
     val st = STAGES[s]; val base = NODES.indexOfFirst { it.stage == s }
     val side = if (upper) -st.dir else st.dir
-    return (CENTER_X + side * st.amp) to mapY(base + if (upper) 1 else 4)
+    return (CENTER_X + side * st.amp * .7) to mapY(base + if (upper) 1 else 4)
 }
 
 private enum class Kind { PRISM, SEN30, LIGHTHOUSE, KITE, LADDER, TAN45, TROPHY }
@@ -293,12 +304,14 @@ private const val KITE_HEIGHT = 58.0
 private const val PRISM_RADIUS = 58.0
 
 private val PROPS: List<Prop> = run {
-    val u0 = bay(0, true); val l1 = bay(1, false); val u1 = bay(1, true); val u2 = bay(2, true)
+    val u0 = bay(0, true); val l1 = bay(1, false); val u1 = bay(1, true); val u2 = bay(2, true); val l3 = bay(3, false); val u4 = bay(4, true)
     listOf(
         Prop(Kind.PRISM, u0.first - 12, u0.second + 4, rad(-65.0), 62.0, null),
         Prop(Kind.LIGHTHOUSE, l1.first - 30, l1.second - 8, rad(18.0), 76.0, Plinth(true, 6.0, r = 42.0, shift = 24.0)),
         Prop(Kind.KITE, u1.first - 52, u1.second + 30, rad(12.0), 90.0, Plinth(false, 5.0, length = 78.0, depth = 14.0, alongRun = true)),
         Prop(Kind.LADDER, u2.first - 20, u2.second - 4, rad(38.0), 56.0, Plinth(false, 5.0, wall = true)),
+        Prop(Kind.SEN30, l3.first + 8, l3.second, 0.0, 40.0, Plinth(false, 5.0, depth = 16.0, back = 4.0)),
+        Prop(Kind.TAN45, u4.first, u4.second, 0.0, 40.0, Plinth(false, 5.0, depth = 16.0, back = 4.0)),
     ) + STAGES.indices.map { s -> Prop(Kind.TROPHY, CENTER_X, s * SCREEN + TROPHY_Y, 0.0, 55.0, Plinth(true, 5.0, r = 22.0)) }
 }.onEach { p ->
     // Letter plinths fit the real width of the lettering (+6 each side).
@@ -1044,7 +1057,67 @@ internal fun CourseMap3DScreen(
             }
         }
         Canvas(Modifier.fillMaxSize().graphicsLayer()) { drawOverlays(frame, nanos / 1e9, calm, unit, yPad) }
-        VerticalPager(pager, Modifier.fillMaxSize()) { page -> StageTargets(page, state, unit, yPad, unlockAll, onOpen, onOpenBook) }
+        // Stage paging is driven here, not by the pager: one gesture moves at most one stage.
+        // Mouse wheel / trackpad: one gesture (until 300 ms of quiet, inertia included) moves exactly one stage.
+        // The emulator turns a trackpad scroll into a stream of tiny touches (down–flick–up every ~16 ms);
+        // a touch starting < 250 ms after the previous one lifted continues that gesture and is ignored,
+        // so it cannot interrupt the running stage animation.
+        val pagingScope = rememberCoroutineScope()
+        val paging = Modifier.pointerInput(pager) {
+            val slop = viewConfiguration.touchSlop
+            val flingVelocity = 400.dp.toPx()
+            var job: Job? = null
+            fun goTo(page: Int) { job?.cancel(); job = pagingScope.launch { pager.animateScrollToPage(page.coerceIn(0, STAGES.lastIndex), animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) } }
+            var lastWheel = 0L
+            var lastUp = 0L
+            var swallow = false
+            var dragging = false
+            var travel = 0f
+            var startPage = 0
+            val tracker = VelocityTracker()
+            awaitPointerEventScope {
+                while (true) {
+                    val e = awaitPointerEvent(PointerEventPass.Initial)
+                    val now = e.changes.first().uptimeMillis
+                    if (e.type == PointerEventType.Scroll) {
+                        val dy = e.changes.sumOf { it.scrollDelta.y.toDouble() }
+                        e.changes.forEach { it.consume() }
+                        if (now - lastWheel > 300 && dy != 0.0) goTo(pager.currentPage + if (dy > 0) 1 else -1)
+                        lastWheel = now
+                        continue
+                    }
+                    val ch = e.changes.first()
+                    if (ch.changedToDown()) {
+                        swallow = now - lastUp < 250
+                        if (!swallow) { dragging = false; travel = 0f; startPage = pager.currentPage; tracker.resetTracking(); tracker.addPosition(now, ch.position) }
+                    }
+                    if (swallow) {
+                        e.changes.forEach { it.consume() }
+                    } else if (ch.pressed) {
+                        val dy = ch.position.y - ch.previousPosition.y
+                        tracker.addPosition(now, ch.position)
+                        travel += dy
+                        if (!dragging && abs(travel) > slop) { dragging = true; job?.cancel(); startPage = pager.currentPage }
+                        if (dragging) { pager.dispatchRawDelta(-dy); e.changes.forEach { it.consume() } }
+                    } else if (ch.changedToUp() && dragging) {
+                        e.changes.forEach { it.consume() }
+                        val vy = tracker.calculateVelocity().y
+                        val target = when {
+                            vy < -flingVelocity -> startPage + 1
+                            vy > flingVelocity -> startPage - 1
+                            else -> (pager.currentPage + pager.currentPageOffsetFraction).roundToInt()
+                        }.coerceIn(startPage - 1, startPage + 1)
+                        goTo(target)
+                        dragging = false
+                    }
+                    if (ch.changedToUp()) lastUp = now
+                }
+            }
+        }
+        VerticalPager(
+            pager, Modifier.fillMaxSize().then(paging),
+            userScrollEnabled = false,
+        ) { page -> StageTargets(page, state, unit, yPad, unlockAll, onOpen, onOpenBook) }
         val stage = pager.currentPage
         val (done, total) = state.stageCount(stage)
         StageCard(progress.xp, streakDays = 0, stage = stage, done = done, total = total, Modifier.align(Alignment.TopCenter).statusBarsPadding())

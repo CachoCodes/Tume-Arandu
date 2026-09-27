@@ -36,7 +36,11 @@ class MainActivity : ComponentActivity() {
                 )
             }
             MaterialTheme(colorScheme = colors) {
-                if (preview != null) CourseApp(repository, preview, unlockAll = true, startExerciseId = intent.getStringExtra("exercise")) else CourseApp(repository)
+                if (preview != null) CourseApp(
+                    repository, preview, unlockAll = true,
+                    startExerciseId = intent.getStringExtra("exercise"),
+                    previewReachedLessonId = intent.getStringExtra("reached"),
+                ) else CourseApp(repository)
             }
         }
     }

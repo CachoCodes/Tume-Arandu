@@ -145,6 +145,7 @@ fun CourseApp(
     courseAsset: String = CourseLoader.COURSE_ASSET,
     unlockAll: Boolean = false,
     startExerciseId: String? = null,
+    previewReachedLessonId: String? = null,
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val course = remember { runCatching { CourseLoader.load(context, asset = courseAsset) }.getOrNull() }
@@ -152,7 +153,17 @@ fun CourseApp(
         runCatching { CourseLoader.load(context, "es", courseAsset).lessons.associateBy(Lesson::id) }.getOrDefault(emptyMap())
     }
     val progressState by repository.progress.collectAsState(initial = ProgressState.Loading)
-    val progress = (progressState as? ProgressState.Ready)?.snapshot
+    val previewIndex = course?.lessons?.indexOfFirst { it.id == previewReachedLessonId } ?: -1
+    val progress = (progressState as? ProgressState.Ready)?.snapshot?.let { saved ->
+        if (previewIndex < 0 || course == null) saved else {
+            val completed = course.lessons.take(previewIndex)
+            saved.copy(
+                completedLessonIds = saved.completedLessonIds + completed.map(Lesson::id),
+                completedBookIds = saved.completedBookIds + course.lessons.take(previewIndex + 1).map(Lesson::id),
+                xp = saved.xp + completed.sumOf { it.xpReward },
+            )
+        }
+    }
     val nav = rememberNavController()
     val scope = rememberCoroutineScope()
     val catalog = remember(context) { AvatarCatalog(context) }
