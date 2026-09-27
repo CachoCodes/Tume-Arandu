@@ -1,6 +1,6 @@
 # Tume-Arandu
 
-Tume-Arandu is an offline-first Android app for learning introductory trigonometry in Guaraní, with an optional Spanish translation. The demo includes a seven-lesson course, interactive exercises, prepared solutions, completion and XP, and on-device progress. It does not require an account, backend, API key, network access, or AI service.
+Tume-Arandu is an offline-first Android app for learning introductory trigonometry in Guaraní, with an optional Spanish translation. The course has 13 concepts, 13 lessons and one review after each lesson, with interactive exercises, prepared solutions, XP and on-device progress. The course works without an account or network connection; the optional online Tutor uses a separately configured service.
 
 The Guaraní course copy is an initial draft. A Guaraní-speaking math teacher should review it before classroom or public educational use.
 
@@ -16,9 +16,10 @@ Android Studio can configure the SDK automatically. For command-line builds, set
 git clone https://github.com/CachoCodes/Tume-Arandu.git
 cd Tume-Arandu
 ./gradlew :app:assembleDebug
+./gradlew :app:assembleShare
 ```
 
-The debug APK is written to `app/build/outputs/apk/debug/app-debug.apk`. Android Studio can also open the project root and launch the `app` configuration on an emulator or device.
+The debug APK is written to `app/build/outputs/apk/debug/app-debug.apk`. The smaller APK for internal sharing is `app/build/outputs/apk/share/app-share.apk`; it uses R8 and resource shrinking and is signed with the local debug key. Android Studio can also open the project root and launch the `app` configuration on an emulator or device. Public distribution requires a release signing key.
 
 ## Project layout
 

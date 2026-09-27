@@ -1,0 +1,89 @@
+{
+  "_comment": "Правила открытия вещей аватара. Цифры и темы — стартовые значения из макета, их можно менять только здесь. kind: free | xp | lessons | topic | stage.",
+  "progressSources": {
+    "xp": "ProgressSnapshot.xp",
+    "lessons": "ProgressSnapshot.completedLessonIds.size",
+    "topic": "тема считается пройденной, когда все уроки из topicLessonIds[<тема>] есть в completedLessonIds",
+    "stage": "этап пройден, когда пройдены все уроки курса этого этапа (сейчас Etapa 1 = все уроки текущего курса)"
+  },
+  "topicLessonIds": {
+    "Triángulos": [],
+    "Seno": [],
+    "Coseno": []
+  },
+  "categories": [
+    {
+      "id": "expr", "tab": "Cara", "title": "Expresión", "lookField": "expr",
+      "items": [
+        { "id": "smile", "label": "Sonrisa", "unlock": { "kind": "free" } },
+        { "id": "happy", "label": "Alegre", "unlock": { "kind": "free" } },
+        { "id": "wink", "label": "Guiño", "unlock": { "kind": "free" } },
+        { "id": "surprised", "label": "Sorpresa", "unlock": { "kind": "lessons", "n": 3, "chip": "3 lecciones" } },
+        { "id": "cool", "label": "Genio", "unlock": { "kind": "topic", "topic": "Seno", "chip": "Tema: Seno" } },
+        { "id": "star", "label": "Estrella", "unlock": { "kind": "xp", "n": 500, "chip": "500 XP" } }
+      ],
+      "colors": { "lookField": "skin", "title": "Tono de piel", "list": [
+        ["#ffdcb8", "Piel muy clara"], ["#f4c29a", "Piel clara"], ["#e0a878", "Piel media"],
+        ["#c68652", "Piel morena"], ["#9a6238", "Piel oscura"], ["#6e4424", "Piel muy oscura"] ] }
+    },
+    {
+      "id": "hair", "tab": "Pelo", "title": "Peinado", "lookField": "hairStyle",
+      "items": [
+        { "id": "buzz", "label": "Rapado", "unlock": { "kind": "free" } },
+        { "id": "short", "label": "Corto", "unlock": { "kind": "free" } },
+        { "id": "curly", "label": "Rizado", "unlock": { "kind": "free" } },
+        { "id": "long", "label": "Largo", "unlock": { "kind": "free" } },
+        { "id": "bun", "label": "Moño", "unlock": { "kind": "free" } }
+      ],
+      "colors": { "lookField": "hair", "title": "Color de pelo", "list": [
+        ["#1d1d2b", "Negro"], ["#5a3a22", "Castaño"], ["#a0612e", "Cobrizo"],
+        ["#e0b050", "Rubio"], ["#c0472f", "Rojo"], ["#6d7fd8", "Azul"] ] }
+    },
+    {
+      "id": "hat", "tab": "Gorros", "title": "Gorros", "lookField": "hat",
+      "items": [
+        { "id": "none", "label": "Sin gorro", "unlock": { "kind": "free" }, "countsInCollection": false },
+        { "id": "cap", "label": "Gorra GM", "unlock": { "kind": "free" } },
+        { "id": "beanie", "label": "Gorro de lana", "unlock": { "kind": "xp", "n": 250, "chip": "250 XP" } },
+        { "id": "phones", "label": "Auriculares", "unlock": { "kind": "lessons", "n": 5, "chip": "5 lecciones" } },
+        { "id": "piri", "label": "Sombrero pirí", "unlock": { "kind": "topic", "topic": "Triángulos", "chip": "Tema: Triángulos" } },
+        { "id": "grad", "label": "Birrete", "unlock": { "kind": "stage", "n": 1, "chip": "Etapa 1" } },
+        { "id": "crown", "label": "Corona", "unlock": { "kind": "xp", "n": 1000, "chip": "1000 XP" } }
+      ]
+    },
+    {
+      "id": "glasses", "tab": "Lentes", "title": "Lentes", "lookField": "glasses",
+      "items": [
+        { "id": "none", "label": "Sin lentes", "unlock": { "kind": "free" }, "countsInCollection": false },
+        { "id": "round", "label": "Redondos", "unlock": { "kind": "free" } },
+        { "id": "sun", "label": "De sol", "unlock": { "kind": "xp", "n": 500, "chip": "500 XP" } },
+        { "id": "star", "label": "Estrellas", "unlock": { "kind": "topic", "topic": "Coseno", "chip": "Tema: Coseno" } }
+      ]
+    },
+    {
+      "id": "outfit", "tab": "Ropa", "title": "Ropa", "lookField": "outfit",
+      "items": [
+        { "id": "tee", "label": "Remera", "unlock": { "kind": "free" } },
+        { "id": "hoodie", "label": "Buzo GM", "unlock": { "kind": "lessons", "n": 10, "chip": "10 lecciones" } }
+      ],
+      "colors": { "lookField": "shirt", "title": "Color", "list": [
+        ["#2d63d6", "Azul"], ["#f5c230", "Amarillo"], ["#58c0ec", "Celeste"],
+        ["#e2574c", "Rojo"], ["#4fa83a", "Verde"], ["#1d2b4f", "Marino"] ] }
+    },
+    {
+      "id": "bg", "tab": "Fondo", "title": "Fondo", "lookField": "bg",
+      "items": [],
+      "colors": { "lookField": "bg", "title": "Color de fondo", "list": [
+        ["#dfe8fb", "Azul claro"], ["#fff1c9", "Amarillo claro"], ["#d9f3e4", "Verde claro"],
+        ["#fde0e8", "Rosa claro"], ["#e7defc", "Lila"], ["#e3f6fd", "Celeste claro"] ] }
+    }
+  ],
+  "defaultLook": { "skin": "#f4c29a", "hair": "#5a3a22", "hairStyle": "short", "expr": "smile", "hat": "cap", "glasses": "none", "outfit": "tee", "shirt": "#2d63d6", "bg": "#dfe8fb" },
+  "chipStyles": {
+    "xp":      { "bg": "#fff1c9", "fg": "#7a5600", "icon": "M13 2 L4 14 L11 14 L10 22 L20 9 L13 9 Z" },
+    "lessons": { "bg": "#e8f0fe", "fg": "#1f4ba8", "icon": "M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5Z M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5" },
+    "topic":   { "bg": "#e4f5dc", "fg": "#2f6f1f", "icon": "M3 20 L20 4 L20 20 Z" },
+    "stage":   { "bg": "#efe7fd", "fg": "#5a3aa8", "icon": "M8 21h8 M12 17v4 M7 4h10v5a5 5 0 0 1-10 0Z" }
+  },
+  "nextReward": "среди ЗАКРЫТЫХ вещей с kind=xp выбрать с наименьшим n; баннер показывает её название и прогресс xp / n"
+}

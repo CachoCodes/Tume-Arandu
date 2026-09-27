@@ -6,6 +6,9 @@
 /.idea/
 **/build/
 **/node_modules/
+/worker/.wrangler/
+/worker/.dev.vars*
+/worker/.env
 **/reference-renders/
 *.blend1
 *.iml

@@ -59,9 +59,9 @@ status: active
 
 ### Online {#online}
 
-По проверенным на 2026-09-23 официальным материалам `GPT-6 Luna` использует model ID `gpt-6-luna`, поддерживает `v1/responses`; OpenAI рекомендует Responses для новых проектов. Предпочтительная схема — HTTPS `POST https://api.openai.com/v1/responses`, текстовый input, model ID из конфигурации, разбор текста из ответа. Streaming не обязателен для первой версии; loading state покрывает время запроса. Timeout, HTTP error и отмена запроса отображаются отдельными состояниями.
+Online Tutor использует Gemini Developer API через Cloudflare Worker. Для личного развёртывания выбрана текстовая модель `gemini-3.8-flash`; модель задаётся в конфигурации Worker. Схема — HTTPS `generateContent` API с отдельным вопросом в каждом вызове, ограничением числа выходных токенов, низким уровнем thinking и разбором `candidates[].content.parts[].text` из ответа. Ответ для Android формируется спокойным простым текстом: обычно результат и одно короткое пояснение, не более двух предложений; Worker удаляет сырую Markdown/LaTeX-разметку и ограничивает длину даже при нарушении инструкции моделью. Язык ответа выбирается по явной просьбе ученика, иначе по основному языку и грамматике вопроса: испанская фраза с одним-двумя словами гуарани получает испанский ответ, преимущественно гуаранийская — ответ на простом гуарани; отдельные математические термины не переключают язык. Streaming не обязателен для первой версии; loading state покрывает время запроса. Timeout и HTTP error отображаются отдельными состояниями. Приложение сохраняет ID и вопрос до ответа, повторяет доставку с тем же ID и отдельно запрашивает статус. Worker хранит ключ провайдера как secret, не выводит его и подробности ответов провайдера в логи, ограничивает фактический размер тела запроса даже без `Content-Length`, выдачу и число новых вопросов за календарный месяц, не создаёт второй запрос при повторном ID. Вопрос и ответ удаляются через 24 часа, но бессодержательный ID остаётся для защиты от позднего повтора. До создания job и расходования месячного лимита Worker проверяет явные математические признаки вопроса; при их отсутствии возвращает `422 not_math` без вызова AI. Android показывает, что вопрос не относится к математике, освобождает ввод для следующего вопроса и не повторяет отклонённый запрос. Неоднозначную математическую формулировку пользователь может уточнить. Незавершённое состояние восстанавливается при следующем открытии Tutor; фоновая доставка при закрытом приложении не требуется.
 
-API требует bearer key. Ключ не предоставлен. Не добавлять его в исходники, Git, логи или распространяемый APK. Если команда позже проверяет локальный APK со своим ключом из ignored `local.properties`, считать секрет извлекаемым из APK и не публиковать эту сборку. Публичный APK с реальным online AI требует relay/backend, который не входит в текущий demo scope. До credentials Online остаётся `unconfigured`; статус сети сам по себе не означает, что API доступен.
+Прямой Gemini API требует Google API key; рабочий ключ проверен прямым запросом к Google и сохранён только как Cloudflare secret. Не добавлять его в исходники, Git, логи или распространяемый APK. Личный Worker требует отдельный токен доступа, который пользователь вводит на устройстве; этот простой механизм не предназначен для публичного многопользовательского APK. До настройки Worker и credentials Online остаётся `unconfigured`; статус сети сам по себе не означает, что API доступен. Ограничение количества запросов Worker не контролирует другие способы использования общего ключа и не заменяет лимит расходов у владельца аккаунта. Одновременные повторы с одним ID не должны повторно расходовать месячный лимит или менять вопрос после первого принятия.
 
 ### Offline model {#offline-model}
 
@@ -81,7 +81,7 @@ API требует bearer key. Ключ не предоставлен. Не до
 
 - Никаких ключей пока нет; никаких реальных запросов до появления ключа не отправлять.
 - Для Online внешний провайдер получает текст вопроса и минимальный переданный контекст урока. Не отправлять course progress или answer key по умолчанию; UI обозначает сетевой режим.
-- Не писать API key, пользовательские сообщения или сгенерированные ответы в лог. Не сохранять chat после завершения процесса.
+- Не писать API key, пользовательские сообщения или сгенерированные ответы в лог. Только незавершённый вопрос, его ID и последний ответ временно хранятся в app-private storage для восстановления при плохой связи; остальная история чата остаётся в памяти. Worker удаляет данные по TTL.
 - Offline запросы и context pack остаются на устройстве.
 - Модель скачивается только после явного выбора; ошибка загрузки не делает её активной.
 
@@ -89,16 +89,19 @@ API требует bearer key. Ключ не предоставлен. Не до
 
 Реализованные P0 точки: `app/src/main/kotlin/com/guarani/mathdemo/course/Course.kt`, `exercise/ExerciseValidator.kt`, `progress/ProgressRepository.kt`, `ui/CourseApp.kt`, `MainActivity.kt`; versioned course asset — `app/src/main/assets/courses/trigonometry.json`. P1 Tutor packages/context files пока отсутствуют.
 
+Для внутренней пересылки доступен `assembleShare`: R8 сокращает код и неиспользуемые ресурсы, APK подписан локальным debug-ключом и устанавливается поверх debug-сборки того же разработчика. Для публичной публикации нужен отдельный release key; `share` не является магазинной подписью.
+
 P0 checks: debug APK build, validator cases, install/launch/course flow, persistence/XP/unlock after restart. Galaxy S24 check is still required before device-specific performance claims. P1 checks (repository migration cases, online error path, offline model download/inference) apply only after Tutor implementation.
 
 ## Acceptance {#acceptance}
 
 - AC-1: проект собирается в APK для Android; курс доступен offline и exercise validators не делают сетевых вызовов.
 - AC-2: холодный старт и возврат в урок восстанавливают один корректный snapshot; повтор completion не начисляет XP второй раз.
-- AC-3: Online provider использует конфигурируемый `gpt-6-luna` через Responses API, показывает отсутствие credentials и не встраивает secret в распространяемую сборку.
+- AC-3: Online provider использует `gemini-3.8-flash` через Interactions API, показывает отсутствие credentials и не встраивает secret в распространяемую сборку.
 - AC-4: Download/initialize/inference локальной модели не блокирует UI; модель отмечается установленной только после целостной загрузки; базовый ответ проверен в airplane mode на S24.
 - AC-5: Auto сообщает источник ответа и применяет правила fallback; при любой ошибке Tutor приложение остаётся пригодным для уроков.
 - AC-6: курс и ключевые validator/domain функции не зависят от Compose; фактический scope остаётся одним Android app module без backend.
+- AC-7: нематематический вопрос отклоняется Worker до создания job, месячного счётчика и вызова AI; Android сообщает причину и разрешает задать новый вопрос.
 
 ## Related {#related}
 
@@ -110,9 +113,9 @@ P0 checks: debug APK build, validator cases, install/launch/course flow, persist
 
 Проверено 2026-09-23; перед добавлением dependency/model повторно сверить актуальные версии и форматы.
 
-- [GPT-6 Luna: модель, ID и endpoints](https://developers.openai.com/api/docs/models/gpt-6-luna).
-- [OpenAI: Responses API для новых проектов](https://developers.openai.com/api/docs/guides/migrate-to-responses).
-- [OpenAI quickstart: Bearer API key](https://developers.openai.com/api/docs/quickstart).
+- [Google: каталог моделей Gemini](https://ai.google.dev/gemini-api/docs/models).
+- [Google: Generate Content API](https://ai.google.dev/gemini-api/docs/generate-content/text-generation).
+- [Google: цены Gemini Developer API](https://ai.google.dev/gemini-api/docs/pricing).
 - [LiteRT-LM Kotlin API: Android, Gradle и engine lifecycle](https://github.com/google-ai-edge/LiteRT-LM/blob/main/docs/api/kotlin/getting_started.md).
 - [Официальный AI Edge Gallery model allowlist: Gemma3-1B-IT artifact](https://github.com/google-ai-edge/gallery/blob/main/model_allowlists/1_0_15.json).
 - [Google Gemma: текущие варианты для mobile и выбор модели](https://ai.google.dev/gemma/docs/get_started).
@@ -120,6 +123,15 @@ P0 checks: debug APK build, validator cases, install/launch/course flow, persist
 
 ## History {#history}
 
+- 2026-09-27 — добавлена компактная внутренняя `share`-сборка с R8 и resource shrink; подпись ограничена локальным debug-ключом.
+
 - 2026-09-23 — первая черновая архитектура из `context.md`; код проекта отсутствует, поэтому stack/dependency/model проходят физическую проверку до реализации.
 - 2026-09-23 — P0 demo stack pinned and one-app implementation started; AI model/runtime and credentials do not enter P0.
 - 2026-09-24 — по отзыву на живой экран карта должна использовать один согласованный ракурс, а Map, Tutor и Profile становятся отдельными destinations; ответы в упражнениях вводятся встроенной клавиатурой.
+- 2026-09-26 — для личного Online Tutor выбран Cloudflare Worker с `gemini-3.8-flash`, устойчивым ID запроса и временным хранением ответа.
+- 2026-09-26 — перед вызовом AI добавлен локальный по вычислению фильтр явных математических вопросов, с отказом `not_math` и возможностью переформулировать вопрос.
+- 2026-09-26 — вызов Gemini переключён на `generateContent` по примеру пользователя; `minimal` заменён на поддерживаемый `low`.
+- 2026-09-26 — онлайн-ответ запрашивается простым текстом, чтобы Tutor показывал математические выражения без сырой разметки.
+- 2026-09-26 — онлайн-ответ ограничен кратким результатом и одним пояснением; Worker очищает разметку и проверяет фактический размер входного тела без доверия к заголовку.
+- 2026-09-26 — рабочий Gemini key подтверждён прямым запросом; одновременные повторы одного ID не должны расходовать месячный лимит повторно.
+- 2026-09-26 — язык ответа выбирается по основному языку вопроса, а не по отдельным словам другого языка.

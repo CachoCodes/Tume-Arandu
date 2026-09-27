@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "exercise-templates",
-  "revision": 1,
+  "revision": 2,
   "defaultLocale": "gn-PY",
   "title": {
     "gn-PY": "Techaukaha",
@@ -505,63 +505,85 @@
           "type": "matching",
           "visual": "standard_pairs",
           "prompt": {
-            "gn-PY": "Embojoaju peteĩ dato ha razón ikatúva ojepuru.",
-            "es": "Relaciona cada conjunto de datos con una razón que puedas usar."
+            "gn-PY": "Embojoaju fórmula ha hembiapo.",
+            "es": "Relaciona cada fórmula con su función."
           },
           "hint": {
-            "gn-PY": "Seno oipuru opuesto ha hipotenusa; tangente oipuru opuesto ha adyacente.",
-            "es": "El seno usa el lado opuesto y la hipotenusa; la tangente, los lados opuesto y adyacente."
+            "gn-PY": "Seno cuadrado ha coseno cuadrado joaju fundamental. tan θ = sen θ / cos θ.",
+            "es": "La suma de los cuadrados del seno y el coseno es la identidad fundamental. Recuerda que tan θ = sen θ / cos θ."
           },
           "solutionSteps": [
             {
-              "gn-PY": "Yvate ha hipotenusa: seno.",
-              "es": "Altura e hipotenusa: seno."
+              "gn-PY": "sen² + cos² = 1 ha'e joaju fundamental.",
+              "es": "sen² + cos² = 1 es la identidad fundamental."
             },
             {
-              "gn-PY": "Yvate ha distancia yvýre: tangente.",
-              "es": "Altura y distancia en el suelo: tangente."
+              "gn-PY": "tan θ = sen θ / cos θ.",
+              "es": "tan θ = sen θ / cos θ."
+            },
+            {
+              "gn-PY": "tan θ = sen θ / cos θ → sen θ = cos θ · tan θ.",
+              "es": "tan θ = sen θ / cos θ → sen θ = cos θ · tan θ."
             }
           ],
           "leftItems": [
             {
-              "id": "height-hyp",
+              "id": "identity",
               "text": {
-                "gn-PY": "Yvate ha hipotenusa",
-                "es": "Altura e hipotenusa"
+                "gn-PY": "sen² θ + cos² θ = 1",
+                "es": "sen² θ + cos² θ = 1"
               }
             },
             {
-              "id": "height-ground",
+              "id": "tangent",
               "text": {
-                "gn-PY": "Yvate ha distancia yvýre",
-                "es": "Altura y distancia en el suelo"
+                "gn-PY": "tan θ",
+                "es": "tan θ"
+              }
+            },
+            {
+              "id": "sine",
+              "text": {
+                "gn-PY": "sen θ",
+                "es": "sen θ"
               }
             }
           ],
           "rightItems": [
             {
-              "id": "sin",
+              "id": "fundamental",
               "text": {
-                "gn-PY": "Seno",
-                "es": "Seno"
+                "gn-PY": "Joaju fundamental",
+                "es": "Identidad fundamental"
               }
             },
             {
-              "id": "tan",
+              "id": "quotient",
               "text": {
-                "gn-PY": "Tangente",
-                "es": "Tangente"
+                "gn-PY": "sen θ / cos θ",
+                "es": "sen θ / cos θ"
+              }
+            },
+            {
+              "id": "product",
+              "text": {
+                "gn-PY": "cos θ · tan θ",
+                "es": "cos θ · tan θ"
               }
             }
           ],
           "pairs": [
             {
-              "leftId": "height-hyp",
-              "rightId": "sin"
+              "leftId": "identity",
+              "rightId": "fundamental"
             },
             {
-              "leftId": "height-ground",
-              "rightId": "tan"
+              "leftId": "tangent",
+              "rightId": "quotient"
+            },
+            {
+              "leftId": "sine",
+              "rightId": "product"
             }
           ]
         }

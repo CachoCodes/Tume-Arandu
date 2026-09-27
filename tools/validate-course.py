@@ -14,6 +14,7 @@ VISUALS = {
 # Matching exercises are card boards and never get a triangle.
 NEEDS_TRIANGLE = {"standard_choice", "standard_number", "standard_fraction", "standard_steps"}
 SOURCE = {"madeWith": "Dulce Duro", "basedOn": "MEC Paraguay"}
+CONCEPT_VISUALS = {"triangle_vertices", "right_angle", "compare_figures", "catheti", "hypotenuse", "rotated_180", "labeled_sides", "ramp", "ramp_right", "ramp_hypotenuse", "known_sides", "unknown_side", "other_numbers", "angle_arc", "similar_triangles", "sine_ratio", "cosine_ratio", "tangent_ratio", "ratio_choice", "tree_shadow"}
 
 
 def check(condition, path, message):
@@ -65,7 +66,7 @@ def validate(data):
     check(data.get("defaultLocale") == "gn-PY", "course.defaultLocale", "expected gn-PY")
     localized(data.get("title"), "course.title")
     lessons = data.get("lessons")
-    check(isinstance(lessons, list) and 1 <= len(lessons) <= 10, "course.lessons", "expected 1–10 lessons")
+    check(isinstance(lessons, list) and 1 <= len(lessons) <= 26, "course.lessons", "expected 1–26 lessons")
     unique(lessons, "course.lessons")
     all_ids = set()
     for li, lesson in enumerate(lessons):
@@ -82,6 +83,30 @@ def validate(data):
         for bi, block in enumerate(theory):
             check(isinstance(block, dict) and block.get("type") in {"text", "formula", "example"}, f"{path}.theory[{bi}].type", "unsupported type")
             localized(block.get("body"), f"{path}.theory[{bi}].body")
+        # @spec spec://modules/learning/PROP-011-course-json-format#concept
+        if "concept" in lesson:
+            concept = lesson["concept"]
+            check(isinstance(concept, dict), f"{path}.concept", "expected object")
+            blocks = concept.get("blocks")
+            check(isinstance(blocks, list) and bool(blocks), f"{path}.concept.blocks", "expected nonempty array")
+            unique(blocks, f"{path}.concept.blocks")
+            for bi, block in enumerate(blocks):
+                bp = f"{path}.concept.blocks[{bi}]"
+                for field in ("title", "text"):
+                    localized(block.get(field), f"{bp}.{field}")
+                visual = block.get("visual")
+                check(visual in CONCEPT_VISUALS, f"{bp}.visual", "unsupported visual")
+                if "check" in block:
+                    check_data = block["check"]
+                    check(isinstance(check_data, dict), f"{bp}.check", "expected object")
+                    cp = f"{bp}.check"
+                    ids = options(check_data.get("options"), f"{cp}.options")
+                    check(len(ids) >= 2, f"{cp}.options", "at least two options required")
+                    check(check_data.get("correctOptionId") in ids, f"{cp}.correctOptionId", "unknown option")
+                    for field in ("good", "bad"):
+                        localized(check_data.get(field), f"{cp}.{field}")
+                    mode = check_data.get("mode")
+                    check(mode is None or (mode == "figure" and visual == "compare_figures"), f"{cp}.mode", "unsupported mode")
         exercises = lesson.get("exercises")
         check(isinstance(exercises, list) and bool(exercises), f"{path}.exercises", "expected nonempty array")
         ids = unique(exercises, f"{path}.exercises")
@@ -96,6 +121,8 @@ def validate(data):
                 check("triangle" in exercise, f"{ep}.triangle", f"{visual} needs a triangle: every exercise has a visual part")
             if kind == "matching":
                 check("triangle" not in exercise, f"{ep}.triangle", "matching exercises are cards without a triangle")
+                for side in ("leftItems", "rightItems"):
+                    check(isinstance(exercise.get(side), list) and len(exercise[side]) == 3, f"{ep}.{side}", "matching has exactly three cards per column")
             if "triangle" in exercise:
                 triangle = exercise["triangle"]
                 check(isinstance(triangle, dict), f"{ep}.triangle", "expected object")

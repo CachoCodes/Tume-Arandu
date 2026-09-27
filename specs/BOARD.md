@@ -11,6 +11,10 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
+| [WI-059 Линейный курс из 13 уроков](work/WI-059-linear-13-lesson-course.md) | @maks | P0 | — |
+| [WI-060 Компактный APK для пересылки](work/WI-060-compact-android-apk.md) | @maks | P1 | — |
+| [WI-061 Объединить PR 3 с итоговым Android-курсом](work/WI-061-merge-pr3-unified-course.md) | @maks | P0 | — |
+| [WI-054 Экономный интерактивный просмотр Android](work/WI-054-low-load-android-preview.md) | @maks | P0 | — |
 | [WI-031 Сопоставление двумя столбцами карточек](work/WI-031-matching-cards.md) | @maks | P1 | — |
 | [WI-033 Компоновка первого multiple choice](work/WI-033-ratios-cosine-choice-layout.md) | @maks | P1 | — |
 
@@ -23,6 +27,19 @@
 
 | Work | Owner | Priority | Blocker |
 |---|---|---|---|
+| [WI-057 Концепты первых трёх уроков в Android](work/archive/2026/WI-057-android-concept-lessons.md) | @maks | P0 | — |
+| [WI-058 Язык ответа Tutor для смешанных вопросов](work/archive/2026/WI-058-tutor-reply-language.md) | @maks | P1 | — |
+| [WI-056 Книжечки перед первыми тремя уроками на карте](work/archive/2026/WI-056-concept-book-map-nodes.md) | @maks | P0 | — |
+| [WI-055 Плавная карта и аватары на слабых Android-устройствах](work/archive/2026/WI-055-android-rendering-performance.md) | @maks | P0 | — |
+| [WI-053 Профиль и редактор аватара в Compose](work/archive/2026/WI-053-profile-avatar-compose.md) | @maks | P0 | — |
+| [WI-052 Просторная лента концептов и верная обратная связь](work/archive/2026/WI-052-concept-lab-feedback-layout.md) | @maks | P0 | — |
+| [WI-051 Вертикальные концепты и задания в стиле Android](work/archive/2026/WI-051-vertical-concepts-android-style.md) | @maks | P0 | — |
+| [WI-050 Концепты первых трёх уроков и универсальные прототипы](work/archive/2026/WI-050-first-three-concepts.md) | @maks | P0 | — |
+| [WI-049 Концепт урока и новые задания на локальной странице](work/archive/2026/WI-049-concept-lesson-prototypes.md) | @maks | P0 | — |
+| [WI-048 Краткий ответ Tutor и проверка relay](work/archive/2026/WI-048-tutor-answer-and-relay-review.md) | @maks | P0 | — |
+| [WI-045 Надёжная отправка вопросов онлайн Tutor](work/archive/2026/WI-045-reliable-online-tutor.md) | @maks | P0 | — |
+| [WI-047 Фильтр вопросов Tutor по математике](work/archive/2026/WI-047-math-only-tutor-requests.md) | @maks | P0 | — |
+| [WI-046 Первые три урока и настоящие повторения](work/archive/2026/WI-046-first-three-lessons-and-reviews.md) | @maks | P0 | — |
 | [WI-044 Визуальная часть, source урока, шаблоны для ИИ](work/archive/2026/WI-044-lesson-visual-rule-source.md) | @maks | P1 | — |
 | [WI-043 3D-карта этапов в Android](work/archive/2026/WI-043-android-map-3d-stages.md) | @maks | P1 | — |
 | [WI-042 Возврат 3D с круглыми уровнями](work/archive/2026/WI-042-local-map-3d-round-levels.md) | @maks | P1 | — |

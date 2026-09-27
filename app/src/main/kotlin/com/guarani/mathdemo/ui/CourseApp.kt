@@ -50,6 +50,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -87,6 +88,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.Dp
@@ -116,6 +118,11 @@ import com.guarani.mathdemo.progress.ExerciseResult
 import com.guarani.mathdemo.progress.ProgressRepository
 import com.guarani.mathdemo.progress.ProgressState
 import com.guarani.mathdemo.progress.ProgressSnapshot
+import com.guarani.mathdemo.tutor.OnlineTutor
+import com.guarani.mathdemo.tutor.PendingTutorQuestion
+import com.guarani.mathdemo.tutor.TutorConnection
+import com.guarani.mathdemo.tutor.TutorHttpException
+import com.guarani.mathdemo.tutor.TutorOutbox
 import com.guarani.mathdemo.course.helpSteps
 import kotlin.math.max
 import kotlin.math.min
@@ -125,6 +132,10 @@ import kotlin.math.sin
 import kotlin.math.PI
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.isActive
+import java.io.IOException
 import java.math.BigDecimal
 
 // @spec spec://modules/learning/FEAT-010-learning-demo#flow
@@ -144,6 +155,7 @@ fun CourseApp(
     val progress = (progressState as? ProgressState.Ready)?.snapshot
     val nav = rememberNavController()
     val scope = rememberCoroutineScope()
+    val catalog = remember(context) { AvatarCatalog(context) }
     fun selectTab(route: String) {
         nav.navigate(route) {
             popUpTo(nav.graph.findStartDestination().id) { saveState = true }
@@ -157,6 +169,25 @@ fun CourseApp(
         return
     }
 
+    fun startExercises(lesson: Lesson, replaceBook: Boolean = false) {
+        val firstExercise = progress.currentExerciseId
+            ?.takeIf { progress.currentLessonId == lesson.id && lesson.exercises.any { it.id == progress.currentExerciseId } }
+            ?: lesson.exercises.firstOrNull { progress.results[it.id]?.isTerminal != true }?.id
+            ?: lesson.exercises.first().id
+        scope.launch { repository.saveCursor(lesson.id, firstExercise) }
+        nav.navigate("lesson/${lesson.id}") {
+            if (replaceBook) popUpTo("book/{lessonId}") { inclusive = true }
+        }
+    }
+
+    fun openBook(lesson: Lesson) { nav.navigate("book/${lesson.id}") }
+
+    fun openLesson(lesson: Lesson) {
+        if (!unlockAll && lesson.concept.isNotEmpty() &&
+            lesson.id !in progress.completedBookIds && lesson.id !in progress.completedLessonIds
+        ) openBook(lesson) else startExercises(lesson)
+    }
+
     // Preview mode can jump straight to one exercise.
     LaunchedEffect(startExerciseId) {
         val lesson = course.lessons.firstOrNull { lesson -> lesson.exercises.any { it.id == startExerciseId } } ?: return@LaunchedEffect
@@ -165,6 +196,7 @@ fun CourseApp(
     }
 
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+      CompositionLocalProvider(LocalAvatarLook provides progress.avatar) {
         NavHost(navController = nav, startDestination = "map") {
             composable("map") {
                 CourseMapScreen(
@@ -175,14 +207,8 @@ fun CourseApp(
                     onMap = { scope.launch { nav.popBackStack("map", inclusive = false) } },
                     onTutor = { selectTab("tutor") },
                     onProfile = { selectTab("profile") },
-                    onOpen = { lesson ->
-                        val firstExercise = progress.currentExerciseId
-                            ?.takeIf { progress.currentLessonId == lesson.id && lesson.exercises.any { it.id == progress.currentExerciseId } }
-                            ?: lesson.exercises.firstOrNull { progress.results[it.id]?.isTerminal != true }?.id
-                            ?: lesson.exercises.first().id
-                        scope.launch { repository.saveCursor(lesson.id, firstExercise) }
-                        nav.navigate("lesson/${lesson.id}")
-                    },
+                    onOpen = ::openLesson,
+                    onOpenBook = ::openBook,
                 )
             }
             composable("tutor") {
@@ -195,19 +221,41 @@ fun CourseApp(
                 )
             }
             composable("profile") {
-                val exercises = course.lessons.flatMap { it.exercises }
-                val answered = exercises.count { progress.results[it.id]?.isTerminal == true }
-                val correct = exercises.count { progress.results[it.id]?.correct == true }
-                val mastery = if (answered == 0) 0 else correct * 100 / answered
-                ProfileScreen(
+                NewProfileScreen(
                     course = course,
                     progress = progress,
-                    mastery = mastery,
-                    selectedTab = "profile",
+                    catalog = catalog,
+                    onOpen = ::openLesson,
+                    onAvatar = { nav.navigate("avatar") },
                     onMap = { selectTab("map") },
                     onTutor = { selectTab("tutor") },
                     onProfile = { selectTab("profile") },
                 )
+            }
+            composable("avatar") {
+                AvatarEditorScreen(progress.avatar, progress, course, catalog,
+                    onBack = { nav.popBackStack() },
+                    onSave = { look -> scope.launch { repository.saveAvatar(look); nav.popBackStack() } })
+            }
+            composable(
+                route = "book/{lessonId}",
+                arguments = listOf(navArgument("lessonId") { type = NavType.StringType }),
+            ) { entry ->
+                val lesson = course.lessons.firstOrNull { it.id == entry.arguments?.getString("lessonId") }
+                    ?: return@composable
+                val finishBook: () -> Unit = {
+                    scope.launch {
+                        repository.completeBook(lesson.id)
+                        startExercises(lesson, replaceBook = true)
+                    }
+                }
+                if (lesson.concept.isNotEmpty()) {
+                    ConceptScreen(lesson, spanishLessons[lesson.id], progress.bookReveal[lesson.id] ?: 0,
+                        lesson.id in progress.completedBookIds || lesson.id in progress.completedLessonIds,
+                        onBack = { nav.popBackStack() },
+                        onReveal = { index -> scope.launch { repository.saveBookReveal(lesson.id, index) } },
+                        onFinish = finishBook)
+                } else BookScreen(lesson, spanishLessons[lesson.id], onBack = { nav.popBackStack() }, onContinue = finishBook)
             }
             composable(
                 route = "lesson/{lessonId}",
@@ -245,6 +293,7 @@ fun CourseApp(
                 }
             }
         }
+      }
     }
 }
 
@@ -259,109 +308,45 @@ private fun CourseMapScreen(
     onTutor: () -> Unit,
     onProfile: () -> Unit,
     onOpen: (Lesson) -> Unit,
+    onOpenBook: (Lesson) -> Unit,
 ) {
-    CourseMap3DScreen(course, progress, onOpen, unlockAll) {
+    CourseMap3DScreen(course, progress, onOpen, onOpenBook, unlockAll) {
         CourseBottomBar(selectedTab = selectedTab, onMap = onMap, onTutor = onTutor, onProfile = onProfile)
     }
 }
 
-// @spec spec://modules/android/PROP-010-android-demo-architecture#navigation
+// @spec spec://modules/learning/FEAT-010-learning-demo#flow
 @Composable
-private fun ProfileScreen(
-    course: Course,
-    progress: ProgressSnapshot,
-    mastery: Int,
-    selectedTab: String,
-    onMap: () -> Unit,
-    onTutor: () -> Unit,
-    onProfile: () -> Unit,
-) {
-    val completion = progress.completedLessonIds.size.toFloat() / course.lessons.size.coerceAtLeast(1)
-    Column(Modifier.fillMaxSize().background(MapBackground).statusBarsPadding().navigationBarsPadding()) {
-        StudyPageHeader("Perfil", "Ñemoarandu oñeñongatu ko dispositivo-pe", "M")
-        Column(
-            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            Surface(
-                Modifier.fillMaxWidth(), shape = RoundedCornerShape(26.dp),
-                color = Color(0xFF173F68), shadowElevation = 5.dp,
-            ) {
-                Row(Modifier.fillMaxWidth().padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(62.dp).clip(CircleShape).background(Color(0xFF3C83B5)), contentAlignment = Alignment.Center) {
-                        Text("M", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
-                    }
-                    Column(Modifier.padding(start = 15.dp)) {
-                        Text("Mba'ekuaa rape", color = Color.White, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold)
-                        Text(course.title, Modifier.padding(top = 3.dp), color = Color(0xFFBBD7EC), style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
+private fun BookScreen(lesson: Lesson, spanishLesson: Lesson?, onBack: () -> Unit, onContinue: () -> Unit) {
+    var spanish by rememberSaveable(lesson.id) { mutableStateOf(false) }
+    val copy = if (spanish) spanishLesson ?: lesson else lesson
+    Column(Modifier.fillMaxSize().background(Color.White).statusBarsPadding()) {
+        ScreenHeader(copy.title, spanish, { spanish = !spanish }, onBack)
+        LinearProgressIndicator(progress = { 1f }, modifier = Modifier.fillMaxWidth().height(4.dp), color = Accent)
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(24.dp)) {
+            Text(if (spanish) "Concepto" else "Ñemyesakã", color = Accent, fontWeight = FontWeight.Bold)
+            Text(copy.objective, Modifier.padding(top = 16.dp), style = MaterialTheme.typography.headlineSmall, color = Ink, fontWeight = FontWeight.Bold)
+            Canvas(Modifier.fillMaxWidth().height(220.dp).padding(vertical = 24.dp).semantics {
+                contentDescription = if (spanish) "Triángulo rectángulo con ángulo de 90 grados" else "Triángulo rectángulo oguerekóva ángulo 90 grado"
+            }) {
+                val a = Offset(size.width * .12f, size.height * .84f)
+                val b = Offset(size.width * .88f, size.height * .84f)
+                val c = Offset(size.width * .88f, size.height * .13f)
+                val stroke = 4.dp.toPx()
+                drawLine(Accent, a, b, stroke, cap = StrokeCap.Round)
+                drawLine(Accent, b, c, stroke, cap = StrokeCap.Round)
+                drawLine(Color(0xFFEEA44B), a, c, stroke, cap = StrokeCap.Round)
+                val m = 18.dp.toPx()
+                drawLine(Color(0xFFEEA44B), Offset(b.x - m, b.y), Offset(b.x - m, b.y - m), 3.dp.toPx())
+                drawLine(Color(0xFFEEA44B), Offset(b.x - m, b.y - m), Offset(b.x, b.y - m), 3.dp.toPx())
             }
-            Surface(
-                Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp), color = Color.White,
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD7E6F1)),
-            ) {
-                Row(
-                    Modifier.fillMaxWidth().padding(vertical = 18.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                ) {
-                    StatBlock("${progress.xp}", "XP", "Oñegana")
-                    StatBlock("${progress.completedLessonIds.size}/${course.lessons.size}", "Mbo'epy", "Oñemohu'ã")
-                    StatBlock("$mastery%", "Mba'ekuaa", "Jehechajey")
-                }
-            }
-            Surface(
-                Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp), color = Color.White,
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD7E6F1)),
-            ) {
-                Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("${course.title}", Modifier.weight(1f), color = Ink, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                        Text("${progress.completedLessonIds.size}/${course.lessons.size}", color = Accent, fontWeight = FontWeight.ExtraBold)
-                    }
-                    LinearProgressIndicator(
-                        progress = { completion.coerceIn(0f, 1f) },
-                        Modifier.fillMaxWidth().height(7.dp).clip(CircleShape),
-                        color = Color(0xFF48B9DF), trackColor = Color(0xFFE4EEF5),
-                    )
-                    Text("${mastery}% · Mba'ekuaa", color = Muted, style = MaterialTheme.typography.bodySmall)
-                }
-            }
-            Text("Mbo'epykuéra", color = Ink, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            course.lessons.forEachIndexed { index, lesson ->
-                val completed = lesson.id in progress.completedLessonIds
-                val available = index == 0 || course.lessons.getOrNull(index - 1)?.id in progress.completedLessonIds
-                val current = progress.currentLessonId == lesson.id
-                val itemColor = when {
-                    completed -> Color(0xFF228477)
-                    current -> Color(0xFF2D89C2)
-                    available -> Accent
-                    else -> Color(0xFF9AABBA)
-                }
-                val itemStatus = when {
-                    completed -> "Oñemohu'ãma"
-                    current -> "Ejesegi ko'ápe"
-                    available -> "Eñepyrũ"
-                    else -> "Oñemboty"
-                }
-                Surface(
-                    Modifier.fillMaxWidth(), shape = RoundedCornerShape(17.dp), color = Color.White,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFDCE8F0)),
-                ) {
-                    Row(Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.size(34.dp).clip(CircleShape).background(itemColor.copy(alpha = .12f)), contentAlignment = Alignment.Center) {
-                            Text(if (completed) "✓" else "${index + 1}", color = itemColor, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.ExtraBold)
-                        }
-                        Column(Modifier.weight(1f).padding(start = 11.dp)) {
-                            Text(lesson.title, color = Ink, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, maxLines = 1)
-                            Text(itemStatus, color = Muted, style = MaterialTheme.typography.labelSmall)
-                        }
-                        Text("›", color = itemColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                    }
-                }
+            copy.theory.forEach { block ->
+                Text(block.body, Modifier.padding(bottom = 20.dp), style = MaterialTheme.typography.bodyLarge, color = Ink)
             }
         }
-        CourseBottomBar(selectedTab, onMap, onTutor, onProfile)
+        Box(Modifier.fillMaxWidth().background(Color.White).navigationBarsPadding().padding(16.dp)) {
+            PrimaryAction(if (spanish) "Ir a los ejercicios" else "Tembiaporãme", onContinue)
+        }
     }
 }
 
@@ -374,25 +359,150 @@ private fun TutorScreen(
     onTutor: () -> Unit,
     onProfile: () -> Unit,
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val outbox = remember(context) { TutorOutbox(context) }
+    val client = remember { OnlineTutor() }
+    var connection by remember { mutableStateOf(outbox.connection()) }
+    var endpointDraft by rememberSaveable { mutableStateOf(connection.url) }
+    var tokenDraft by rememberSaveable { mutableStateOf(connection.token) }
+    var configuring by rememberSaveable { mutableStateOf(false) }
+    var pending by remember { mutableStateOf(outbox.pending()) }
+    var statusText by remember { mutableStateOf("") }
     val messages = remember {
         mutableStateListOf(
             TutorMessage("Maitei. Mba'épepa ikatu roipytyvõ ko mbo'epy rehe?", fromTutor = true),
             TutorMessage("Ikatu ñañe'ẽ seno, coseno ha ángulo recto rehe.", fromTutor = true),
-        )
+        ).apply {
+            outbox.pending()?.let { last ->
+                add(TutorMessage(last.question, fromTutor = false))
+                last.answer?.let { add(TutorMessage(it, fromTutor = true)) }
+            }
+        }
     }
     val chatScroll = rememberScrollState()
     var draft by rememberSaveable { mutableStateOf("") }
     fun send(text: String) {
         val message = text.trim()
-        if (message.isEmpty()) return
+        if (message.isEmpty() || !connection.configured || pending?.answer == null && pending != null) return
+        val item = PendingTutorQuestion(question = message)
+        if (!outbox.savePending(item)) {
+            statusText = "No se pudo guardar la pregunta. Intenta de nuevo."
+            return
+        }
+        pending = item
         messages += TutorMessage(message, fromTutor = false)
-        messages += TutorMessage(demoTutorReply(message), fromTutor = true)
+        statusText = "Pregunta guardada. Enviando…"
         draft = ""
+    }
+    // @spec spec://modules/android/PROP-010-android-demo-architecture#online
+    LaunchedEffect(pending?.id, connection) {
+        var current = pending?.takeIf { it.answer == null } ?: return@LaunchedEffect
+        if (!connection.configured) return@LaunchedEffect
+        var waitMs = 3_000L
+        while (currentCoroutineContext().isActive) {
+            try {
+                val result = if (current.accepted) client.status(connection, current.id)
+                    else client.submit(connection, current)
+                if (!current.accepted) {
+                    current = current.copy(accepted = true)
+                    outbox.savePending(current)
+                    pending = current
+                }
+                when (result.status) {
+                    "completed" -> {
+                        val answer = result.answer.orEmpty()
+                        if (answer.isBlank()) {
+                            statusText = "El servidor no devolvió una respuesta. Puedes reintentar."
+                            break
+                        }
+                        val done = current.copy(answer = answer)
+                        outbox.savePending(done)
+                        pending = done
+                        messages += TutorMessage(answer, fromTutor = true)
+                        statusText = "Respuesta Online"
+                        break
+                    }
+                    "error", "not_found", "expired" -> {
+                        statusText = "No se pudo responder (${result.error ?: result.status}). Puedes reintentar."
+                        break
+                    }
+                    "queued", "submitting", "in_progress" -> {
+                        statusText = "Esperando respuesta Online…"
+                        delay(4_000)
+                    }
+                    else -> {
+                        statusText = "Respuesta del servidor no reconocida. Puedes reintentar."
+                        break
+                    }
+                }
+                waitMs = 3_000L
+            } catch (error: TutorHttpException) {
+                if (error.code == 422 && error.reason == "not_math") {
+                    draft = current.question
+                    outbox.clearPending()
+                    pending = null
+                    statusText = "Esta pregunta no se relaciona con las matemáticas. Reformúlala."
+                    break
+                }
+                if (error.code == 401 || error.code == 400 || error.code == 409 || error.code == 429 || error.code == 503) {
+                    statusText = when (error.code) {
+                        401 -> "Token de acceso incorrecto. Configura la conexión."
+                        429 -> "Se alcanzó el límite mensual de preguntas. Intenta el próximo mes."
+                        else -> "Error del servidor (${error.code}). Revisa la configuración."
+                    }
+                    break
+                }
+                statusText = "Conexión inestable. Reintentando…"
+                delay(waitMs)
+                waitMs = (waitMs * 2).coerceAtMost(30_000L)
+            } catch (_: IOException) {
+                statusText = "Sin conexión. La pregunta está guardada; se reintentará."
+                delay(waitMs)
+                waitMs = (waitMs * 2).coerceAtMost(30_000L)
+            }
+        }
     }
     LaunchedEffect(messages.size) { chatScroll.animateScrollTo(chatScroll.maxValue) }
 
     Column(Modifier.fillMaxSize().background(Color(0xFFF3F8FC)).statusBarsPadding().navigationBarsPadding().imePadding()) {
-        StudyPageHeader("Tutor", courseTitle, "T", status = "DEMO · LOCAL")
+        StudyPageHeader("Tutor", courseTitle, "T", status = if (connection.configured) "ONLINE" else "SIN CONFIGURAR")
+        Surface(
+            Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(18.dp), color = Color.White,
+        ) {
+            Column(Modifier.padding(horizontal = 14.dp, vertical = 8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        if (connection.configured) "Las preguntas se envían por internet al proveedor de IA."
+                        else "Configura tu servidor para preguntar a la IA.",
+                        Modifier.weight(1f), color = Muted, style = MaterialTheme.typography.labelSmall,
+                    )
+                    TextButton(onClick = { configuring = !configuring }) { Text("Configurar") }
+                }
+                if (configuring) {
+                    OutlinedTextField(
+                        value = endpointDraft, onValueChange = { endpointDraft = it },
+                        modifier = Modifier.fillMaxWidth(), singleLine = true,
+                        label = { Text("URL de Cloudflare Worker") },
+                    )
+                    OutlinedTextField(
+                        value = tokenDraft, onValueChange = { tokenDraft = it },
+                        modifier = Modifier.fillMaxWidth(), singleLine = true,
+                        visualTransformation = PasswordVisualTransformation(),
+                        label = { Text("Token de acceso") },
+                    )
+                    TextButton(onClick = {
+                        val next = TutorConnection(endpointDraft.trim(), tokenDraft.trim())
+                        if (!next.configured) statusText = "Introduce una URL HTTPS y un token."
+                        else if (outbox.saveConnection(next)) {
+                            connection = next
+                            statusText = "Conexión guardada."
+                            configuring = false
+                        } else statusText = "No se pudo guardar la conexión."
+                    }) { Text("Guardar") }
+                }
+            }
+        }
         OfflineModelCard()
         Column(
             Modifier.weight(1f).fillMaxWidth().padding(horizontal = 13.dp, vertical = 8.dp)
@@ -408,10 +518,24 @@ private fun TutorScreen(
         ) {
             listOf("Seno 30°", "Coseno 30°", "Ángulo recto").forEach { topic ->
                 Surface(
-                    Modifier.clickable { send(topic) }, shape = RoundedCornerShape(18.dp), color = Color.White,
+                    Modifier.clickable(enabled = connection.configured && (pending == null || pending?.answer != null)) { send(topic) }, shape = RoundedCornerShape(18.dp), color = Color.White,
                     border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD4E3EF)),
                 ) {
                     Text(topic, Modifier.padding(horizontal = 13.dp, vertical = 9.dp), color = Ink, style = MaterialTheme.typography.labelLarge)
+                }
+            }
+        }
+        if (statusText.isNotBlank()) {
+            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(statusText, Modifier.weight(1f), color = Muted, style = MaterialTheme.typography.labelSmall)
+                if (pending != null && pending?.answer == null && (statusText.contains("reintentar") || statusText.contains("Revisa"))) {
+                    TextButton(onClick = {
+                        val retry = PendingTutorQuestion(question = pending!!.question)
+                        if (outbox.savePending(retry)) {
+                            pending = retry
+                            statusText = "Enviando de nuevo…"
+                        }
+                    }) { Text("Reintentar") }
                 }
             }
         }
@@ -430,7 +554,7 @@ private fun TutorScreen(
                 keyboardActions = KeyboardActions(onSend = { send(draft) }),
             )
             Button(
-                onClick = { send(draft) }, enabled = draft.isNotBlank(),
+                onClick = { send(draft) }, enabled = draft.isNotBlank() && connection.configured && (pending == null || pending?.answer != null),
                 modifier = Modifier.padding(start = 8.dp).size(52.dp),
                 shape = CircleShape, contentPadding = PaddingValues(0.dp),
             ) { Text("↑", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) }
@@ -495,19 +619,6 @@ private fun TutorBubble(message: TutorMessage) {
     }
 }
 
-private fun demoTutorReply(question: String): String {
-    val query = question.lowercase()
-    return when {
-        "cos" in query || "√3" in query || "adyacente" in query ->
-            "Coseno ha'e lado adyacente ÷ hipotenusa. 30°-pe: √3 ÷ 2 = √3/2."
-        "seno" in query || "sen" in query || "sin" in query || "opuesto" in query ->
-            "Seno ha'e lado opuesto ÷ hipotenusa. 30°-pe: 1 ÷ 2 = 1/2."
-        "90" in query || "recto" in query ->
-            "Ángulo recto oguereko 90°. Pe cuadrado ohechauka oñojuha mokõi lado."
-        else ->
-            "Ko demo ikatu omyesakã seno, coseno ha ángulo recto. Eporandu peteĩva ko'ã tema rehe."
-    }
-}
 
 @Composable
 private fun StudyPageHeader(title: String, subtitle: String, mark: String, status: String? = null) {
@@ -597,6 +708,7 @@ private fun LessonScreen(
             spanish = spanish,
             index = exerciseIndex,
             total = displayedLesson.exercises.size,
+            completedCount = displayedLesson.exercises.count { progress.results[it.id]?.isTerminal == true },
             progress = progress.results[exercise.id],
             repository = repository,
             onNext = {
@@ -825,7 +937,7 @@ private fun lessonCopy(spanish: Boolean) = if (spanish) LessonCopy(
 )
 
 @Composable
-private fun ScreenHeader(
+internal fun ScreenHeader(
     title: String,
     spanish: Boolean,
     onToggleLanguage: () -> Unit,
@@ -882,6 +994,7 @@ private fun ExercisePanel(
     spanish: Boolean,
     index: Int,
     total: Int,
+    completedCount: Int,
     progress: ExerciseResult?,
     repository: ProgressRepository,
     onNext: () -> Unit,
@@ -1013,7 +1126,7 @@ private fun ExercisePanel(
         ) {
             Box(Modifier.fillMaxWidth().padding(top = 16.dp), contentAlignment = Alignment.Center) {
                 LinearProgressIndicator(
-                    progress = { (index + 1f) / total.coerceAtLeast(1) },
+                    progress = { completedCount.toFloat() / total.coerceAtLeast(1) },
                     Modifier.fillMaxWidth(.78f).widthIn(max = 300.dp).height(7.dp),
                     color = Color(0xFF43B9E8),
                     trackColor = Color(0xFFE2ECF9),
@@ -1279,7 +1392,22 @@ private fun TriangleContextDiagram(copy: LessonCopy, tall: Boolean = false, diag
             canvas.nativeCanvas.drawText(diagram?.base ?: "4", (a.x + b.x) / 2f, a.y + 27.dp.toPx(), paint)
             paint.color = Color(0xFFB36A14).toArgb()
             paint.typeface = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
-            canvas.nativeCanvas.drawText(diagram?.angleLabel ?: "α", a.x + base * (if (angle >= 55) .38f else .215f), a.y - scale * .18f, paint)
+            // The angle label sits on the bisector, far enough that its box clears both sides and the arc;
+            // when the triangle is too thin for that, it moves outside, left of the vertex.
+            val label = diagram?.angleLabel ?: "α"
+            val labelWidth = paint.measureText(label)
+            val labelHeight = paint.textSize * .72f
+            val clearance = kotlin.math.hypot(labelWidth, labelHeight) / 2f + line / 2f + 3.dp.toPx()
+            val half = (angle * PI / 360).toFloat()
+            val hypotenuse = kotlin.math.hypot(base, altitude)
+            val inradius = (base + altitude - hypotenuse) / 2f
+            val center = if (clearance <= inradius * .95f) {
+                val distance = max(clearance / sin(half), scale * .45f + clearance)
+                Offset(a.x + distance * cos(half), a.y - distance * sin(half))
+            } else {
+                Offset(a.x - labelWidth / 2f - 8.dp.toPx(), a.y - labelHeight / 2f)
+            }
+            canvas.nativeCanvas.drawText(label, center.x, center.y + labelHeight / 2f, paint)
         }
     }
 }
@@ -1850,7 +1978,6 @@ private fun MatchingContent(
         }
     }
 
-    val aspect = exercise.leftItems.size.coerceIn(1, 3) / 3f
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         if (solutionViewed) MatchingSolutionReview(copy)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top) {
@@ -1871,7 +1998,6 @@ private fun MatchingContent(
                         paired = paired,
                         active = active,
                         enabled = !completed,
-                        aspect = aspect,
                         onClick = { chooseLeft(left.id) },
                     )
                 }
@@ -1894,7 +2020,6 @@ private fun MatchingContent(
                         paired = pairNumber != null,
                         active = active,
                         enabled = !completed,
-                        aspect = aspect,
                         onClick = { chooseRight(right.id) },
                     )
                 }
@@ -2027,8 +2152,6 @@ private fun MatchingPairCard(
     active: Boolean,
     enabled: Boolean,
     relationId: String? = null,
-    // Width / height: the board keeps the approved three-row height whatever the number of pairs.
-    aspect: Float = 1f,
     onClick: () -> Unit,
 ) {
     val shape = RoundedCornerShape(18.dp)
@@ -2039,7 +2162,7 @@ private fun MatchingPairCard(
     }
     val edge = if (active) Accent else if (paired) Color(0xFF96B8D2) else Color(0xFFD4E0EB)
     Surface(
-        modifier = Modifier.fillMaxWidth().aspectRatio(aspect)
+        modifier = Modifier.fillMaxWidth().aspectRatio(1f)
             .clickable(enabled = enabled, onClick = onClick)
             .clearAndSetSemantics {
                 contentDescription = description
@@ -2215,7 +2338,7 @@ private fun RecoveryScreen(loading: Boolean) {
 
 // @spec spec://modules/learning/FEAT-010-learning-demo#exercises
 @Composable
-private fun PrimaryAction(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
+internal fun PrimaryAction(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
     Button(
         onClick = onClick,
         enabled = enabled,
@@ -2237,8 +2360,8 @@ private fun PrimaryAction(text: String, onClick: () -> Unit, modifier: Modifier 
     ) { Text(text, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.ExtraBold) }
 }
 
-private val Accent = Color(0xFF2865C7)
+internal val Accent = Color(0xFF2865C7)
 private val Success = Color(0xFF237A4B)
-private val Ink = Color(0xFF1E2B43)
+internal val Ink = Color(0xFF1E2B43)
 private val Muted = Color(0xFF66728A)
 private val MapBackground = Color(0xFFEAF2F7)

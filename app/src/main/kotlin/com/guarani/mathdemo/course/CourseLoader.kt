@@ -9,6 +9,7 @@ const val LESSON_MADE_WITH = "Dulce Duro"
 const val LESSON_BASED_ON = "MEC Paraguay"
 
 object CourseLoader {
+    private val conceptVisuals = setOf("triangle_vertices", "right_angle", "compare_figures", "catheti", "hypotenuse", "rotated_180", "labeled_sides", "ramp", "ramp_right", "ramp_hypotenuse", "known_sides", "unknown_side", "other_numbers", "angle_arc", "similar_triangles", "sine_ratio", "cosine_ratio", "tangent_ratio", "ratio_choice", "tree_shadow")
     private val visuals = mapOf(
         "multiple_choice" to setOf("triangle_choice", "angle_builder", "standard_choice"),
         "input" to setOf("fraction_triangle", "straight_angle", "standard_number", "standard_fraction"),
@@ -49,6 +50,28 @@ object CourseLoader {
                     require(source.requiredString("basedOn") == LESSON_BASED_ON) { "source.basedOn must be $LESSON_BASED_ON" }
                     val xp = lesson.getInt("xpReward")
                     require(xp >= 0) { "xpReward must not be negative" }
+                    // @spec spec://modules/learning/PROP-011-course-json-format#concept
+                    val concept = if (lesson.has("concept")) at("concept") {
+                        val blocks = lesson.getJSONObject("concept").getJSONArray("blocks").objects().mapIndexed { blockIndex, block ->
+                            at("blocks[$blockIndex]") {
+                                val visual = block.requiredString("visual")
+                                require(visual in conceptVisuals) { "unsupported visual $visual" }
+                                val check = if (block.has("check")) at("check") {
+                                    val data = block.getJSONObject("check")
+                                    val options = data.getJSONArray("options").objects().map { option -> Option(option.requiredString("id"), option.localized("text", language)) }
+                                    require(options.size >= 2 && options.map { it.id }.distinct().size == options.size) { "options must have unique IDs" }
+                                    val answer = data.requiredString("correctOptionId")
+                                    require(options.any { it.id == answer }) { "correctOptionId does not exist" }
+                                    val mode = data.optString("mode")
+                                    require(mode.isEmpty() || (mode == "figure" && visual == "compare_figures")) { "invalid check mode" }
+                                    ConceptCheck(options, answer, data.localized("good", language), data.localized("bad", language), mode == "figure")
+                                } else null
+                                ConceptBlock(block.requiredString("id"), block.localized("title", language), block.localized("text", language), visual, check)
+                            }
+                        }
+                        require(blocks.isNotEmpty() && blocks.map { it.id }.distinct().size == blocks.size) { "blocks must have unique IDs" }
+                        blocks
+                    } else emptyList()
                     Lesson(
                         lesson.requiredString("id"),
                         lesson.localized("title", language),
@@ -56,10 +79,11 @@ object CourseLoader {
                         theory,
                         exercises,
                         xp,
+                        concept,
                     )
                 }
             }
-            require(lessons.isNotEmpty() && lessons.size <= 10) { "lessons must contain 1 to 10 items" }
+            require(lessons.isNotEmpty() && lessons.size <= 26) { "lessons must contain 1 to 26 items" }
             require(lessons.map { it.id }.distinct().size == lessons.size) { "duplicate lesson id" }
             val exerciseIds = lessons.flatMap { lesson -> lesson.exercises.map(Exercise::id) }
             require(exerciseIds.distinct().size == exerciseIds.size) { "duplicate exercise id" }
@@ -107,7 +131,8 @@ object CourseLoader {
                     if (visual == "angle_pairs") require(diagram in setOf("acute", "right", "straight")) { "invalid diagram" }
                     Option(option.requiredString("id"), option.localized("text", locale), diagram)
                 }
-                require(left.isNotEmpty() && left.size == right.size) { "matching columns must have equal nonzero size" }
+                // @spec spec://modules/learning/PROP-011-course-json-format#visual-rule
+                require(left.size == 3 && right.size == 3) { "matching has exactly three cards per column" }
                 require(left.map { it.id }.distinct().size == left.size) { "duplicate leftItems id" }
                 require(right.map { it.id }.distinct().size == right.size) { "duplicate rightItems id" }
                 val pairList = json.getJSONArray("pairs").objects().map { it.requiredString("leftId") to it.requiredString("rightId") }

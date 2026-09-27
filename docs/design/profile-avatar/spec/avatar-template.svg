@@ -1,0 +1,186 @@
+<!--
+  Шаблон аватара GuaraniMath (viewBox 0 0 200 200). Источник истины для рисунка персонажа.
+  {{имя}}  — значение, вычисляемое из AvatarLook функцией headVals (см. avatar-vals.js).
+  <sc-if value="{{флаг}}"> ... </sc-if> — слой рисуется, только если флаг true.
+  Слои рисуются строго в порядке файла (сверху вниз = снизу вверх по z).
+  Итоговая картинка всегда обрезается кругом r=100 (в макете — контейнер с border-radius 50% и overflow hidden).
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" xmlns:c2pa="http://c2pa.org/manifest"><metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTpkNmIxZmYxMi1jZDI4LTRlNjMtODYxYS05NDkwNmRiM2VmMTUAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaNf/r4vr6NatHjO+HWVFt0UAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDo2YTc2MzNmZS1jYTRhLTQ3NWEtODA0Ni01ZDQzYThiZWQ1OWRscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoqiwYaO/5k7heEFKUcnI/hgAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggogSHucurA5Q7S+7pmUAVt/8nR7UM5CA1LGpLxOZEjp6kZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaDFdQJQetzEDggRFgSMPNk8AAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIMkw2UvK3/boisCKLWzseC8F4b0k177LTY+tyurq5w7CZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GQMlZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmQ2YjFmZjEyLWNkMjgtNGU2My04NjFhLTk0OTA2ZGIzZWYxNS9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOmNmNzNhNWQ3LTMxYmItNGRiNC1iN2NjLTFiY2E3NTcwMzliNHJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCCiBIe5y6sDlDtL7umZQBW3/ydHtQzkIDUsakvE5kSOnqJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggXe6WT2nWgx6/vYdL+Ik02pnNKk4KW0zClIyKhuyVB9CiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggbkoeHpaaMLHBFtWQmwodiRLqKkoKQuwkiagcjEQc0DR0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQMyxgLfrT7JSskxDfximKBC7ol7pddcDzHArtuVRxjDMnXkM/qs8/x4WO7103rXJGs4717abg7vAFVmTIxWSasM=</c2pa:manifest></metadata>
+
+
+<sc-if value="{{hasBg}}" hint-placeholder-val="{{ true }}">
+<circle cx="100" cy="100" r="100" fill="{{bg}}"></circle>
+<circle cx="100" cy="92" r="74" fill="#ffffff" opacity="0.28"></circle>
+<circle cx="36" cy="46" r="3" fill="#ffffff" opacity="0.7"></circle>
+<circle cx="166" cy="60" r="2.4" fill="#ffffff" opacity="0.7"></circle>
+<circle cx="158" cy="140" r="3" fill="#ffffff" opacity="0.6"></circle>
+</sc-if>
+
+<sc-if value="{{hLong}}" hint-placeholder-val="{{ false }}">
+<path d="M52 92 C48 128 50 150 58 166 L142 166 C150 150 152 128 148 92 Z" fill="{{hair}}"></path>
+<path d="M52 92 C48 128 50 150 58 166 L70 166 C62 146 62 120 64 96 Z" fill="#000000" opacity="0.12"></path>
+</sc-if>
+
+<rect x="86" y="112" width="28" height="40" rx="8" fill="{{skin}}"></rect>
+<path d="M86 124 C94 132 106 132 114 124 L114 112 L86 112 Z" fill="{{skinShade}}" opacity="0.7"></path>
+
+<path d="M26 206 C26 164 54 144 100 144 C146 144 174 164 174 206 Z" fill="{{shirt}}"></path>
+<path d="M118 146 C150 150 172 168 174 206 L136 206 C136 180 130 160 118 146 Z" fill="#000000" opacity="0.1"></path>
+<sc-if value="{{oTee}}" hint-placeholder-val="{{ true }}">
+<rect x="86" y="112" width="28" height="38" rx="10" fill="{{skin}}"></rect>
+<path d="M86 121 C94 129 106 129 114 121 L114 112 L86 112 Z" fill="#000000" opacity="0.09"></path>
+<path d="M82 146 C88 158 112 158 118 146" fill="none" stroke="{{shirtShade}}" stroke-width="6" stroke-linecap="round"></path>
+</sc-if>
+<sc-if value="{{oHoodie}}" hint-placeholder-val="{{ false }}">
+<path d="M62 162 C60 136 80 128 100 128 C120 128 140 136 138 162 C128 148 72 148 62 162 Z" fill="{{shirtShade}}"></path>
+<path d="M84 150 L82 176 M116 150 L118 176" stroke="#ffffff" stroke-width="3" stroke-linecap="round"></path>
+<circle cx="82" cy="178" r="3" fill="#ffffff"></circle>
+<circle cx="118" cy="178" r="3" fill="#ffffff"></circle>
+<path d="M92 196 L108 180 L108 196 Z" fill="#ffffff" opacity="0.9"></path>
+</sc-if>
+
+<ellipse cx="59" cy="95" rx="9" ry="11" fill="{{skin}}"></ellipse>
+<ellipse cx="141" cy="95" rx="9" ry="11" fill="{{skin}}"></ellipse>
+<ellipse cx="60" cy="96" rx="4" ry="6" fill="{{skinShade}}"></ellipse>
+<ellipse cx="140" cy="96" rx="4" ry="6" fill="{{skinShade}}"></ellipse>
+<ellipse cx="100" cy="90" rx="42" ry="45" fill="{{skin}}"></ellipse>
+<path d="M126 58 C146 76 146 112 124 128 C112 136 100 135 100 135 C122 128 136 108 132 82 C130 72 128 64 126 58 Z" fill="{{skinShade}}" opacity="0.45"></path>
+<ellipse cx="75" cy="108" rx="8" ry="5.5" fill="#f58aa8" opacity="0.4"></ellipse>
+<ellipse cx="125" cy="108" rx="8" ry="5.5" fill="#f58aa8" opacity="0.4"></ellipse>
+
+<path d="{{browD}}" fill="none" stroke="{{hairDark}}" stroke-width="4.5" stroke-linecap="round"></path>
+
+<sc-if value="{{eOpen}}" hint-placeholder-val="{{ true }}">
+<ellipse cx="84" cy="92" rx="{{eyeRx}}" ry="{{eyeRy}}" fill="#1d2b4f"></ellipse>
+<ellipse cx="116" cy="92" rx="{{eyeRx}}" ry="{{eyeRy}}" fill="#1d2b4f"></ellipse>
+<circle cx="86.5" cy="89" r="2.2" fill="#ffffff"></circle>
+<circle cx="118.5" cy="89" r="2.2" fill="#ffffff"></circle>
+</sc-if>
+<sc-if value="{{eHappy}}" hint-placeholder-val="{{ false }}">
+<path d="M76 94 Q84 84 92 94 M108 94 Q116 84 124 94" fill="none" stroke="#1d2b4f" stroke-width="4.5" stroke-linecap="round"></path>
+</sc-if>
+<sc-if value="{{eWink}}" hint-placeholder-val="{{ false }}">
+<ellipse cx="84" cy="92" rx="5.5" ry="6.5" fill="#1d2b4f"></ellipse>
+<circle cx="86.5" cy="89" r="2.2" fill="#ffffff"></circle>
+<path d="M108 93 Q116 86 124 93" fill="none" stroke="#1d2b4f" stroke-width="4.5" stroke-linecap="round"></path>
+</sc-if>
+<sc-if value="{{eCool}}" hint-placeholder-val="{{ false }}">
+<ellipse cx="84" cy="92" rx="5.5" ry="6.5" fill="#1d2b4f"></ellipse>
+<ellipse cx="116" cy="92" rx="5.5" ry="6.5" fill="#1d2b4f"></ellipse>
+<circle cx="86.5" cy="89" r="2.2" fill="#ffffff"></circle>
+<circle cx="118.5" cy="89" r="2.2" fill="#ffffff"></circle>
+<path d="M156 40 L159.5 50 L169 53 L159.5 56 L156 66 L152.5 56 L143 53 L152.5 50 Z" fill="#f5c230" stroke="#d69f12" stroke-width="1.5" stroke-linejoin="round"></path>
+<path d="M170 72 L171.8 77 L177 78.5 L171.8 80 L170 85 L168.2 80 L163 78.5 L168.2 77 Z" fill="#f5c230"></path>
+</sc-if>
+<sc-if value="{{eStar}}" hint-placeholder-val="{{ false }}">
+<path d="{{starEyes}}" fill="#f5c230" stroke="#c98d0b" stroke-width="2" stroke-linejoin="round"></path>
+</sc-if>
+
+<path d="M99 99 Q104 104 98 106" fill="none" stroke="{{skinShade}}" stroke-width="3" stroke-linecap="round"></path>
+
+<sc-if value="{{mSmile}}" hint-placeholder-val="{{ true }}">
+<path d="M88 112 Q100 123 112 112" fill="none" stroke="#1d2b4f" stroke-width="4" stroke-linecap="round"></path>
+</sc-if>
+<sc-if value="{{mOpen}}" hint-placeholder-val="{{ false }}">
+<path d="M85 110 Q100 111 115 110 Q113 128 100 128 Q87 128 85 110 Z" fill="#7a2233"></path>
+<path d="M88 111 Q100 112 112 111 L111 115 Q100 116 89 115 Z" fill="#ffffff"></path>
+<path d="M92 123 Q100 117 108 123 Q104 128 100 128 Q96 128 92 123 Z" fill="#f28b9b"></path>
+</sc-if>
+<sc-if value="{{mSmirk}}" hint-placeholder-val="{{ false }}">
+<path d="M89 114 Q103 121 114 109" fill="none" stroke="#1d2b4f" stroke-width="4" stroke-linecap="round"></path>
+</sc-if>
+<sc-if value="{{mO}}" hint-placeholder-val="{{ false }}">
+<ellipse cx="100" cy="116" rx="6.5" ry="8" fill="#7a2233"></ellipse>
+</sc-if>
+
+<sc-if value="{{hBuzz}}" hint-placeholder-val="{{ false }}">
+<path d="M60 84 C60 54 80 45 100 45 C120 45 140 54 140 84 C132 66 118 60 100 60 C82 60 68 66 60 84 Z" fill="{{hair}}" opacity="0.55"></path>
+</sc-if>
+<sc-if value="{{hShort}}" hint-placeholder-val="{{ true }}">
+<path d="M57 92 C52 56 74 40 100 40 C128 40 150 56 143 92 C139 78 132 70 122 64 C110 72 90 74 78 67 C68 72 61 80 57 92 Z" fill="{{hair}}"></path>
+<path d="M80 50 Q100 43 120 50" fill="none" stroke="{{hairHi}}" stroke-width="4" stroke-linecap="round" opacity="0.8"></path>
+</sc-if>
+<sc-if value="{{hCurly}}" hint-placeholder-val="{{ false }}">
+<path d="M58 94 C44 86 46 66 58 62 C54 46 70 36 82 44 C88 30 112 30 118 44 C130 36 146 46 142 62 C154 66 156 86 142 94 C140 80 130 72 120 72 C110 78 90 78 80 72 C70 72 60 80 58 94 Z" fill="{{hair}}"></path>
+<path d="M70 56 q6 -6 12 0 M94 42 q6 -6 12 0 M118 56 q6 -6 12 0" fill="none" stroke="{{hairHi}}" stroke-width="3.5" stroke-linecap="round" opacity="0.8"></path>
+</sc-if>
+<sc-if value="{{hLong}}" hint-placeholder-val="{{ false }}">
+<path d="M56 100 C50 56 74 40 100 40 C126 40 150 56 144 100 C140 82 134 72 126 66 C112 76 86 78 70 70 C64 78 58 88 56 100 Z" fill="{{hair}}"></path>
+<path d="M82 50 Q100 44 118 50" fill="none" stroke="{{hairHi}}" stroke-width="4" stroke-linecap="round" opacity="0.8"></path>
+</sc-if>
+<sc-if value="{{hBun}}" hint-placeholder-val="{{ false }}">
+<circle cx="100" cy="32" r="17" fill="{{hair}}"></circle>
+<path d="M92 24 Q100 19 108 24" fill="none" stroke="{{hairHi}}" stroke-width="3.5" stroke-linecap="round" opacity="0.8"></path>
+<path d="M57 92 C52 56 74 42 100 42 C128 42 150 56 143 92 C140 76 128 64 100 62 C74 64 60 76 57 92 Z" fill="{{hair}}"></path>
+</sc-if>
+
+<sc-if value="{{gRound}}" hint-placeholder-val="{{ false }}">
+<circle cx="84" cy="92" r="13" fill="#ffffff" fill-opacity="0.22" stroke="#1d2b4f" stroke-width="3.5"></circle>
+<circle cx="116" cy="92" r="13" fill="#ffffff" fill-opacity="0.22" stroke="#1d2b4f" stroke-width="3.5"></circle>
+<path d="M97 91 Q100 88 103 91 M71 90 L60 87 M129 90 L140 87" fill="none" stroke="#1d2b4f" stroke-width="3.5" stroke-linecap="round"></path>
+</sc-if>
+<sc-if value="{{gSun}}" hint-placeholder-val="{{ false }}">
+<path d="M68 84 L98 84 L96 96 Q94 104 83 104 Q70 104 68 94 Z M102 84 L132 84 L132 94 Q130 104 117 104 Q106 104 104 96 Z" fill="#1d2b4f"></path>
+<path d="M98 86 L102 86 M68 85 L59 83 M132 85 L141 83" stroke="#1d2b4f" stroke-width="3.5" stroke-linecap="round"></path>
+<path d="M74 89 L80 89 M108 89 L114 89" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.7"></path>
+</sc-if>
+<sc-if value="{{gStar}}" hint-placeholder-val="{{ false }}">
+<path d="{{starLenses}}" fill="#ff8fb5" fill-opacity="0.85" stroke="#d64f86" stroke-width="2.5" stroke-linejoin="round"></path>
+<path d="M98 91 L102 91" stroke="#d64f86" stroke-width="3" stroke-linecap="round"></path>
+</sc-if>
+
+<sc-if value="{{tCap}}" hint-placeholder-val="{{ false }}">
+<path d="M56 72 C54 42 78 30 100 30 C122 30 146 42 144 72 C124 64 76 64 56 72 Z" fill="#e2574c"></path>
+<path d="M100 30 L100 66 M78 36 C74 48 72 58 72 67 M122 36 C126 48 128 58 128 67" fill="none" stroke="#b83b31" stroke-width="2.2"></path>
+<circle cx="100" cy="31" r="4.5" fill="#b83b31"></circle>
+<path d="M56 70 C76 62 124 62 144 70 C152 72 154 80 146 82 C124 74 76 74 54 82 C46 80 48 72 56 70 Z" fill="#c9443a"></path>
+<rect x="87" y="42" width="26" height="17" rx="5" fill="#ffffff"></rect>
+<path d="M92 55 L108 46 L108 55 Z" fill="#2d63d6"></path>
+</sc-if>
+<sc-if value="{{tBeanie}}" hint-placeholder-val="{{ false }}">
+<path d="M58 70 C56 40 78 28 100 28 C122 28 144 40 142 70 Z" fill="#58c0ec"></path>
+<path d="M70 42 L70 66 M85 34 L85 66 M100 30 L100 66 M115 34 L115 66 M130 42 L130 66" stroke="#3aa6d6" stroke-width="2.5"></path>
+<path d="M52 64 Q100 54 148 64 L148 80 Q100 70 52 80 Z" fill="#2f8fc0"></path>
+<path d="M62 64 L62 78 M74 61 L74 75 M86 60 L86 73 M100 59 L100 72 M114 60 L114 73 M126 61 L126 75 M138 64 L138 78" stroke="#277aa6" stroke-width="2.5"></path>
+<circle cx="100" cy="24" r="13" fill="#ffffff"></circle>
+<circle cx="96" cy="20" r="3" fill="#e3eef6"></circle>
+<circle cx="105" cy="27" r="3" fill="#e3eef6"></circle>
+</sc-if>
+<sc-if value="{{tPhones}}" hint-placeholder-val="{{ false }}">
+<path d="M52 94 C50 44 150 44 148 94" fill="none" stroke="#1d2b4f" stroke-width="9" stroke-linecap="round"></path>
+<path d="M52 94 C50 44 150 44 148 94" fill="none" stroke="#3b4d78" stroke-width="3" stroke-linecap="round"></path>
+<rect x="40" y="80" width="22" height="34" rx="10" fill="#f5c230"></rect>
+<rect x="138" y="80" width="22" height="34" rx="10" fill="#f5c230"></rect>
+<rect x="54" y="84" width="10" height="26" rx="5" fill="#1d2b4f"></rect>
+<rect x="136" y="84" width="10" height="26" rx="5" fill="#1d2b4f"></rect>
+</sc-if>
+<sc-if value="{{tPiri}}" hint-placeholder-val="{{ false }}">
+<ellipse cx="100" cy="60" rx="74" ry="15" fill="#e7c270"></ellipse>
+<ellipse cx="100" cy="58" rx="74" ry="14" fill="#f3d995"></ellipse>
+<ellipse cx="100" cy="58" rx="62" ry="10" fill="none" stroke="#dcb866" stroke-width="1.6"></ellipse>
+<ellipse cx="100" cy="58" rx="50" ry="7.5" fill="none" stroke="#dcb866" stroke-width="1.6"></ellipse>
+<path d="M66 58 C64 30 78 20 100 20 C122 20 136 30 134 58 Q100 64 66 58 Z" fill="#f6df9f"></path>
+<path d="M68 44 Q100 38 132 44 M67 32 Q100 26 133 32" fill="none" stroke="#dcb866" stroke-width="1.6"></path>
+<path d="M118 22 C130 26 136 38 134 58 Q126 60 120 60 C124 44 124 32 118 22 Z" fill="#dcb866" opacity="0.45"></path>
+<path d="M66 50 Q100 44 134 50 L134 58 Q100 64 66 58 Z" fill="#5b3a1e"></path>
+<path d="M120 49 L128 42 L130 52 Z" fill="#e2574c"></path>
+</sc-if>
+<sc-if value="{{tGrad}}" hint-placeholder-val="{{ false }}">
+<path d="M68 44 L68 64 C80 72 120 72 132 64 L132 44 L100 56 Z" fill="#243559"></path>
+<path d="M100 16 L162 38 L100 60 L38 38 Z" fill="#1d2b4f"></path>
+<path d="M100 20 L150 38 L100 30 L50 38 Z" fill="#ffffff" opacity="0.12"></path>
+<circle cx="100" cy="38" r="4" fill="#f5c230"></circle>
+<path d="M100 38 L150 44 L152 70" fill="none" stroke="#f5c230" stroke-width="3" stroke-linecap="round"></path>
+<path d="M147 68 L157 68 L159 84 L145 84 Z" fill="#f5c230"></path>
+</sc-if>
+<sc-if value="{{tCrown}}" hint-placeholder-val="{{ false }}">
+<path d="M60 64 L64 24 L82 44 L100 16 L118 44 L136 24 L140 64 Z" fill="#f5c230" stroke="#c98d0b" stroke-width="3" stroke-linejoin="round"></path>
+<path d="M60 56 L140 56 L140 68 Q100 62 60 68 Z" fill="#e3a816"></path>
+<circle cx="64" cy="24" r="5" fill="#e2574c"></circle>
+<circle cx="100" cy="16" r="6" fill="#58c0ec"></circle>
+<circle cx="136" cy="24" r="5" fill="#e2574c"></circle>
+<circle cx="100" cy="62" r="5" fill="#4fa83a"></circle>
+<path d="M76 46 L80 52 M120 46 L124 52" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.7"></path>
+</sc-if>
+
+</svg>

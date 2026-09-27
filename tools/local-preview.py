@@ -1,10 +1,12 @@
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
 import threading
+import time
 from urllib.error import HTTPError
 from urllib.request import urlopen
 
@@ -12,6 +14,7 @@ ADB = "/Users/maks/Library/Android/sdk/platform-tools/adb"
 DEVICE = "emulator-5554"
 WIDTH, HEIGHT = 1080, 2400
 GALLERY_PATH = Path(__file__).with_name("exercise-gallery.html")
+CONCEPT_LAB_PATH = Path(__file__).with_name("concept-lesson-lab.html")
 MULTIPLE_CHOICE_PROTOTYPE = Path(__file__).with_name("multiple-choice-prototype.html")
 ANGLE_BUILDER_PROTOTYPE = Path(__file__).with_name("angle-builder-prototype.html")
 NUMERIC_INPUT_PROTOTYPE = Path(__file__).with_name("numeric-input-prototype.html")
@@ -29,6 +32,9 @@ GALLERY_IMAGE_IDS = (
     "angle_matching",
     "step_by_step",
 )
+SCREEN_LOCK = threading.Lock()
+SCREEN_CACHE = None
+SCREEN_CACHE_AT = 0.0
 
 # @spec spec://modules/learning/FEAT-010-learning-demo#exercises
 
@@ -43,23 +49,54 @@ header,footer{display:flex;align-items:center;justify-content:space-between;padd
 main{display:grid;place-items:center;min-height:0;padding:8px}img{display:block;max-width:96vw;max-height:calc(100vh - 100px);width:auto;height:auto;object-fit:contain;border-radius:8px;box-shadow:0 8px 40px #0008;touch-action:none;user-select:none;-webkit-user-drag:none}
 footer{font-size:12px;color:#a9bbc8}
 </style>
-<header><strong>GuaraniMath · Android-эмулятор</strong><a class="gallery-link" href="/gallery">Galería de ejercicios ↗</a><span>Живой экран · 1080 × 2400</span></header>
+<header><strong>GuaraniMath · Android-эмулятор</strong><span><a class="gallery-link" href="/tutor">Tutor ↗</a> <a class="gallery-link" href="/concept-lab">Концепты и задания ↗</a> <a class="gallery-link" href="/gallery">Galería de ejercicios ↗</a></span><span>Живой экран</span></header>
 <main><img id="screen" src="/screen.png" alt="Текущий экран Android-приложения"></main>
 <footer><span>Нажатия и прокрутка передаются в приложение на эмуляторе.</span><span id="status">Подключено к localhost</span></footer>
 <script>
-const img=document.querySelector('#screen'),status=document.querySelector('#status');let down=null,busy=false;
-function refresh(){if(!busy){img.src='/screen.png?t='+Date.now()}}
-setInterval(refresh,900);
-img.addEventListener('pointerdown',e=>{const r=img.getBoundingClientRect();down={x:e.clientX,y:e.clientY,px:(e.clientX-r.left)/r.width*1080,py:(e.clientY-r.top)/r.height*2400};img.setPointerCapture(e.pointerId)});
-img.addEventListener('pointerup',async e=>{if(!down)return;const r=img.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*1080,y=(e.clientY-r.top)/r.height*2400;const from=down;down=null;const moved=Math.hypot(e.clientX-from.x,e.clientY-from.y)>12;busy=true;try{await fetch('/input',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(moved?{type:'swipe',x:from.px,y:from.py,x2:x,y2:y}:{type:'tap',x,y})});status.textContent='Экран обновлен';setTimeout(refresh,250)}catch(_){status.textContent='Ошибка связи'}finally{busy=false}});
-img.addEventListener('error',()=>{status.textContent='Ожидание эмулятора'});
+const img=document.querySelector('#screen'),status=document.querySelector('#status');let down=null,busy=false,refreshing=true;
+function refresh(){if(!busy&&!refreshing){refreshing=true;img.src='/screen.png?t='+Date.now()}}
+setInterval(refresh,5000);
+img.addEventListener('load',()=>{refreshing=false});
+img.addEventListener('pointerdown',e=>{const r=img.getBoundingClientRect();down={x:e.clientX,y:e.clientY,px:(e.clientX-r.left)/r.width*img.naturalWidth,py:(e.clientY-r.top)/r.height*img.naturalHeight};img.setPointerCapture(e.pointerId)});
+img.addEventListener('pointerup',async e=>{if(!down)return;const r=img.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*img.naturalWidth,y=(e.clientY-r.top)/r.height*img.naturalHeight;const from=down;down=null;const moved=Math.hypot(e.clientX-from.x,e.clientY-from.y)>12;busy=true;try{await fetch('/input',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(moved?{type:'swipe',x:from.px,y:from.py,x2:x,y2:y}:{type:'tap',x,y})});status.textContent='Экран обновлен';setTimeout(refresh,250)}catch(_){status.textContent='Ошибка связи'}finally{busy=false}});
+img.addEventListener('error',()=>{refreshing=false;status.textContent='Ожидание эмулятора'});
 </script></html>'''.encode('utf-8')
+
+TUTOR_PAGE = PAGE.replace(
+    '<title>GuaraniMath — локальный просмотр</title>'.encode(),
+    '<title>GuaraniMath — Tutor</title>'.encode(),
+).replace(
+    '<strong>GuaraniMath · Android-эмулятор</strong>'.encode(),
+    '<strong>GuaraniMath · Tutor из Android-приложения</strong>'.encode(),
+).replace(
+    '<a class="gallery-link" href="/tutor">Tutor ↗</a>'.encode(),
+    '<a class="gallery-link" href="/">Весь экран ↗</a>'.encode(),
+)
+
+def screen_png():
+    """Only one adb capture may run; overlapping requests reuse the last frame."""
+    global SCREEN_CACHE, SCREEN_CACHE_AT
+    if SCREEN_CACHE is not None and time.monotonic() - SCREEN_CACHE_AT < 1:
+        return SCREEN_CACHE
+    if not SCREEN_LOCK.acquire(blocking=False):
+        return SCREEN_CACHE
+    try:
+        try:
+            result = subprocess.run([ADB, "-s", DEVICE, "exec-out", "screencap", "-p"], capture_output=True, timeout=8)
+            if result.returncode == 0 and result.stdout.startswith(b"\x89PNG\r\n\x1a\n"):
+                SCREEN_CACHE = result.stdout
+                SCREEN_CACHE_AT = time.monotonic()
+        except subprocess.TimeoutExpired:
+            pass
+        return SCREEN_CACHE
+    finally:
+        SCREEN_LOCK.release()
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path.split("?", 1)[0]
-        if path == "/":
-            body = PAGE
+        if path in ("/", "/tutor"):
+            body = TUTOR_PAGE if path == "/tutor" else PAGE
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
@@ -67,6 +104,13 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(body)
         elif path == "/gallery":
             body = GALLERY_PATH.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        elif path == "/concept-lab":
+            body = CONCEPT_LAB_PATH.read_bytes()
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
@@ -139,16 +183,16 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
         elif path == "/screen.png":
-            result = subprocess.run([ADB, "-s", DEVICE, "exec-out", "screencap", "-p"], capture_output=True)
-            if result.returncode:
-                self.send_error(503, result.stderr.decode(errors="replace"))
+            body = screen_png()
+            if body is None:
+                self.send_error(503, "Android screenshot is not available")
                 return
             self.send_response(200)
             self.send_header("Content-Type", "image/png")
             self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
-            self.send_header("Content-Length", str(len(result.stdout)))
+            self.send_header("Content-Length", str(len(body)))
             self.end_headers()
-            self.wfile.write(result.stdout)
+            self.wfile.write(body)
         else:
             self.send_error(404)
 
@@ -167,7 +211,7 @@ class Handler(BaseHTTPRequestHandler):
                 args = ["swipe", *(str(v) for v in values), "350"]
             else:
                 raise ValueError("unknown input")
-            result = subprocess.run([ADB, "-s", DEVICE, "shell", "input", *args], capture_output=True)
+            result = subprocess.run([ADB, "-s", DEVICE, "shell", "input", *args], capture_output=True, timeout=8)
             if result.returncode:
                 raise RuntimeError(result.stderr.decode(errors="replace"))
             self.send_response(204)
@@ -190,6 +234,21 @@ def check_gallery_http():
                 live_page = response.read().decode("utf-8")
                 assert response.status == 200
             assert 'href="/gallery"' in live_page
+            assert 'href="/concept-lab"' in live_page
+            assert 'href="/tutor"' in live_page
+
+            with urlopen(base + "/tutor") as response:
+                tutor_page = response.read().decode("utf-8")
+                assert response.status == 200
+            assert "Tutor из Android-приложения" in tutor_page
+            assert 'src="/screen.png"' in tutor_page
+
+            with urlopen(base + "/concept-lab") as response:
+                lab = response.read().decode("utf-8")
+                assert response.status == 200
+                assert response.headers.get_content_type() == "text/html"
+            assert all(f'data-section="{name}"' in lab for name in ("concepts", "tasks"))
+            assert all(name in lab for name in ("Прямоугольный треугольник", "Треугольники в жизни", "Измерение с треугольником", "Найди ошибку", "Поставь по порядку", "Отметь все верные", "Сравни и объясни"))
 
             with urlopen(base + "/gallery") as response:
                 gallery = response.read().decode("utf-8")
@@ -232,10 +291,35 @@ def check_gallery_http():
     print("OK: /, /gallery, seven APK screenshot routes, and unknown image 404")
 
 
+def check_screen_capture():
+    from types import SimpleNamespace
+    from unittest.mock import patch
+    started, release = threading.Event(), threading.Event()
+    calls = []
+    png = b"\x89PNG\r\n\x1a\nframe"
+
+    def capture(*_args, **_kwargs):
+        calls.append(1)
+        started.set()
+        assert release.wait(1)
+        return SimpleNamespace(returncode=0, stdout=png)
+
+    with patch.object(subprocess, "run", capture):
+        worker = threading.Thread(target=screen_png)
+        worker.start()
+        assert started.wait(1)
+        assert screen_png() is None and len(calls) == 1
+        release.set()
+        worker.join(1)
+        assert screen_png() == png and len(calls) == 1
+    print("OK: simultaneous screenshot requests launch one adb capture")
+
+
 if __name__ == "__main__":
     if sys.argv[1:] == ["--check"]:
         check_gallery_http()
+        check_screen_capture()
     elif sys.argv[1:]:
         raise SystemExit("Usage: python3 tools/local-preview.py [--check]")
     else:
-        ThreadingHTTPServer(("127.0.0.1", 8765), Handler).serve_forever()
+        ThreadingHTTPServer(("127.0.0.1", int(os.environ.get("GUARANI_PREVIEW_PORT", "8765"))), Handler).serve_forever()

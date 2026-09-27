@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
         // opens every lesson with a throwaway progress store, so screens can be reviewed without touching real progress.
         val preview = intent.getStringExtra("preview")?.takeIf { it.startsWith("courses/") || it.startsWith("templates/") }
         val repository = ProgressRepository(applicationContext, preview = preview != null)
-        if (preview != null) runBlocking { repository.clear() }
+        if (preview != null && savedInstanceState == null) runBlocking { repository.clear() }
         setContent {
             val colors = remember {
                 androidx.compose.material3.lightColorScheme(

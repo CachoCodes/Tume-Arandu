@@ -32,11 +32,30 @@ data class ExerciseResult(
 
 data class ProgressSnapshot(
     val completedLessonIds: Set<String> = emptySet(),
+    val completedBookIds: Set<String> = emptySet(),
+    val bookReveal: Map<String, Int> = emptyMap(),
     val results: Map<String, ExerciseResult> = emptyMap(),
     val currentLessonId: String? = null,
     val currentExerciseId: String? = null,
     val xp: Int = 0,
+    val avatar: AvatarLook = AvatarLook(),
 )
+
+data class AvatarLook(
+    val skin: String = "#f4c29a", val hair: String = "#5a3a22", val hairStyle: String = "short",
+    val expr: String = "smile", val hat: String = "cap", val glasses: String = "none",
+    val outfit: String = "tee", val shirt: String = "#2d63d6", val bg: String = "#dfe8fb",
+) {
+    fun value(field: String): String = when (field) {
+        "skin" -> skin; "hair" -> hair; "hairStyle" -> hairStyle; "expr" -> expr
+        "hat" -> hat; "glasses" -> glasses; "outfit" -> outfit; "shirt" -> shirt; else -> bg
+    }
+    fun with(field: String, value: String): AvatarLook = when (field) {
+        "skin" -> copy(skin = value); "hair" -> copy(hair = value); "hairStyle" -> copy(hairStyle = value)
+        "expr" -> copy(expr = value); "hat" -> copy(hat = value); "glasses" -> copy(glasses = value)
+        "outfit" -> copy(outfit = value); "shirt" -> copy(shirt = value); else -> copy(bg = value)
+    }
+}
 
 sealed interface ProgressState {
     data object Loading : ProgressState
@@ -65,6 +84,17 @@ class ProgressRepository(context: Context, preview: Boolean = false) {
     suspend fun saveCursor(lessonId: String, exerciseId: String) {
         update { it.copy(currentLessonId = lessonId, currentExerciseId = exerciseId) }
     }
+
+    // @spec spec://modules/learning/FEAT-010-learning-demo#progress
+    suspend fun completeBook(lessonId: String) {
+        update { it.copy(completedBookIds = it.completedBookIds + lessonId) }
+    }
+
+    suspend fun saveBookReveal(lessonId: String, index: Int) {
+        update { it.copy(bookReveal = it.bookReveal + (lessonId to maxOf(index, it.bookReveal[lessonId] ?: 0))) }
+    }
+
+    suspend fun saveAvatar(look: AvatarLook) { update { it.copy(avatar = look) } }
 
     // @spec spec://modules/android/PROP-010-android-demo-architecture#persistence
     suspend fun dismissHelpTip() {
@@ -125,9 +155,15 @@ class ProgressRepository(context: Context, preview: Boolean = false) {
     private fun encode(snapshot: ProgressSnapshot): String = JSONObject().apply {
         put("schemaVersion", 1)
         put("completedLessonIds", JSONArray(snapshot.completedLessonIds.toList()))
+        put("completedBookIds", JSONArray(snapshot.completedBookIds.toList()))
+        put("bookReveal", JSONObject(snapshot.bookReveal))
         put("currentLessonId", snapshot.currentLessonId)
         put("currentExerciseId", snapshot.currentExerciseId)
         put("xp", snapshot.xp)
+        put("avatar", JSONObject().apply {
+            listOf("skin", "hair", "hairStyle", "expr", "hat", "glasses", "outfit", "shirt", "bg")
+                .forEach { put(it, snapshot.avatar.value(it)) }
+        })
         put("results", JSONObject().apply {
             snapshot.results.forEach { (id, result) -> put(id, JSONObject().apply {
                 put("answer", result.answer)
@@ -144,6 +180,12 @@ class ProgressRepository(context: Context, preview: Boolean = false) {
         require(json.getInt("schemaVersion") == 1) { "Unsupported progress snapshot version" }
         val completed = json.optJSONArray("completedLessonIds")?.let { array ->
             (0 until array.length()).map(array::getString).toSet()
+        }.orEmpty()
+        val completedBooks = json.optJSONArray("completedBookIds")?.let { array ->
+            (0 until array.length()).map(array::getString).toSet()
+        }.orEmpty()
+        val bookReveal = json.optJSONObject("bookReveal")?.let { saved ->
+            buildMap { val keys = saved.keys(); while (keys.hasNext()) { val key = keys.next(); put(key, saved.optInt(key).coerceAtLeast(0)) } }
         }.orEmpty()
         val savedResults = json.optJSONObject("results") ?: JSONObject()
         val results = buildMap {
@@ -162,10 +204,17 @@ class ProgressRepository(context: Context, preview: Boolean = false) {
         }
         return ProgressSnapshot(
             completedLessonIds = completed,
+            completedBookIds = completedBooks,
+            bookReveal = bookReveal,
             results = results,
             currentLessonId = json.optString("currentLessonId").takeUnless { it == "null" },
             currentExerciseId = json.optString("currentExerciseId").takeUnless { it == "null" },
             xp = json.optInt("xp"),
+            avatar = json.optJSONObject("avatar")?.let { saved ->
+                val default = AvatarLook()
+                listOf("skin", "hair", "hairStyle", "expr", "hat", "glasses", "outfit", "shirt", "bg")
+                    .fold(default) { look, field -> look.with(field, saved.optString(field, default.value(field))) }
+            } ?: AvatarLook(),
         )
     }
 }

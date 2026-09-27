@@ -24,3 +24,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+app/src/main/res/font/nunito_*.ttf
+Nunito font by Vernon Adams, Cyreal, and Jacques Le Bailly.
+Licensed under the SIL Open Font License 1.1. Full license:
+app/src/main/assets/licenses/nunito-OFL.txt

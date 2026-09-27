@@ -15,7 +15,12 @@ data class Lesson(
     val theory: List<TheoryBlock>,
     val exercises: List<Exercise>,
     val xpReward: Int,
+    val concept: List<ConceptBlock> = emptyList(),
 )
+
+// @spec spec://modules/learning/PROP-011-course-json-format#concept
+data class ConceptBlock(val id: String, val title: String, val text: String, val visual: String, val check: ConceptCheck? = null)
+data class ConceptCheck(val options: List<Option>, val correctOptionId: String, val good: String, val bad: String, val figure: Boolean)
 
 data class TheoryBlock(val type: String, val body: String)
 

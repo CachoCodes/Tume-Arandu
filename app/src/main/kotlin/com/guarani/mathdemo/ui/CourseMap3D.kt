@@ -1,5 +1,6 @@
 package com.guarani.mathdemo.ui
 
+import android.app.ActivityManager
 import android.graphics.Bitmap
 import android.graphics.BlurMaskFilter
 import android.graphics.DashPathEffect
@@ -15,6 +16,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +38,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -53,9 +56,9 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.StrokeJoin
@@ -79,8 +82,10 @@ import androidx.compose.ui.unit.sp
 import com.guarani.mathdemo.course.Course
 import com.guarani.mathdemo.course.Lesson
 import com.guarani.mathdemo.progress.ProgressSnapshot
+import com.guarani.mathdemo.progress.AvatarLook
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.lang.ref.SoftReference
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -230,32 +235,40 @@ private fun text(c: NCanvas, s: String, x: Double, y: Double, size: Double, rgb:
     c.drawText(s, x.toFloat(), y.toFloat(), p)
 }
 
-// ---------- Layout: stages. One stage = one screen: 3 lessons (new knowledge), each followed by 2–3 reviews ----------
+// ---------- Layout: seven screens, one straight path of book → lesson → review triplets ----------
 private const val SCREEN = 864.0
 private const val STAGE_TOP = 226.0
 private const val STAGE_BOTTOM = 600.0
 private const val TROPHY_Y = 688.0
 private const val CENTER_X = 195.0
 private const val RADIUS = 30.0
+private const val BOOK_RADIUS = 27.0
 private const val REVIEW_RADIUS = 21.0
 private const val TILE_HEIGHT = 8.0
 
 private class StageDef(val dir: Int, val amp: Double, val types: String)
-private val STAGES = listOf(StageDef(1, 92.0, "LRRLRRLRR"), StageDef(-1, 88.0, "LRRRLRRLR"), StageDef(1, 96.0, "LRRLRRRLR"))
-private class MapNode(val stage: Int, val k: Int, val lesson: Boolean, val n: Int)
-private val NODES = STAGES.flatMapIndexed { s, st -> st.types.mapIndexed { k, t -> MapNode(s, k, t == 'L', st.types.length) } }
+private val STAGES = List(6) { StageDef(if (it % 2 == 0) 1 else -1, 130.0, "BLRBLR") } + StageDef(1, 130.0, "BLR")
+private class MapNode(val stage: Int, val k: Int, val type: Char, val n: Int) {
+    val lesson get() = type == 'L'
+    val book get() = type == 'B'
+}
+private val NODES = STAGES.flatMapIndexed { s, st -> st.types.mapIndexed { k, t -> MapNode(s, k, t, st.types.length) } }
+private val COURSE_SLOTS = NODES.indices.filter { !NODES[it].book }
 private val MAP_HEIGHT = STAGES.size * SCREEN
-private fun mapX(i: Int): Double { val n = NODES[i]; val s = STAGES[n.stage]; return CENTER_X + s.dir * s.amp * sin(n.k * 2 * PI / (n.n - 1)) }
-private fun mapY(i: Int): Double { val n = NODES[i]; return n.stage * SCREEN + STAGE_TOP + n.k * (STAGE_BOTTOM - STAGE_TOP) / (n.n - 1) }
+private fun mapX(i: Int): Double = CENTER_X
+private fun mapY(i: Int): Double {
+    val n = NODES[i]
+    return n.stage * SCREEN + if (n.n == 3) 290.0 + n.k * 140.0 else STAGE_TOP + n.k * (STAGE_BOTTOM - STAGE_TOP) / 5
+}
 private val LESSONS = NODES.indices.map { Cam.mapToWorld(mapX(it), mapY(it)) }
-private fun radiusOf(i: Int) = if (NODES[i].lesson) RADIUS else REVIEW_RADIUS
-private fun lessonNumber(i: Int) = (0..i).count { NODES[it].stage == NODES[i].stage && NODES[it].lesson }
+private fun radiusOf(i: Int) = when { NODES[i].lesson -> RADIUS; NODES[i].book -> BOOK_RADIUS; else -> REVIEW_RADIUS }
+private fun lessonNumber(i: Int) = (0..i).count { NODES[it].lesson }
 
 // Bays: the free side next to each hump of the snake (upper hump ≈ node 2, lower hump ≈ node 6).
 private fun bay(s: Int, upper: Boolean): Pair<Double, Double> {
     val st = STAGES[s]; val base = NODES.indexOfFirst { it.stage == s }
     val side = if (upper) -st.dir else st.dir
-    return (CENTER_X + side * st.amp) to mapY(base + if (upper) 2 else 6)
+    return (CENTER_X + side * st.amp) to mapY(base + if (upper) 1 else 4)
 }
 
 private enum class Kind { PRISM, SEN30, LIGHTHOUSE, KITE, LADDER, TAN45, TROPHY }
@@ -275,14 +288,12 @@ private const val KITE_HEIGHT = 58.0
 private const val PRISM_RADIUS = 58.0
 
 private val PROPS: List<Prop> = run {
-    val u0 = bay(0, true); val l0 = bay(0, false); val l1 = bay(1, false); val u1 = bay(1, true); val u2 = bay(2, true); val l2 = bay(2, false)
+    val u0 = bay(0, true); val l1 = bay(1, false); val u1 = bay(1, true); val u2 = bay(2, true)
     listOf(
         Prop(Kind.PRISM, u0.first - 12, u0.second + 4, rad(-65.0), 62.0, null),
-        Prop(Kind.SEN30, l0.first - 30, l0.second + 10, rad(12.0), 32.0, Plinth(false, 5.0, depth = 14.0, back = 2.5)),
         Prop(Kind.LIGHTHOUSE, l1.first - 30, l1.second - 8, rad(18.0), 76.0, Plinth(true, 6.0, r = 42.0, shift = 24.0)),
         Prop(Kind.KITE, u1.first - 52, u1.second + 30, rad(12.0), 90.0, Plinth(false, 5.0, length = 78.0, depth = 14.0, alongRun = true)),
         Prop(Kind.LADDER, u2.first - 20, u2.second - 4, rad(38.0), 56.0, Plinth(false, 5.0, wall = true)),
-        Prop(Kind.TAN45, l2.first - 22, l2.second + 10, rad(10.0), 32.0, Plinth(false, 5.0, depth = 14.0, back = 2.5)),
     ) + STAGES.indices.map { s -> Prop(Kind.TROPHY, CENTER_X, s * SCREEN + TROPHY_Y, 0.0, 55.0, Plinth(true, 5.0, r = 22.0)) }
 }.onEach { p ->
     // Letter plinths fit the real width of the lettering (+6 each side).
@@ -327,17 +338,26 @@ private fun plinthBottom(p: Prop): List<V> {
 private class MapProgress(val lessonAt: List<Lesson?>, val done: Int) {
     val current get() = done
     fun stageDone(s: Int) = NODES.indices.filter { NODES[it].stage == s }.all { it < done }
-    fun stageCount(s: Int) = NODES.indices.filter { NODES[it].stage == s }.let { ids -> ids.count { it < done } to ids.size }
+    fun stageCount(s: Int) = NODES.indices.filter { NODES[it].stage == s && lessonAt[it] != null }.let { ids -> ids.count { it < done } to ids.size }
 }
 
 private fun mapProgress(course: Course, progress: ProgressSnapshot): MapProgress {
-    var slot = 0
-    val lessonAt = NODES.map { if (it.lesson) course.lessons.getOrNull(slot++) else null }
-    // A review counts as done once the lesson before it is done.
+    val lessonAt = MutableList<Lesson?>(NODES.size) { null }
+    COURSE_SLOTS.forEachIndexed { slot, node -> lessonAt[node] = course.lessons.getOrNull(slot) }
+    NODES.indices.filter { NODES[it].book }.forEach { book ->
+        val next = NODES.indices.first { it > book && NODES[it].stage == NODES[book].stage && NODES[it].lesson }
+        lessonAt[book] = lessonAt[next]?.takeIf { it.concept.isNotEmpty() }
+    }
+    // Empty decorative nodes inherit the previous lesson's state.
     var lastLessonDone = false
-    val flags = NODES.mapIndexed { i, n ->
-        if (n.lesson) lastLessonDone = lessonAt[i]?.id in progress.completedLessonIds
-        lastLessonDone
+    val flags = NODES.mapIndexed { i, _ ->
+        if (NODES[i].book) {
+            val id = lessonAt[i]?.id
+            id == null || id in progress.completedBookIds || id in progress.completedLessonIds
+        } else {
+            if (lessonAt[i] != null) lastLessonDone = lessonAt[i]!!.id in progress.completedLessonIds
+            lastLessonDone
+        }
     }
     val done = flags.indexOfFirst { !it }.let { if (it < 0) NODES.size else it }
     return MapProgress(lessonAt, done)
@@ -351,6 +371,13 @@ private val REPEAT_PATH: Path by lazy {
     Path().apply {
         listOf("M-7 -1.5A7.2 7.2 0 0 1 5.6 -4.6", "M6.4 -9.2 5.9 -4.2 1.2 -5.6", "M7 1.5A7.2 7.2 0 0 1 -5.6 4.6", "M-6.4 9.2 -5.9 4.2 -1.2 5.6")
             .forEach { addPath(PathParser().parsePathString(it).toPath().asAndroidPath()) }
+    }
+}
+private val BOOK_PATH: Path by lazy {
+    Path().apply {
+        moveTo(-13f, -8f); lineTo(-3f, -7f); lineTo(0f, -4f); lineTo(3f, -7f); lineTo(13f, -8f)
+        lineTo(13f, 9f); lineTo(3f, 10f); lineTo(0f, 13f); lineTo(-3f, 10f); lineTo(-13f, 9f); close()
+        moveTo(0f, -4f); lineTo(0f, 13f)
     }
 }
 private val STAR_PATH: Path by lazy {
@@ -726,8 +753,9 @@ private class Builder(val v: View3, val calm: Boolean, val state: MapProgress) {
         val current = state.current
         // Path dots on the ground: light up to the current node; each stage's path ends at its trophy.
         class Seg(val a: V, val b: V, val ra: Double, val rb: Double, val lit: Boolean, val stage: Int, val k: Double)
-        val segs = (1 until LESSONS.size).filter { NODES[it - 1].stage == NODES[it].stage }
-            .map { Seg(LESSONS[it - 1], LESSONS[it], radiusOf(it - 1), radiusOf(it), it - 1 < current, NODES[it].stage, (it - 1 - NODES.indexOfFirst { n -> n.stage == NODES[it].stage }).toDouble()) } +
+        val activeNodes = NODES.indices.filter { !NODES[it].book || state.lessonAt[it] != null }
+        val segs = activeNodes.zipWithNext().filter { NODES[it.first].stage == NODES[it.second].stage }
+            .map { (a, b) -> Seg(LESSONS[a], LESSONS[b], radiusOf(a), radiusOf(b), a < current, NODES[b].stage, (b - 1 - NODES.indexOfFirst { n -> n.stage == NODES[b].stage }).toDouble()) } +
             STAGES.indices.map { s ->
                 val last = NODES.indices.last { NODES[it].stage == s }; val t = PROPS.first { it.kind == Kind.TROPHY && it.stage == s }
                 Seg(LESSONS[last], t.center, radiusOf(last), t.plinth!!.r, last < current, s, 8.0)
@@ -741,15 +769,17 @@ private class Builder(val v: View3, val calm: Boolean, val state: MapProgress) {
             for (k in 0..n) ground += poly(ring(g.a + u * (from + (to - from) * k / n), 2.1, 0.0).filterIndexed { j, _ -> j % 7 == 0 }, color)
         }
         LESSONS.forEachIndexed { i, c ->
+            if (NODES[i].book && state.lessonAt[i] == null) return@forEachIndexed
             if (!onScreen(c)) return@forEachIndexed
-            val node = NODES[i]; val r = radiusOf(i); val th = if (node.lesson) TILE_HEIGHT else 6.0; val top = c.up(th)
+            val node = NODES[i]; val r = radiusOf(i); val th = if (node.lesson) TILE_HEIGHT else if (node.book) 7.0 else 6.0; val top = c.up(th)
             val p = pop(node.stage, node.k.toDouble()); val base = project(c)
             popWrap(listOf(shadowShape(ring(c, r, 0.0) + ring(c, r, th), c, top), contact(c, r)), base, p)?.let { ground += it }
             val material = if (i < state.done) 0xffd84d else if (i == current) 0x8fd8ff else 0xf2f5f7
             val locked = i > current
-            // Lessons carry their number within the stage; reviews are smaller and carry a repeat icon.
+            // A book introduces the concept; numbered lessons and reviews keep their own marks.
             val mark = framed(top, Cam.RIGHT * (1 / Cam.scale), Cam.TOWARD * (1 / Cam.scale)) { cv ->
                 if (node.lesson) label(cv, 0.0, 8.0, lessonNumber(i).toString(), 24.0, 0x245271, if (locked) .72 else 1.0)
+                else if (node.book) cv.drawPath(BOOK_PATH, strokePaint(if (locked) 0x8aa3b5 else 0x245271, 2.5))
                 else cv.drawPath(REPEAT_PATH, strokePaint(if (locked) 0x8aa3b5 else 0x245271, 2.6))
             }
             popWrap(cylinder(c, r, th, material) + mark, base, p)?.let { objects += v.depth(c) to it }
@@ -770,6 +800,12 @@ private class Builder(val v: View3, val calm: Boolean, val state: MapProgress) {
 // ---------- Lawn: painted once in map coordinates, laid on the ground plane with the exact perspective homography ----------
 private class LawnTile(val bitmap: Bitmap, val y0: Double)
 private class Lawn(val x0: Double, val res: Double, val tiles: List<LawnTile>)
+private val lawnLock = Any()
+private var cachedLawn: Pair<Double, SoftReference<Lawn>>? = null
+private fun reusableLawn(yPad: Double): Lawn = synchronized(lawnLock) {
+    cachedLawn?.takeIf { it.first == yPad }?.second?.get()
+        ?: paintLawn(yPad).also { cachedLawn = yPad to SoftReference(it) }
+}
 
 // Homography map-units → scene-units for the current camera.
 private fun groundMatrix(v: View3): Matrix {
@@ -835,8 +871,9 @@ private fun paintLawn(yPad: Double): Lawn {
     }
     // Tufts vary: 1–6 blades, own fan angle, height, width and a shade picked per tuft; some grow in small groups.
     val shades = listOf(intArrayOf(0x4a9a31, 0x5fb142, 0x98dc72), intArrayOf(0x529f36, 0x6bbb4a, 0xa8e582), intArrayOf(0x43912c, 0x58a93c, 0x8ed468), intArrayOf(0x5aa83c, 0x74c353, 0xb3ea8c))
+    val shadePaints = shades.map { colors -> colors.map { fill(it) }.toTypedArray() }
     class Blade(val off: Double, val dx: Double, val h: Double, val w: Double, val front: Boolean)
-    class Tuft(val x: Double, val y: Double, val s: Double, val flip: Double, val shade: IntArray, val bl: List<Blade>)
+    class Tuft(val x: Double, val y: Double, val s: Double, val flip: Double, val shade: Array<Paint>, val bl: List<Blade>)
     val tufts = ArrayList<Tuft>()
     fun addTuft(x: Double, y: Double, scale: Double) {
         if (hidden(x, y)) return
@@ -846,7 +883,7 @@ private fun paintLawn(yPad: Double): Lawn {
             val u = if (n == 1) 0.0 else k.toDouble() / (n - 1) - .5
             Blade(u * (1.6 + n * .5) + (rnd() - .5) * .8, u * spread * 5 + (rnd() - .5) * 1.8, (3.2 + rnd() * 3.2) * (1 - .3 * abs(u)), 1.15 + rnd() * .75, rnd() < .45)
         }
-        tufts += Tuft(x, y, scale * vert, if (rnd() < .5) -1.0 else 1.0, shades[floor(rnd() * shades.size).toInt()], bl)
+        tufts += Tuft(x, y, scale * vert, if (rnd() < .5) -1.0 else 1.0, shadePaints[floor(rnd() * shades.size).toInt()], bl)
     }
     for (i in 0 until (w * h / 340).roundToInt()) {
         val x = x0 + rnd() * w; val y = y0 + rnd() * h; val sc = .95 + rnd() * .85
@@ -854,8 +891,10 @@ private fun paintLawn(yPad: Double): Lawn {
         if (rnd() < .4) { var k = 1 + floor(rnd() * 3).toInt(); while (k > 0) { addTuft(x + (rnd() - .5) * 14, y + (rnd() - .5) * 6, sc * (.6 + rnd() * .5)); k-- } }
     }
     tufts.sortBy { it.y }
+    val bladePath = Path()
     fun blade(c: NCanvas, paint: Paint, x: Double, y: Double, dx: Double, h: Double, w: Double) {
-        val p = Path()
+        val p = bladePath
+        p.rewind()
         p.moveTo((x - w).toFloat(), y.toFloat())
         p.quadTo((x - w * .2 + dx * .2).toFloat(), (y - h * .6).toFloat(), (x + dx).toFloat(), (y - h).toFloat())
         p.quadTo((x + w * .6 + dx * .3).toFloat(), (y - h * .5).toFloat(), (x + w).toFloat(), y.toFloat())
@@ -863,18 +902,18 @@ private fun paintLawn(yPad: Double): Lawn {
     }
     val tuftShadow = fill(0x285a14, .16)
     for (t in tufts) prims += t.y to { c ->
-        val s = t.s; val f = t.flip; val dark = fill(t.shade[0]); val mid = fill(t.shade[1]); val light = fill(t.shade[2])
+        val s = t.s; val f = t.flip; val dark = t.shade[0]; val mid = t.shade[1]; val light = t.shade[2]
         c.drawOval(RectF((t.x + 1 - (2 + t.bl.size * 1.2) * s).toFloat(), (t.y + .4 - 1.4 * s).toFloat(), (t.x + 1 + (2 + t.bl.size * 1.2) * s).toFloat(), (t.y + .4 + 1.4 * s).toFloat()), tuftShadow)
-        for (b in t.bl.filter { !it.front }) blade(c, dark, t.x + b.off * s * f, t.y, b.dx * s * f, b.h * s, b.w * s * .85)
-        for (b in t.bl.filter { it.front }) {
+        for (b in t.bl) if (!b.front) blade(c, dark, t.x + b.off * s * f, t.y, b.dx * s * f, b.h * s, b.w * s * .85)
+        for (b in t.bl) if (b.front) {
             blade(c, mid, t.x + b.off * s * f, t.y, b.dx * s * f, b.h * s, b.w * s)
             blade(c, light, t.x + b.off * s * f + .2 * s, t.y - b.h * s * .3, b.dx * s * f * .8, b.h * s * .7, b.w * s * .3)
         }
         if (t.bl.none { it.front }) { val b = t.bl[0]; blade(c, light, t.x + b.off * s * f, t.y - b.h * s * .35, b.dx * s * f * .7, b.h * s * .6, b.w * s * .25) }
     }
     // Flowers in small clusters, kept away from the path and from every sculpture (and the ground it hides).
-    class FlowerKind(val petal: Int, val core: Int, val n: Int, val r: Double)
-    val kinds = listOf(FlowerKind(0xffffff, 0xffd23f, 6, 2.0), FlowerKind(0xffd84d, 0xffffff, 5, 1.9), FlowerKind(0xff8cc0, 0xfff2a8, 5, 1.9), FlowerKind(0xa98bff, 0xfff2a8, 5, 1.9))
+    class FlowerKind(val petal: Paint, val core: Paint, val n: Int, val r: Double)
+    val kinds = listOf(FlowerKind(fill(0xffffff), fill(0xffd23f), 6, 2.0), FlowerKind(fill(0xffd84d), fill(0xffffff), 5, 1.9), FlowerKind(fill(0xff8cc0), fill(0xfff2a8), 5, 1.9), FlowerKind(fill(0xa98bff), fill(0xfff2a8), 5, 1.9))
     fun blocked(x: Double, y: Double): Boolean {
         if (nearPath(x, y, 20.0) || inLesson(x, y, 1.25)) return true
         return footprints.any { (ps, tall) -> var t = 0.0; var hit = false; while (t <= tall && !hit) { hit = polyDist(P(x, y + t), ps) < 14; t += 8 }; hit }
@@ -888,13 +927,14 @@ private fun paintLawn(yPad: Double): Lawn {
     fl.sortBy { it.y }
     val stem = strokePaint(0x4f9f35, .8).apply { strokeCap = Paint.Cap.BUTT }
     val flowerShadow = fill(0x285a14, .18)
+    val flowerPath = Path()
     for (f in fl) prims += f.y to { c ->
         val tx = f.x; val ty = f.y - f.h; val r = f.k.r * f.s
-        c.drawPath(Path().apply { moveTo(f.x.toFloat(), f.y.toFloat()); quadTo((f.x + .8).toFloat(), (f.y - f.h * .5).toFloat(), tx.toFloat(), ty.toFloat()) }, stem)
+        flowerPath.rewind(); flowerPath.moveTo(f.x.toFloat(), f.y.toFloat()); flowerPath.quadTo((f.x + .8).toFloat(), (f.y - f.h * .5).toFloat(), tx.toFloat(), ty.toFloat())
+        c.drawPath(flowerPath, stem)
         c.drawOval(RectF((f.x + 1 - 2.2).toFloat(), (f.y + .3 - .8).toFloat(), (f.x + 1 + 2.2).toFloat(), (f.y + .3 + .8).toFloat()), flowerShadow)
-        val petal = fill(f.k.petal)
-        for (i in 0 until f.k.n) { val a = i * 2 * PI / f.k.n; c.drawCircle((tx + cos(a) * r * .9).toFloat(), (ty + sin(a) * r * .7).toFloat(), (r * .62).toFloat(), petal) }
-        c.drawCircle(tx.toFloat(), ty.toFloat(), (r * .62).toFloat(), fill(f.k.core))
+        for (i in 0 until f.k.n) { val a = i * 2 * PI / f.k.n; c.drawCircle((tx + cos(a) * r * .9).toFloat(), (ty + sin(a) * r * .7).toFloat(), (r * .62).toFloat(), f.k.petal) }
+        c.drawCircle(tx.toFloat(), ty.toFloat(), (r * .62).toFloat(), f.k.core)
     }
 
     // Tiles keep every bitmap well inside the GPU texture limit.
@@ -928,16 +968,17 @@ private class Cloud(val top: Double, val w: Double, val h: Double, val duration:
 private val CLOUDS = listOf(Cloud(.12, .9, .26, 90.0, 10.0), Cloud(.48, 1.2, .30, 120.0, 70.0), Cloud(.76, .7, .26, 100.0, 40.0))
 private val CLOUD_SHADER = RadialGradient(0f, 0f, 1f, argb(0x183e12, .13), argb(0x183e12, 0.0), Shader.TileMode.CLAMP)
 private val GLOW_SHADER = RadialGradient(0f, 0f, 17.55f, intArrayOf(NColor.argb(242, 255, 236, 150), NColor.argb(89, 255, 220, 110), NColor.argb(0, 255, 220, 110)), floatArrayOf(0f, .55f, 1f), Shader.TileMode.CLAMP)
+private val CLOUD_PAINT = Paint(Paint.ANTI_ALIAS_FLAG).apply { shader = CLOUD_SHADER }
+private val GLOW_PAINT = Paint(Paint.ANTI_ALIAS_FLAG).apply { shader = GLOW_SHADER }
 
 private fun DrawScope.drawOverlays(frame: Frame, seconds: Double, calm: Boolean, unit: Float, yPad: Double) = drawIntoCanvas { cv ->
     val c = cv.nativeCanvas
-    val cloudPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { shader = CLOUD_SHADER }
     for (cl in CLOUDS) {
         val cw = cl.w * size.width; val ch = cl.h * size.height
         val progress = ((seconds + cl.delay) / cl.duration) % 1.0
         val tx = if (calm) 0.0 else (-1.1 + 2.4 * progress) * cw
         c.save(); c.translate((tx + cw / 2).toFloat(), (cl.top * size.height + ch / 2).toFloat()); c.scale((cw / 2).toFloat(), (ch / 2).toFloat())
-        c.drawCircle(0f, 0f, 1f, cloudPaint); c.restore()
+        c.drawCircle(0f, 0f, 1f, CLOUD_PAINT); c.restore()
     }
     c.save(); c.scale(unit, unit); c.translate(0f, yPad.toFloat())
     val air = frame.air; val pivot = frame.pivot
@@ -949,10 +990,9 @@ private fun DrawScope.drawOverlays(frame: Frame, seconds: Double, calm: Boolean,
     val lamp = frame.lamp
     if (lamp != null && frame.lampOpacity > 0) {
         val blink = if (calm) 1.0 else .15 + .85 * (1 - cos(2 * PI * ((seconds % 2.8) / 2.8))) / 2
-        val glow = Paint(Paint.ANTI_ALIAS_FLAG).apply { shader = GLOW_SHADER }
         c.save(); c.translate(lamp.x.toFloat(), lamp.y.toFloat())
-        glow.alpha = jsRound(frame.lampOpacity * 255); c.drawCircle(0f, 0f, 17.55f, glow)
-        glow.alpha = jsRound(frame.lampOpacity * blink * 255); c.drawCircle(0f, 0f, 17.55f, glow)
+        GLOW_PAINT.alpha = jsRound(frame.lampOpacity * 255); c.drawCircle(0f, 0f, 17.55f, GLOW_PAINT)
+        GLOW_PAINT.alpha = jsRound(frame.lampOpacity * blink * 255); c.drawCircle(0f, 0f, 17.55f, GLOW_PAINT)
         c.restore()
     }
     c.restore()
@@ -965,12 +1005,15 @@ internal fun CourseMap3DScreen(
     course: Course,
     progress: ProgressSnapshot,
     onOpen: (Lesson) -> Unit,
+    onOpenBook: (Lesson) -> Unit,
     unlockAll: Boolean = false,
     bottomBar: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
-    // "Remove animations" in the system accessibility settings turns every map animation off.
-    val calm = remember { Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f }
+    val calm = remember(context) {
+        val lowRam = (context.getSystemService(ActivityManager::class.java))?.isLowRamDevice == true
+        lowRam || Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
+    }
     val state = remember(course, progress) { mapProgress(course, progress) }
     val pager = rememberPagerState(initialPage = NODES.getOrNull(state.current)?.stage ?: STAGES.lastIndex) { STAGES.size }
     var nanos by remember { mutableLongStateOf(0L) }
@@ -983,9 +1026,9 @@ internal fun CourseMap3DScreen(
         val yPad = (constraints.maxHeight / unit - SCREEN) / 2
         val scroll = { (pager.currentPage + pager.currentPageOffsetFraction) * SCREEN }
         val frame by remember(state, yPad) { derivedStateOf { Builder(View3(scroll()), calm, state).build(abs(yPad)) } }
-        val lawn by produceState<Lawn?>(null, yPad) { value = withContext(Dispatchers.Default) { paintLawn(yPad) } }
+        val lawn by produceState<Lawn?>(null, yPad) { value = withContext(Dispatchers.Default) { reusableLawn(yPad) } }
         // Separate cached layers: the scene repaints only when the camera moves, the overlay on every animation frame.
-        Canvas(Modifier.fillMaxSize().graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)) {
+        Canvas(Modifier.fillMaxSize().graphicsLayer()) {
             drawIntoCanvas { cv ->
                 val c = cv.nativeCanvas
                 c.save(); c.scale(unit, unit); c.translate(0f, yPad.toFloat())
@@ -996,7 +1039,7 @@ internal fun CourseMap3DScreen(
             }
         }
         Canvas(Modifier.fillMaxSize().graphicsLayer()) { drawOverlays(frame, nanos / 1e9, calm, unit, yPad) }
-        VerticalPager(pager, Modifier.fillMaxSize()) { page -> StageTargets(page, state, unit, yPad, unlockAll, onOpen) }
+        VerticalPager(pager, Modifier.fillMaxSize()) { page -> StageTargets(page, state, unit, yPad, unlockAll, onOpen, onOpenBook) }
         val stage = pager.currentPage
         val (done, total) = state.stageCount(stage)
         StageCard(progress.xp, streakDays = 0, stage = stage, done = done, total = total, Modifier.align(Alignment.TopCenter).statusBarsPadding())
@@ -1004,31 +1047,33 @@ internal fun CourseMap3DScreen(
     }
 }
 
-// Tap targets sit exactly on the platforms of the stage at rest; reviews are part of the path, not buttons.
+// Tap targets sit exactly on the platforms of the stage at rest.
 @Composable
-private fun StageTargets(page: Int, state: MapProgress, unit: Float, yPad: Double, unlockAll: Boolean, onOpen: (Lesson) -> Unit) {
+private fun StageTargets(page: Int, state: MapProgress, unit: Float, yPad: Double, unlockAll: Boolean, onOpen: (Lesson) -> Unit, onOpenBook: (Lesson) -> Unit) {
     val density = LocalDensity.current
     val view = remember(page) { View3(page * SCREEN) }
     Box(Modifier.fillMaxSize()) {
-        NODES.indices.filter { NODES[it].stage == page && NODES[it].lesson }.forEach { i ->
-            val lesson = state.lessonAt[i]
-            val center = view.project(LESSONS[i].up(TILE_HEIGHT))
-            val w = RADIUS * Cam.scale * 2; val h = w * Cam.se + TILE_HEIGHT * 2
-            val open = lesson != null && (unlockAll || i <= state.current)
-            val status = when { lesson == null -> "Cerrada"; i < state.done -> "Completada"; i == state.current -> "Actual"; else -> "Cerrada" }
-            val title = "Lección ${lessonNumber(i)}" + (lesson?.let { ": ${it.title}" } ?: "")
+        NODES.indices.filter { NODES[it].stage == page && state.lessonAt[it] != null }.forEach { i ->
+            val lesson = state.lessonAt[i] ?: return@forEach
+            val height = if (NODES[i].lesson) TILE_HEIGHT else if (NODES[i].book) 7.0 else 6.0
+            val center = view.project(LESSONS[i].up(height))
+            val w = radiusOf(i) * Cam.scale * 2; val h = w * Cam.se + height * 2
+            val open = unlockAll || i <= state.current
+            val status = when { i < state.done -> "Completada"; i == state.current -> "Actual"; else -> "Cerrada" }
+            val title = (when { NODES[i].book -> "Concepto"; NODES[i].lesson -> "Lección ${lessonNumber(i)}"; else -> "Repaso" }) + ": ${lesson.title}"
+            val action = if (NODES[i].book) onOpenBook else onOpen
             with(density) {
                 Box(
                     Modifier
                         .offset { IntOffset(((center.x - w / 2) * unit).roundToInt(), ((center.y + yPad - h / 2) * unit).roundToInt()) }
                         .size((w * unit).toFloat().toDp(), (h * unit).toFloat().toDp())
                         .clip(CircleShape)
-                        .clickable(enabled = open) { lesson?.let(onOpen) }
+                        .clickable(enabled = open) { action(lesson) }
                         .clearAndSetSemantics {
                             contentDescription = title
                             stateDescription = status
                             role = Role.Button
-                            if (open && lesson != null) onClick(label = title) { onOpen(lesson); true }
+                            if (open) onClick(label = title) { action(lesson); true }
                         },
                 )
             }
@@ -1039,7 +1084,7 @@ private fun StageTargets(page: Int, state: MapProgress, unit: Float, yPad: Doubl
 private fun svgPath(d: String) = PathParser().parsePathString(d).toPath()
 
 @Composable
-private fun SvgIcon(paths: List<String>, viewBox: Float, color: Color, strokeWidth: Float, modifier: Modifier, filled: Boolean = false) {
+internal fun SvgIcon(paths: List<String>, viewBox: Float, color: Color, strokeWidth: Float, modifier: Modifier, filled: Boolean = false) {
     val parsed = remember(paths) { paths.map(::svgPath) }
     Canvas(modifier) {
         scale(size.width / viewBox, size.height / viewBox, pivot = androidx.compose.ui.geometry.Offset.Zero) {
@@ -1104,25 +1149,31 @@ private fun StageCard(xp: Int, streakDays: Int, stage: Int, done: Int, total: In
     }
 }
 
-// Bottom dock shared by the map, Tutor and profile: white panel with Tape / Tutor / Perfil.
+internal val LocalAvatarLook = compositionLocalOf { AvatarLook() }
+
+// Bottom dock shared by the map, Tutor and profile.
 @Composable
 internal fun CourseBottomBar(selectedTab: String, onMap: () -> Unit, onTutor: () -> Unit, onProfile: () -> Unit) {
-    val shape = RoundedCornerShape(23.dp)
+    val shape = RoundedCornerShape(30.dp)
+    val look = LocalAvatarLook.current
     Row(
-        Modifier.padding(horizontal = 16.dp, vertical = 10.dp).fillMaxWidth().height(67.dp)
-            .shadow(8.dp, shape, ambientColor = Color(0x16315C7D), spotColor = Color(0x30315C7D))
-            .background(Color.White, shape),
+        Modifier.padding(start = 16.dp, end = 16.dp, bottom = 20.dp).fillMaxWidth().height(84.dp)
+            .shadow(12.dp, shape, ambientColor = Color(0x47282814), spotColor = Color(0x47282814))
+            .background(Color.White, shape).border(1.dp, Color(0xFFE3E8EF), shape).padding(horizontal=8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        DockButton("Tape", selectedTab == "map", onMap, listOf("M12 6C9 4 6 4 3 5v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1v14"), 24f, 1.7f, .68f,
-            extra = listOf("M6 8c1-.2 2 0 3 .5m-3 3c1-.2 2 0 3 .5m6-3.5c1-.5 2-.7 3-.5m-3 4c1-.5 2-.7 3-.5") to 1.3f)
+        DockButton("Tape", selectedTab == "map", onMap, listOf("M12 6.8C10 5.2 7 4.6 3.5 5v13.2c3.5-.4 6.5.2 8.5 1.8 2-1.6 5-2.2 8.5-1.8V5C17 4.6 14 5.2 12 6.8Z", "M12 6.8V20", "M6.5 9c1.4 0 2.6.3 3.5.8 M6.5 12.2c1.4 0 2.6.3 3.5.8 M17.5 9c-1.4 0-2.6.3-3.5.8"), 24f, 2f, 1f)
         DockButton("Tutor", selectedTab == "tutor", onTutor, listOf(
-            "M8 7h8a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4v-5a4 4 0 0 1 4-4Z", "M12 7V3m-3 13h6",
-            "M13 3a1 1 0 1 1-2 0a1 1 0 1 1 2 0Z", "M9.5 12a1 1 0 1 1-2 0a1 1 0 1 1 2 0Z", "M16.5 12a1 1 0 1 1-2 0a1 1 0 1 1 2 0Z",
-        ), 24f, 1.8f, .65f)
-        DockButton("Perfil", selectedTab == "profile", onProfile, listOf(
-            "M14 3 24.6 7.2 14 11.4 3.4 7.2Z", "M8.6 9.4v2.9q5.4 1.8 10.8 0V9.4", "M24.6 7.2v4.6", "M8.8 12.8a5.2 5.2 0 0 0 10.4 0", "M5.4 25.4c.8-3.6 4.2-5.6 8.6-5.6s7.8 2 8.6 5.6",
-        ), 28f, 1.7f, .72f)
+            "M12 5v2.5", "M4.5 7.5h15v12h-15Z", "M2.5 12v3.5 M21.5 12v3.5", "M10.2 16.4c1 .7 2.6.7 3.6 0",
+        ), 24f, 2f, 1f)
+        Column(Modifier.weight(1f).fillMaxSize().clip(RoundedCornerShape(20.dp)).clickable(onClick=onProfile).clearAndSetSemantics {
+            contentDescription="Perfil";role=Role.Button;selected=selectedTab=="profile";onClick("Perfil") { onProfile();true }
+        },horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center) {
+            Box(Modifier.size(36.dp).border(3.dp,if(selectedTab=="profile") Color(0xFF2D63D6) else Color(0xFFD5DBE4),CircleShape)
+                .padding(3.dp),contentAlignment=Alignment.Center) { AvatarView(look,30.dp) }
+            Text("Perfil",color=if(selectedTab=="profile") Color(0xFF2D63D6) else Color(0xFF6B7890),
+                fontFamily=Nunito,fontSize=13.sp,fontWeight=if(selectedTab=="profile") FontWeight.Black else FontWeight.ExtraBold)
+        }
     }
 }
 
@@ -1131,7 +1182,7 @@ private fun androidx.compose.foundation.layout.RowScope.DockButton(
     label: String, selected: Boolean, onClick: () -> Unit, paths: List<String>, viewBox: Float, strokeWidth: Float, iconFraction: Float,
     extra: Pair<List<String>, Float>? = null,
 ) {
-    val color = if (selected) Color(0xFF69A4ED) else Color(0xFF9BB2D0)
+    val color = if (selected) Color(0xFF2D63D6) else Color(0xFF8A96AB)
     Column(
         Modifier.weight(1f).fillMaxSize().clip(RoundedCornerShape(20.dp)).clickable(onClick = onClick).clearAndSetSemantics {
             contentDescription = label; role = Role.Button
@@ -1141,11 +1192,35 @@ private fun androidx.compose.foundation.layout.RowScope.DockButton(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Box(Modifier.size(39.dp), contentAlignment = Alignment.Center) {
-            val iconSize = 39.dp * iconFraction
-            SvgIcon(paths, viewBox, color, strokeWidth, Modifier.size(iconSize))
-            if (extra != null) SvgIcon(extra.first, viewBox, color, extra.second, Modifier.size(iconSize))
+        Box(Modifier.size(36.dp), contentAlignment = Alignment.Center) {
+            DockVisual(label,color)
         }
-        Text(label, color = color, fontSize = 10.sp, fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal)
+        Text(label, color = if(selected) Color(0xFF2D63D6) else Color(0xFF6B7890),fontFamily=Nunito,
+            fontSize = 13.sp, fontWeight = if (selected) FontWeight.Black else FontWeight.ExtraBold)
+    }
+}
+
+@Composable
+private fun DockVisual(label:String,color:Color) {
+    Canvas(Modifier.size(30.dp)) {
+        val u=size.width/24f
+        fun path(d:String)=PathParser().parsePathString(d).toPath()
+        withTransform({ scale(u,u,pivot=androidx.compose.ui.geometry.Offset.Zero) }) {
+            val fill=Color(0xFFEEF1F6)
+            val line=Stroke(width=2f,cap=StrokeCap.Round,join=StrokeJoin.Round)
+            if(label=="Tape") {
+                val book=path("M12 6.8C10 5.2 7 4.6 3.5 5v13.2c3.5-.4 6.5.2 8.5 1.8 2-1.6 5-2.2 8.5-1.8V5C17 4.6 14 5.2 12 6.8Z")
+                drawPath(book,fill);drawPath(book,color,style=line)
+                drawPath(path("M12 6.8V20 M6.5 9c1.4 0 2.6.3 3.5.8 M6.5 12.2c1.4 0 2.6.3 3.5.8 M17.5 9c-1.4 0-2.6.3-3.5.8"),color,style=line)
+            } else {
+                drawCircle(color,1.4f,androidx.compose.ui.geometry.Offset(12f,3.6f))
+                drawPath(path("M12 5v2.5 M2.5 12v3.5 M21.5 12v3.5"),color,style=line)
+                drawRoundRect(fill,topLeft=androidx.compose.ui.geometry.Offset(4.5f,7.5f),size=androidx.compose.ui.geometry.Size(15f,12f),cornerRadius=androidx.compose.ui.geometry.CornerRadius(5.5f))
+                drawRoundRect(color,topLeft=androidx.compose.ui.geometry.Offset(4.5f,7.5f),size=androidx.compose.ui.geometry.Size(15f,12f),cornerRadius=androidx.compose.ui.geometry.CornerRadius(5.5f),style=line)
+                drawCircle(color,1.5f,androidx.compose.ui.geometry.Offset(9.3f,13f))
+                drawCircle(color,1.5f,androidx.compose.ui.geometry.Offset(14.7f,13f))
+                drawPath(path("M10.2 16.4c1 .7 2.6.7 3.6 0"),color,style=line)
+            }
+        }
     }
 }
